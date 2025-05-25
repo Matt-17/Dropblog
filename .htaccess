@@ -1,0 +1,26 @@
+# ── Grundlegendes ───────────────────────────────
+Options -Indexes
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # 1) Existierende Dateien/Verzeichnisse direkt ausliefern
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # 2) Verzeichnisse/Dateien, die mit "_" beginnen, sperren
+  RewriteRule ^_ - [F,L]
+
+  # 3) Admin: /admin/foo → /admin/foo.php
+  RewriteRule ^admin/([^/]+)/?$ admin/$1.php [L,QSA]
+
+  # 4) Post: /post/ABCDEFGH → index.php?site=post&id=ABCDEFGH
+  RewriteRule ^post/([A-Za-z0-9]{8})/?$ index.php?site=post&id=$1 [L,QSA]
+
+  # 5) Monats-Archiv: /YYYY/MM → index.php?site=month&year=YYYY&month=MM
+  RewriteRule ^([0-9]{4})/([0-9]{2})/?$ index.php?site=month&year=$1&month=$2 [L,QSA]
+
+  # 6) Alles andere → Front-Controller
+  RewriteRule ^.*$ index.php [L,QSA]
+</IfModule>

@@ -1,0 +1,153 @@
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    color: #333;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #eee;
+}
+
+.content {
+    flex: 1;
+}
+
+.post {
+    margin-bottom: 40px;
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.post:last-child {
+    margin-bottom: 0;
+}
+
+.avatar-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background-color: #eee;
+    border-radius: 50%;
+    color: #666;
+    text-decoration: none;
+    font-size: 24px;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.avatar-link:hover {
+    background-color: #ddd;
+    color: #333;
+}
+
+.post-content {
+    flex: 1;
+    border: 1px solid #ddd;
+    padding: 20px;
+    background-color: white;
+    border-radius: 4px;
+}
+
+.post-content p {
+    margin: 0;
+    padding: 0;
+}
+
+.post-date {
+    color: #666;
+    font-size: 0.9em;
+    margin-bottom: 15px;
+}
+
+.no-posts {
+    text-align: center;
+    color: #666;
+    padding: 40px 0;
+}
+
+.footer {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+    text-align: center;
+    color: #666;
+}
+
+.footer a {
+    color: #0066cc;
+    text-decoration: none;
+    margin: 0 10px;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}
+
+.current-month {
+    font-weight: bold;
+}
+
+h1 {
+    font-size: 2em;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.powered-by {
+    font-size: 0.8em;
+    color: #999;
+    margin-top: 10px;
+}
+
+.post-navigation {
+    margin-top: 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0;
+    border-top: 1px solid #eee;
+}
+
+.post-navigation a {
+    color: #0066cc;
+    text-decoration: none;
+    max-width: 45%;
+}
+
+.post-navigation a:hover {
+    text-decoration: underline;
+}
+
+.prev-post {
+    text-align: left;
+}
+
+.next-post {
+    text-align: right;
+}
+
+.post-group {
+    margin-bottom: 40px;
+}
+
+.post-date-header {
+    font-size: 1.2em;
+    color: #666;
+    margin: 20px 0;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #eee;
+}
+
+.post-group .post {
+    margin-bottom: 20px;
+}
+
+.post-group .post:last-child {
+    margin-bottom: 0;
+} 

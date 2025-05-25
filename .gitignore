@@ -1,0 +1,19 @@
+# Generated config file
+_config/config.php
+
+# IDE files
+.vs/
+.idea/
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log 
+
+# Composer
+composer.lock
+vendor/
+

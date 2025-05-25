@@ -1,0 +1,11 @@
+{
+  "autoload": {
+    "psr-4": {
+      "PainBlog\\": "src/"
+    }
+  },
+  "require": {
+    "erusev/parsedown": "^1.7",
+    "hashids/hashids": "^4.1"
+  }
+}
