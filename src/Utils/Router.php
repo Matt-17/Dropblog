@@ -1,23 +1,27 @@
 <?php
 namespace PainBlog\Utils;
 
+
 class Route {
-    public string $method;
-    public string $pattern;
-    public callable $handler;
-    public bool $isApi;
+    /** @var string */
+    public $method;
+    /** @var string */
+    public $pattern;
+    /** @var callable */
+    public $handler;
+    /** @var bool */
+    public $isApi;
 
     public function __construct(string $method, string $pattern, callable $handler, bool $isApi = false) {
-        $this->method   = $method;
-        $this->pattern  = '#^' . $pattern . '$#';
-        $this->handler  = $handler;
-        $this->isApi    = $isApi;
+        $this->method  = $method;
+        $this->pattern = '#^' . $pattern . '$#';
+        $this->handler = $handler;
+        $this->isApi   = $isApi;
     }
 
     public function matches(string $path, string $method, array &$params): bool {
         if ($this->method !== $method) return false;
         if (!preg_match($this->pattern, $path, $m)) return false;
-        // Parameter-Namen aus (?P<name>…)
         foreach ($m as $key => $val) {
             if (is_string($key)) $params[$key] = $val;
         }
