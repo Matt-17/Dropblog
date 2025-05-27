@@ -35,7 +35,7 @@ class PostController implements ControllerInterface
 
     public function show(string $hash): array
     {
-        error_log("PostController::show called with hash: " . $hash);
+        print("PostController::show called with hash: " . $hash);
         $id = HashIdHelper::decode($hash);
         error_log("Decoded ID: " . ($id ? $id : 'null'));
         $post = $id ? PostUtils::getPostById($this->pdo, $id) : null;

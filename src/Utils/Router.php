@@ -10,12 +10,15 @@ class Route {
     public $handler;
     /** @var bool */
     public $isApi;
+    /** @var int */
+    public $priority;
 
-    public function __construct(string $method, string $pattern, callable $handler, bool $isApi = false) {
+    public function __construct(string $method, string $pattern, callable $handler, bool $isApi = false, int $priority = 0) {
         $this->method  = $method;
         $this->pattern = '#^' . $pattern . '$#';
         $this->handler = $handler;
         $this->isApi   = $isApi;
+        $this->priority = $priority;
     }
 
     public function matches(string $path, string $method, array &$params): bool {
@@ -45,21 +48,25 @@ class Router {
     }
 
     public function add(string $method, string $pattern, callable $handler, bool $isApi = false): void {
-        $this->routes[] = new Route($method, $pattern, $handler, $isApi);
-    }
-
-    public function addLast(string $method, string $pattern, callable $handler, bool $isApi = false): void {
-        // Remove any existing catch-all routes
-        $this->routes = array_filter($this->routes, function($route) {
-            return $route->pattern !== '#^.*$#';
+        // Calculate priority based on pattern
+        $priority = 0;
+        if ($pattern === '.*') {
+            $priority = -1; // Lowest priority for catch-all
+        } else if (strpos($pattern, '?P<') !== false) {
+            $priority = 1; // Higher priority for named capture groups
+        }
+        
+        $this->routes[] = new Route($method, $pattern, $handler, $isApi, $priority);
+        
+        // Sort routes by priority (highest first)
+        usort($this->routes, function($a, $b) {
+            return $b->priority - $a->priority;
         });
-        // Add the new route at the end
-        $this->routes[] = new Route($method, $pattern, $handler, $isApi);
     }
 
     public function dispatch(string $path): array {
         $method = $_SERVER['REQUEST_METHOD'];
-                
+        
         // Check if we have query string parameters that match our routes
         if (isset($_GET['site']) && isset($_GET['id']) && $_GET['site'] === 'post') {
             $path = 'post/' . $_GET['id'];
@@ -83,24 +90,14 @@ class Router {
         
         if ($method === 'GET') {
             return [
-                'view' => 'Shared/404.php',
-                'vars' => [
-                    'debug' => $debug,
-                    'pageTitle' => '404 – Eintrag nicht gefunden'
-                ],
+                'view' => $this->default404,
+                'vars' => [],
                 'status' => 404
             ];
         }
         return [
             'view' => 'Shared/json.php',
-            'vars' => [
-                'data' => [
-                    'success' => false,
-                    'message' => 'Not found',
-                    'code' => 404,
-                    'debug' => $debug
-                ]
-            ],
+            'vars' => ['data' => ['success'=>false,'message'=>'Not found','code'=>404]],
             'status' => 404
         ];
     }
