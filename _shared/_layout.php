@@ -1,10 +1,22 @@
 <?php
-// Prüfe ob alle erforderlichen Daten vorhanden sind
-if (!defined('BLOG_TITLE') || !isset($currentYear) || !isset($currentMonth) || !isset($content)) {
+use PainBlog\Config;
+
+if (!defined('BLOG_TITLE')) {
+    define('BLOG_TITLE', Config::BLOG_TITLE);
+}
+
+if (!isset($currentYear)) {
+    $currentYear = date('Y');
+}
+
+if (!isset($currentMonth)) {
+    $currentMonth = date('n');
+}
+
+if (!isset($content)) {
     throw new RuntimeException('Fehlende Daten');
 }
 
-// Hole Monatsnamen
 $monthNames = get_month_names();
 ?>
 <!DOCTYPE html>
@@ -22,17 +34,14 @@ $monthNames = get_month_names();
     <div class="content">
         <?php include $content; ?>
     </div>
-
     <footer class="footer">
         <?php
         $prev = get_previous_month($currentMonth, $currentYear);
         ?>
         <a href="/<?= $prev['year'] ?>/<?= sprintf('%02d', $prev['month']) ?>">← <?= htmlspecialchars($monthNames[$prev['month']]) ?></a>        
         •
-
         <a href="/<?= $currentYear ?>/<?= sprintf('%02d', $currentMonth) ?>" class="current-month"><?= htmlspecialchars($monthNames[$currentMonth]) ?> <?= $currentYear ?></a>        
         •
-
         <?php
         $next = get_next_month($currentMonth, $currentYear);
         if (!is_future_month($next['month'], $next['year'])):
@@ -40,10 +49,8 @@ $monthNames = get_month_names();
             <a href="/<?= $next['year'] ?>/<?= sprintf('%02d', $next['month']) ?>"><?= htmlspecialchars($monthNames[$next['month']]) ?> →</a>     
             •
         <?php endif; ?>
-
         <a href="/">Startseite</a>
-
         <div class="powered-by">Powered by <?= htmlspecialchars(BLOG_TITLE) ?></div>
     </footer>
 </body>
-</html> 
+</html>
