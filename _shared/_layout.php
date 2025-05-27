@@ -27,22 +27,19 @@ $monthNames = get_month_names();
         <?php
         $prev = get_previous_month($currentMonth, $currentYear);
         ?>
-        <a href="/<?= $prev['year'] ?>/<?= sprintf('%02d', $prev['month']) ?>">← <?= htmlspecialchars($monthNames[$prev['month']]) ?></a>
-        
+        <a href="/<?= $prev['year'] ?>/<?= sprintf('%02d', $prev['month']) ?>">← <?= htmlspecialchars($monthNames[$prev['month']]) ?></a>        
         •
 
-        <a href="/<?= $currentYear ?>/<?= sprintf('%02d', $currentMonth) ?>" class="current-month"><?= htmlspecialchars($monthNames[$currentMonth]) ?> <?= $currentYear ?></a>
-        
+        <a href="/<?= $currentYear ?>/<?= sprintf('%02d', $currentMonth) ?>" class="current-month"><?= htmlspecialchars($monthNames[$currentMonth]) ?> <?= $currentYear ?></a>        
         •
 
         <?php
         $next = get_next_month($currentMonth, $currentYear);
         if (!is_future_month($next['month'], $next['year'])):
         ?>
-            <a href="/<?= $next['year'] ?>/<?= sprintf('%02d', $next['month']) ?>"><?= htmlspecialchars($monthNames[$next['month']]) ?> →</a>
+            <a href="/<?= $next['year'] ?>/<?= sprintf('%02d', $next['month']) ?>"><?= htmlspecialchars($monthNames[$next['month']]) ?> →</a>     
+            •
         <?php endif; ?>
-
-        •
 
         <a href="/">Startseite</a>
 

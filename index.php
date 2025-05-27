@@ -5,8 +5,12 @@ error_reporting(E_ALL);
 
 require_once __DIR__ . '/vendor/autoload.php';    
 use PainBlog\Utils\HashIdHelper;
+use PainBlog\Utils\Database;
+use PainBlog\Config;
 
-require_once '_config/config.php';
+Config::init();  // Setzt Zeitzone, Error Reporting, etc.
+$pdo = Database::getConnection();  // Holt PDO-Verbindung
+
 require_once '_config/functions.php';
 
 // URL-Pfad extrahieren
