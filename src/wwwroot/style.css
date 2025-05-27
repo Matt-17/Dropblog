@@ -49,11 +49,10 @@ body {
 .post-content {
     flex: 1;
     border: 1px solid #ddd;
-    border-radius: 15px;
     padding: 10px;
     background-color: white;
-    border-radius: 4px;
-    font-size: 0.8rem;
+    font-size: 0.9rem;
+    border-radius: 16px;
 }
 
 .post-content p {

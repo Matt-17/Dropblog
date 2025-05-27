@@ -24,7 +24,7 @@ class Config
     public const TIMEZONE = 'Europe/Berlin';
     
     // Datums-Format
-    public const DATE_FORMAT = 'd.m.Y';
+    public const DATE_FORMAT = 'd. m Y';
     
     // Initialisiere allgemeine Einstellungen (z.B. Zeitzone, Error Reporting)
     public static function init(): void

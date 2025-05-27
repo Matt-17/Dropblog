@@ -2,11 +2,15 @@
 /**
  * @var \PainBlog\Models\Post $post
  */
+use PainBlog\Models\Post;
 use PainBlog\Utils\HashIdHelper;
 ?>
+
 <article class="post">
-    <a href="/post/<?= HashIdHelper::encode($post->id) ?>" class="avatar-link">•</a>
+    <a href="/post/<?= HashIdHelper::encode($post->id) ?>" class="avatar-link">
+        <img src="/avatar.png" alt="Avatar" class="avatar">
+    </a>
     <div class="post-content">
-        <?= $post->getFormattedExcerpt() ?>
+        <?= $post->getFormattedContent() ?>
     </div>
 </article> 

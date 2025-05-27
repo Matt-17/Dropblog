@@ -1,15 +1,29 @@
 <?php
 namespace PainBlog\Utils;
 
+use DateTime;
+use PainBlog\Config;
+
 class DateUtils
 {
+    private static array $monthNames = [
+        1 => 'Januar',
+        2 => 'Februar',
+        3 => 'März',
+        4 => 'April',
+        5 => 'Mai',
+        6 => 'Juni',
+        7 => 'Juli',
+        8 => 'August',
+        9 => 'September',
+        10 => 'Oktober',
+        11 => 'November',
+        12 => 'Dezember'
+    ];
+
     public static function getMonthNames(): array
     {
-        return [
-            1 => 'Januar', 2 => 'Februar', 3 => 'März', 4 => 'April',
-            5 => 'Mai', 6 => 'Juni', 7 => 'Juli', 8 => 'August',
-            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Dezember'
-        ];
+        return self::$monthNames;
     }
 
     public static function getPreviousMonth(int $month, int $year): array
@@ -41,9 +55,10 @@ class DateUtils
         return $year > $currentYear || ($year == $currentYear && $month > $currentMonth);
     }
 
-    public static function formatDate(string $date): string
+    public static function formatDate(DateTime $date): string
     {
-        $timestamp = strtotime($date);
-        return date('d.', $timestamp) . ' ' . self::getMonthNames()[date('n', $timestamp)] . ' ' . date('Y', $timestamp);
+        $formatted = $date->format(Config::DATE_FORMAT);
+        $month = (int)$date->format('n');
+        return str_replace($date->format('F'), self::$monthNames[$month], $formatted);
     }
 }

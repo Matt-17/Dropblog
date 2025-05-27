@@ -3,6 +3,7 @@ namespace PainBlog\Models;
 
 use DateTime;
 use PainBlog\Config;
+use PainBlog\Utils\DateUtils;
 
 class PostGroup
 {
@@ -17,7 +18,7 @@ class PostGroup
 
     public function getFormattedDate(): string
     {
-        return $this->date->format(Config::DATE_FORMAT);
+        return DateUtils::formatDate($this->date);
     }
 
     public function addPost(Post $post): void
