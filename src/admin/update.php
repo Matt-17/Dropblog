@@ -42,7 +42,7 @@ if ($api_key !== ADMIN_API_KEY) {
     exit;
 }
 
-$migrationsDir = __DIR__ . '/../_migrations';
+$migrationsDir = __DIR__ . '/../Migrations';
 
 // Stelle sicher, dass die migrations-Tabelle existiert
 $pdo->exec("CREATE TABLE IF NOT EXISTS migrations (

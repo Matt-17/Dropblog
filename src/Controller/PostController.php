@@ -1,4 +1,5 @@
 <?php
+// src/Controller/PostController.php
 namespace PainBlog\Controller;
 
 use PainBlog\Utils\HashIdHelper;
@@ -7,30 +8,34 @@ use PainBlog\Utils\Router;
 
 class PostController implements ControllerInterface
 {
-    private \PDO $pdo;
-
-    public function __construct(\PDO $pdo) { $this->pdo = $pdo; }
-
     public static function register(Router $router): void
     {
-        // Registriere die Route "post/{hash}"
         $router->add('post', function(string $hash) use ($router) {
-            // ID dekodieren und Daten holen
+            $pdo  = $router->getPdo();
             $id   = HashIdHelper::decode($hash);
-            $post = $id ? PostUtils::getPostById($router->getPdo(), $id) : null;
+            $post = $id ? PostUtils::getPostById($pdo, $id) : null;
 
             if (!$post) {
                 http_response_code(404);
-                return ['view' => '_content/404.php', 'vars' => []];
+                // $pageTitle könntest du hier setzen, wird in 404.php genutzt
+                return [
+                    'view' => '_shared/404.php',
+                    'vars' => ['pageTitle' => '404 – Eintrag nicht gefunden'],
+                ];
             }
 
-            return ['view' => '_content/post.php', 'vars' => ['post' => $post]];
+            $groupedPosts = PostUtils::groupPostsByDate([$post]);
+
+            return [
+                'view' => '_shared/post_group.php',
+                'vars' => [
+                    'groupedPosts' => $groupedPosts,
+                    'emptyMessage' => '',
+                    'currentYear'  => (int)$post['date'][0-3], // wenn Datum parsen nötig
+                    'currentMonth' => (int)substr($post['date'],5,2),
+                ],
+            ];
         });
     }
-
-    public function handle(array $segments): array
-    {
-        // bleibt leer, weil wir im Closure rendern
-        return [];
-    }
+    public function handle(array $s): array { return []; }
 }
