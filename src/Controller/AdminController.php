@@ -17,8 +17,8 @@ class AdminController implements ControllerInterface
 
     public static function register(Router $router): void
     {
-        $controller = new self();
-        $router->add('admin/update', [$controller, 'handleUpdate']);
+        $controller = new self();                                       
+        $router->add('POST', 'admin/update', [$controller, 'handleUpdate'], true);
     }
 
     public static function isApi(): bool

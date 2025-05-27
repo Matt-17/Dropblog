@@ -7,5 +7,4 @@ interface ControllerInterface
 {
     public static function register(Router $router): void;
     public static function isApi(): bool;
-    public function handle(array $segments): array;
 }

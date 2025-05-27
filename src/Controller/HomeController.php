@@ -4,24 +4,32 @@ namespace PainBlog\Controller;
 
 use PainBlog\Utils\PostUtils;
 use PainBlog\Utils\Router;
+use PainBlog\Controller\ControllerInterface;
 
 class HomeController implements ControllerInterface
 {
     public static function register(Router $router): void
     {
-        $router->add('', function() use ($router) {
-            $pdo           = $router->getPdo();
-            $posts         = PostUtils::getPostsOfLastWeek($pdo);
-            $groupedPosts  = PostUtils::groupPostsByDate($posts);
-
-            return [
-                'view' => 'Components/PostList.php',
-                'vars' => [
-                    'groupedPosts' => $groupedPosts,
-                    'emptyMessage' => 'Noch keine Posts vorhanden.',
-                ],
-            ];
-        });
+        $controller = new self();
+        $router->add(
+            'GET',
+            '',
+            [$controller, 'index']
+        );
     }
-    public function handle(array $s): array { return []; }
+
+    public function index(): array
+    {
+        $pdo           = Router::getPdo(); // oder $this->pdo, je nach Umsetzung
+        $posts         = PostUtils::getPostsOfLastWeek($pdo);
+        $groupedPosts  = PostUtils::groupPostsByDate($posts);
+
+        return [
+            'view' => 'Components/PostList.php',
+            'vars' => [
+                'groupedPosts' => $groupedPosts,
+                'emptyMessage' => 'Noch keine Posts vorhanden.',
+            ],
+        ];
+    }
 }
