@@ -22,20 +22,6 @@ jobs:
         working-directory: src  
         run: composer install --no-dev --optimize-autoloader
 
-      # ─────────────────────────────────────────────────────────────────
-      # 1) Generiere die Konfig unter src/_config
-      - name: Create _config/config.php    
-        working-directory: src  
-        run: |
-          sed \
-            -e "s/{{DB_HOST}}/${{ vars.DB_HOST }}/g" \
-            -e "s/{{DB_NAME}}/${{ vars.DB_NAME }}/g" \
-            -e "s/{{DB_USER}}/${{ secrets.DB_USER }}/g" \
-            -e "s/{{DB_PASS}}/${{ secrets.DB_PASS }}/g" \
-            -e "s/{{ADMIN_API_KEY}}/${{ secrets.ADMIN_API_KEY }}/g" \
-            -e "s/{{BLOG_TITLE}}/${{ vars.BLOG_TITLE }}/g" \
-            _config/config.template.php > _config/config.php
-
       # (falls ihr weiterhin eine src/Config.template.php nutzt)
       - name: Create src/Config.php   
         working-directory: src  
