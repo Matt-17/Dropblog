@@ -39,7 +39,6 @@ class PostController implements ControllerInterface
         $post = $id ? PostUtils::getPostById($this->pdo, $id) : null;
 
         if (!$post) {
-            http_response_code(404);
             return [
                 'view' => 'Shared/404.php',
                 'vars' => ['pageTitle' => '404 – Eintrag nicht gefunden'],

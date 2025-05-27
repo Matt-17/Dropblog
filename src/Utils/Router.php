@@ -57,13 +57,18 @@ class Router {
                 return $route->isApi ? $result : $result;
             }
         }
-        http_response_code(404);
+        
         if ($method === 'GET') {
-            return ['view' => $this->default404, 'vars' => []];
+            return [
+                'view' => $this->default404,
+                'vars' => [],
+                'status' => 404
+            ];
         }
         return [
             'view' => 'Shared/json.php',
-            'vars' => ['data' => ['success'=>false,'message'=>'Not found','code'=>404]]
+            'vars' => ['data' => ['success'=>false,'message'=>'Not found','code'=>404]],
+            'status' => 404
         ];
     }
 
