@@ -1,5 +1,9 @@
 # ── Grundlegendes ───────────────────────────────
 Options -Indexes
+
+# Pass Authorization header
+SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
+
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
