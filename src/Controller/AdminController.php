@@ -92,7 +92,8 @@ class AdminController implements ControllerInterface
     {
         return [
             'view' => 'Shared/json.php',
-            'vars' => ['data' => $data]
+            'vars' => ['data' => $data],
+            'status' => $data['code'] ?? 200
         ];
     }
 } 

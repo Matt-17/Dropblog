@@ -54,7 +54,13 @@ class Router {
             $params = [];
             if ($route->matches($path, $method, $params)) {
                 $result = call_user_func_array($route->handler, $params);
-                return $route->isApi ? $result : $result;
+                if ($route->isApi) {
+                    // For API routes, ensure we have the correct structure
+                    if (!isset($result['vars']['data'])) {
+                        $result['vars']['data'] = $result['vars'] ?? [];
+                    }
+                }
+                return $result;
             }
         }
         
