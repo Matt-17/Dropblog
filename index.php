@@ -30,33 +30,25 @@ $router->setDefault404('_content/404.php');
 
 // Startseite
 $router->add('', fn() => '_content/home.php');
+      
+// Monats-Archiv (Year, Month als Parameter)
+$router->add('month', function(string $year, string $month) use (&$currentYear, &$currentMonth) {
+    $currentYear  = (int)$year;
+    $currentMonth = (int)$month;
+    return '_content/month.php';
+}); 
 
-// Monat
-$router->add('month', function() {
-    if (isset($_GET['year'], $_GET['month'])) {
-        return '_content/month.php';
+// Einzelpost (Hash-ID als Parameter)
+$router->add('post', function(string $hash) use ($pdo) {
+    $id   = HashIdHelper::decode($hash);
+    $post = get_post_by_id($pdo, $id);
+    if ($post) {
+        $GLOBALS['post'] = $post;
+        return '_content/post.php';
     }
     http_response_code(404);
     return '_content/404.php';
 });
-
-// Post-Route
-$router->add('post', function($path) use ($pdo) {
-    // Hole die ID aus dem Path, z.B. 'post/o72yl5njhi'
-    $parts = explode('/', $path);
-    $hashId = $parts[1] ?? null;
-    if ($hashId) {
-        $id = HashIdHelper::decode($hashId);
-        $post = get_post_by_id($pdo, $id);
-        if ($post) {
-            $GLOBALS['post'] = $post;
-            return '_content/post.php';
-        }
-    }
-    http_response_code(404);
-    return '_content/404.php';
-});
-
 
 // Dispatch der Route
 $path = trim(parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH), '/');
