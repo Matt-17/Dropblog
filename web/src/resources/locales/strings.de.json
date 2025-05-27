@@ -1,0 +1,47 @@
+{
+  "common": {
+    "search": "Suche",
+    "search_placeholder": "Suche...",
+    "search_button": "Suchen",
+    "home": "Startseite",
+    "powered_by": "Powered by {title}",
+    "no_results": "Keine Ergebnisse gefunden",
+    "loading": "Lädt...",
+    "enter_search_term": "Bitte geben Sie einen Suchbegriff ein."
+  },
+  "navigation": {
+    "previous_month": "Vorheriger Monat",
+    "next_month": "Nächster Monat",
+    "current_month": "Aktueller Monat"
+  },
+  "messages": {
+    "no_posts_month": "Keine Posts für diesen Monat vorhanden.",
+    "no_search_results": "Keine Posts gefunden für",
+    "view_not_found": "View-Datei nicht gefunden",
+    "missing_view": "Fehlende View-Datei",
+    "page_not_found": "Seite nicht gefunden"
+  },
+  "months": {
+    "january": "Januar",
+    "february": "Februar",
+    "march": "März",
+    "april": "April",
+    "may": "Mai",
+    "june": "Juni",
+    "july": "Juli",
+    "august": "August",
+    "september": "September",
+    "october": "Oktober",
+    "november": "November",
+    "december": "Dezember"
+  },
+  "admin": {
+    "login": "Anmelden",
+    "logout": "Abmelden",
+    "create_post": "Post erstellen",
+    "edit_post": "Post bearbeiten",
+    "delete_post": "Post löschen",
+    "save": "Speichern",
+    "cancel": "Abbrechen"
+  }
+} 

@@ -1,0 +1,38 @@
+# ── Grundlegendes ───────────────────────────────
+Options -Indexes
+
+# Pass Authorization header
+SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # 1) Existierende Dateien/Verzeichnisse direkt ausliefern
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # 2) Virtual post-types directory: /post-types/filename → post-types.php
+  RewriteRule ^post-types/([^/]+)$ post-types.php [L,QSA]
+
+  # 3) Verzeichnisse/Dateien, die mit "_" beginnen, sperren
+  RewriteRule ^_ - [F,L]
+
+  # 4) Admin API: /admin/foo → index.php?site=admin&action=foo
+  RewriteRule ^admin/([^/]+)/?$ index.php?site=admin&action=$1 [L,QSA]
+
+  # 5) Post: /post/ABCDEFGH → index.php?site=post&id=ABCDEFGH
+  RewriteRule ^post/([A-Za-z0-9]{8})/?$ index.php?site=post&id=$1 [L,QSA]
+
+  # 6) Monats-Archiv: /YYYY/MM → index.php?site=month&year=YYYY&month=MM
+  RewriteRule ^([0-9]{4})/([0-9]{2})/?$ index.php?site=month&year=$1&month=$2 [L,QSA]
+
+  # 7) Alles andere → Front-Controller
+  RewriteRule ^.*$ index.php [L,QSA]
+</IfModule>
+
+# Cache-Control für Assets
+<FilesMatch "\.(ico|pdf|jpg|jpeg|png|gif|webp|svg|css|js)$">
+    Header set Cache-Control "max-age=31536000, public"
+</FilesMatch>
