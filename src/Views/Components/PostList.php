@@ -12,7 +12,7 @@ use DateTime;
     <?php foreach ($groupedPosts as $group): ?>
         <div class="post-group">
             <h3 class="post-date-header"><?= $group->getFormattedDate() ?></h3>
-            <?php foreach ($group->posts as $post): ?>
+            <?php foreach ($group->getPosts() as $post): ?>
                 <?php include VIEWS_PATH . '/Components/PostCard.php'; ?>
             <?php endforeach; ?>
         </div>

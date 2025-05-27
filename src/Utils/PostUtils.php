@@ -71,12 +71,9 @@ class PostUtils
         foreach ($posts as $post) {
             $dateKey = $post->date->format('Y-m-d');
             if (!isset($grouped[$dateKey])) {
-                $grouped[$dateKey] = new PostGroup(
-                    date: $post->date,
-                    posts: []
-                );
+                $grouped[$dateKey] = new PostGroup(date: $post->date);
             }
-            $grouped[$dateKey]->posts[] = $post;
+            $grouped[$dateKey]->addPost($post);
         }
         return array_values($grouped);
     }
