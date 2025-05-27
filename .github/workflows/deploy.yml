@@ -11,6 +11,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+  
+      - name: Restore file modification times
+        uses: crazy-max/ghaction-git-restore-mtime@v1.1
 
       - name: Set up PHP and Composer
         uses: shivammathur/setup-php@v2
