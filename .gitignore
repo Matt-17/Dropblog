@@ -1,5 +1,5 @@
 # Generated config file
-_config/config.php
+src/_config/config.php
 
 # IDE files
 .vs/

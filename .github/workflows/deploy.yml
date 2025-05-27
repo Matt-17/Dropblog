@@ -18,12 +18,14 @@ jobs:
           php-version: '8.2'
           tools: composer
 
-      - name: Install PHP dependencies
+      - name: Install PHP dependencies   
+        working-directory: src  
         run: composer install --no-dev --optimize-autoloader
 
       # ─────────────────────────────────────────────────────────────────
       # 1) Generiere die Konfig unter src/_config
-      - name: Create _config/config.php
+      - name: Create _config/config.php    
+        working-directory: src  
         run: |
           sed \
             -e "s/{{DB_HOST}}/${{ vars.DB_HOST }}/g" \
@@ -32,10 +34,11 @@ jobs:
             -e "s/{{DB_PASS}}/${{ secrets.DB_PASS }}/g" \
             -e "s/{{ADMIN_API_KEY}}/${{ secrets.ADMIN_API_KEY }}/g" \
             -e "s/{{BLOG_TITLE}}/${{ vars.BLOG_TITLE }}/g" \
-            src/_config/config.template.php > src/_config/config.php
+            _config/config.template.php > _config/config.php
 
       # (falls ihr weiterhin eine src/Config.template.php nutzt)
-      - name: Create src/Config.php
+      - name: Create src/Config.php   
+        working-directory: src  
         run: |
           sed \
             -e "s/{{DB_HOST}}/${{ vars.DB_HOST }}/g" \
@@ -44,10 +47,24 @@ jobs:
             -e "s/{{DB_PASS}}/${{ secrets.DB_PASS }}/g" \
             -e "s/{{ADMIN_API_KEY}}/${{ secrets.ADMIN_API_KEY }}/g" \
             -e "s/{{BLOG_TITLE}}/${{ vars.BLOG_TITLE }}/g" \
-            src/Config.template.php > src/Config.php
+            Config.template.php > Config.php
 
-      # ─────────────────────────────────────────────────────────────────
-      # 2) Deployment per SFTP – wir kopieren nur den Inhalt von src/wwwroot in den Web-Root
+         # ────────────────────────────────────────────────────────────────
+      # 2) Prepare publish directory (copy src → publish, excluding templates etc.)
+      - name: Prepare publish directory
+        run: |
+          rm -rf publish
+          mkdir -p publish
+          rsync -a \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='README' \
+            --exclude='LICENSE' \
+            --exclude='src/_config/config.template.php' \
+            ./src/ ./publish/
+
+      # ────────────────────────────────────────────────────────────────
+      # 3) Deployment per SFTP – jetzt aus publish/wwwroot in dein Web-Root
       - name: Deploy to Strato via SFTP
         uses: wangyucode/sftp-upload-action@v2.0.4
         with:
@@ -55,17 +72,11 @@ jobs:
           port: ${{ vars.FTP_PORT }}
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASS }}
-          localDir: src/wwwroot         # Web-Root-Ordner
-          remoteDir: ${{ vars.FTP_REMOTE_DIR }}
-          exclude: |
-            .git
-            .github
-            README
-            LICENSE
-            ../src/_config/config.template.php
+          localDir: ./publish
+          remoteDir: ${{ vars.FTP_REMOTE_DIR }}       
 
       # ─────────────────────────────────────────────────────────────────
-      # 3) Trigger des Update-Skripts
+      # 4) Trigger des Update-Skripts
       - name: Trigger Update Script
         run: |
           curl -fsS -X POST \
