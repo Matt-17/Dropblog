@@ -5,29 +5,34 @@ namespace PainBlog\Controller;
 use PainBlog\Utils\PostUtils;
 use PainBlog\Utils\Router;
 use PainBlog\Controller\ControllerInterface;
+use PDO;
 
 class HomeController implements ControllerInterface
 {
+    private PDO $pdo;
+
+    public function __construct(PDO $pdo)
+    {
+        $this->pdo = $pdo;
+    }
+
     public static function register(Router $router): void
     {
-        $controller = new self();
+        // Instanz erstellen und PDO übergeben
+        $controller = new self($router->getPdo());
+
         $router->add(
             'GET',
-            '',
+            '',               // Pattern für "/"
             [$controller, 'index']
         );
-    }  
-
-    public static function isApi(): bool
-    {
-        return false;
     }
 
     public function index(): array
     {
-        $pdo           = Router::getPdo(); // oder $this->pdo, je nach Umsetzung
-        $posts         = PostUtils::getPostsOfLastWeek($pdo);
-        $groupedPosts  = PostUtils::groupPostsByDate($posts);
+        // jetzt hier $this->pdo nutzen
+        $posts        = PostUtils::getPostsOfLastWeek($this->pdo);
+        $groupedPosts = PostUtils::groupPostsByDate($posts);
 
         return [
             'view' => 'Components/PostList.php',
