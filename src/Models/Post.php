@@ -1,7 +1,9 @@
 <?php
 namespace PainBlog\Models;
 
+use PainBlog\Config;
 use Parsedown;
+use DateTime;
 
 class Post
 {
@@ -47,5 +49,11 @@ class Post
             self::$parsedown->setSafeMode(true);
         }
         return self::$parsedown->text($this->excerpt);
+    }
+
+    public function getFormattedDate(): string
+    {
+        $date = new DateTime($this->date);
+        return $date->format(Config::DATE_FORMAT);
     }
 } 

@@ -30,8 +30,8 @@ class PostController implements ControllerInterface
                 'vars' => [
                     'groupedPosts' => $groupedPosts,
                     'emptyMessage' => '',
-                    'currentYear'  => (int)substr($post['date'], 0, 4),
-                    'currentMonth' => (int)substr($post['date'], 5, 2),
+                    'currentYear'  => (int)substr($post->date, 0, 4),
+                    'currentMonth' => (int)substr($post->date, 5, 2),
                 ],
             ];
         });
