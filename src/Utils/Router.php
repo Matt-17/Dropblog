@@ -1,7 +1,6 @@
 <?php
 namespace PainBlog\Utils;
 
-
 class Route {
     /** @var string */
     public $method;
@@ -30,13 +29,19 @@ class Route {
 }
 
 class Router {
-    private \PDO $pdo;
+    /** @var \PDO */
+    public $pdo;
     /** @var Route[] */
-    private array $routes = [];
-    private string $default404 = 'Shared/404.php';
+    private $routes = [];
+    /** @var string */
+    private $default404 = 'Shared/404.php';
 
     public function __construct(\PDO $pdo) {
         $this->pdo = $pdo;
+    }
+
+    public function getPdo(): \PDO {
+        return $this->pdo;
     }
 
     public function add(string $method, string $pattern, callable $handler, bool $isApi = false): void {
@@ -49,17 +54,16 @@ class Router {
             $params = [];
             if ($route->matches($path, $method, $params)) {
                 $result = call_user_func_array($route->handler, $params);
-                if ($route->isApi) return $result;
-                return $result;
+                return $route->isApi ? $result : $result;
             }
         }
         http_response_code(404);
-        if ($method==='GET') {
-            return ['view'=>$this->default404,'vars'=>[]];
+        if ($method === 'GET') {
+            return ['view' => $this->default404, 'vars' => []];
         }
         return [
-            'view'=>'Shared/json.php',
-            'vars'=>['data'=>['success'=>false,'message'=>'Not found','code'=>404]]
+            'view' => 'Shared/json.php',
+            'vars' => ['data' => ['success'=>false,'message'=>'Not found','code'=>404]]
         ];
     }
 
