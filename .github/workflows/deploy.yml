@@ -53,7 +53,6 @@ jobs:
       # 2) Prepare publish directory (copy src → publish, excluding templates etc.)
       - name: Prepare publish directory
         run: |
-          rm -rf publish
           mkdir -p publish
           rsync -a \
             --exclude='.git' \

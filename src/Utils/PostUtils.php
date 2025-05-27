@@ -3,6 +3,7 @@ namespace PainBlog\Utils;
 
 use PDO;
 use DateTime;
+use PainBlog\Models\Post;
 
 class PostUtils
 {
@@ -10,7 +11,7 @@ class PostUtils
      * Liefert alle Posts seit dem letzten Montag 00:00 bis jetzt
      *
      * @param PDO $pdo
-     * @return array Array von Posts mit ['id','content','date']
+     * @return Post[]
      */
     public static function getPostsOfLastWeek(PDO $pdo): array
     {
@@ -29,7 +30,7 @@ class PostUtils
             ORDER BY created_at DESC
         ");
         $stmt->execute([ $monday->format('Y-m-d H:i:s') ]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return array_map(fn($row) => Post::fromArray($row), $stmt->fetchAll(PDO::FETCH_ASSOC));
     }
 
     /**
@@ -38,7 +39,7 @@ class PostUtils
      * @param PDO $pdo
      * @param int $year
      * @param int $month
-     * @return array Array von Posts mit ['id','content','date']
+     * @return Post[]
      */
     public static function getPostsByMonth(PDO $pdo, int $year, int $month): array
     {
@@ -54,20 +55,20 @@ class PostUtils
             ORDER BY created_at DESC
         ");
         $stmt->execute([ $year, $month ]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return array_map(fn($row) => Post::fromArray($row), $stmt->fetchAll(PDO::FETCH_ASSOC));
     }
 
     /**
      * Gruppiert ein flaches Posts-Array nach dem Datum
      *
-     * @param array $posts Array aus getPostsOfLastWeek oder getPostsByMonth
-     * @return array Assoziatives Array ['YYYY-MM-DD' => [post1, post2, ...], ...]
+     * @param Post[] $posts
+     * @return array<string, Post[]>
      */
     public static function groupPostsByDate(array $posts): array
     {
         $grouped = [];
         foreach ($posts as $post) {
-            $date = $post['date'];
+            $date = $post->date;
             if (!isset($grouped[$date])) {
                 $grouped[$date] = [];
             }
@@ -76,8 +77,12 @@ class PostUtils
         return $grouped;
     }
 
-    // Bestehende Methoden beibehalten:
-    public static function getPostById(PDO $pdo, int $id): ?array
+    /**
+     * @param PDO $pdo
+     * @param int $id
+     * @return Post|null
+     */
+    public static function getPostById(PDO $pdo, int $id): ?Post
     {
         $stmt = $pdo->prepare("
             SELECT id, content, DATE_FORMAT(created_at, '%Y-%m-%d') as date
@@ -86,7 +91,8 @@ class PostUtils
             LIMIT 1
         ");
         $stmt->execute([$id]);
-        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+        $data = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $data ? Post::fromArray($data) : null;
     }
 
     public static function idToUrl(int $id): string
