@@ -3,6 +3,7 @@ namespace PainBlog\Controller;
 
 use PainBlog\Config;
 use PainBlog\Utils\Database;
+use PainBlog\Utils\Router;
 use PDO;
 
 class AdminController
