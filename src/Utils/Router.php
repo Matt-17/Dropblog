@@ -59,32 +59,17 @@ class Router {
 
     public function dispatch(string $path): array {
         $method = $_SERVER['REQUEST_METHOD'];
-        
-        $debug = [];
-        $debug[] = "Original path: " . $path;
-        $debug[] = "Query string: " . print_r($_GET, true);
-        
+                
         // Check if we have query string parameters that match our routes
         if (isset($_GET['site']) && isset($_GET['id']) && $_GET['site'] === 'post') {
             $path = 'post/' . $_GET['id'];
-            $debug[] = "Reconstructed path for post: " . $path;
         } elseif (isset($_GET['site']) && isset($_GET['year']) && isset($_GET['month']) && $_GET['site'] === 'month') {
             $path = $_GET['year'] . '/' . $_GET['month'];
-            $debug[] = "Reconstructed path for month: " . $path;
         }
-
-        $debug[] = "Available routes: " . print_r(array_map(function($route) {
-            return [
-                'method' => $route->method,
-                'pattern' => $route->pattern
-            ];
-        }, $this->routes), true);
 
         foreach ($this->routes as $route) {
             $params = [];
-            $debug[] = "Trying to match route: " . $route->pattern;
             if ($route->matches($path, $method, $params)) {
-                $debug[] = "Route matched! Params: " . print_r($params, true);
                 $result = call_user_func_array($route->handler, $params);
                 if ($route->isApi) {
                     // For API routes, ensure we have the correct structure
@@ -96,7 +81,6 @@ class Router {
             }
         }
         
-        $debug[] = "No route matched, returning 404";
         if ($method === 'GET') {
             return [
                 'view' => 'Shared/404.php',
