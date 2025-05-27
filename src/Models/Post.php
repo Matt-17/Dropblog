@@ -1,8 +1,12 @@
 <?php
 namespace PainBlog\Models;
 
+use Parsedown;
+
 class Post
 {
+    private static ?Parsedown $parsedown = null;
+
     public function __construct(
         public readonly int $id,
         public readonly string $content,
@@ -25,5 +29,23 @@ class Post
         // Take first paragraph or first 200 chars as excerpt
         $firstParagraph = strtok($content, "\n\n");
         return mb_substr($firstParagraph, 0, 200);
+    }
+
+    public function getFormattedContent(): string
+    {
+        if (self::$parsedown === null) {
+            self::$parsedown = new Parsedown();
+            self::$parsedown->setSafeMode(true);
+        }
+        return self::$parsedown->text($this->content);
+    }
+
+    public function getFormattedExcerpt(): string
+    {
+        if (self::$parsedown === null) {
+            self::$parsedown = new Parsedown();
+            self::$parsedown->setSafeMode(true);
+        }
+        return self::$parsedown->text($this->excerpt);
     }
 } 
