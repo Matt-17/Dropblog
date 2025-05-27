@@ -6,7 +6,7 @@ use PainBlog\Utils\Database;
 use PainBlog\Utils\Router;
 use PDO;
 
-class AdminController
+class AdminController implements ControllerInterface
 {
     private PDO $pdo;
 
@@ -19,6 +19,11 @@ class AdminController
     {
         $controller = new self();
         $router->add('admin/update', [$controller, 'handleUpdate']);
+    }
+
+    public static function isApi(): bool
+    {
+        return true;
     }
 
     public function handleUpdate(): array

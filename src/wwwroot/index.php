@@ -23,6 +23,13 @@ foreach (glob(__DIR__.'/../Controller/*Controller.php') as $file) {
 $path     = trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
 $response = $router->dispatch($path);
 
+// Check if this is an API route
+$controllerClass = 'PainBlog\\Controller\\' . ucfirst(explode('/', $path)[0]) . 'Controller';
+if (class_exists($controllerClass) && is_callable([$controllerClass, 'isApi']) && $controllerClass::isApi()) {
+    require __DIR__ . '/../Views/' . $response['view'];
+    exit;
+}
+
 // Variablen für View
 extract($response['vars'], EXTR_OVERWRITE);
 $content = $response['view'];
