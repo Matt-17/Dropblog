@@ -4,6 +4,7 @@ namespace PainBlog\Utils;
 use PDO;
 use DateTime;
 use PainBlog\Models\Post;
+use PainBlog\Models\PostGroup;
 
 class PostUtils
 {
@@ -23,7 +24,7 @@ class PostUtils
             SELECT 
                 id,
                 content,
-                DATE_FORMAT(created_at, '%Y-%m-%d') as date
+                created_at as date
             FROM posts
             WHERE created_at >= ?
               AND created_at <= NOW()
@@ -47,7 +48,7 @@ class PostUtils
             SELECT 
                 id,
                 content,
-                DATE_FORMAT(created_at, '%Y-%m-%d') as date
+                created_at as date
             FROM posts
             WHERE YEAR(created_at) = ?
               AND MONTH(created_at) = ?
@@ -62,19 +63,22 @@ class PostUtils
      * Gruppiert ein flaches Posts-Array nach dem Datum
      *
      * @param Post[] $posts
-     * @return array<string, Post[]>
+     * @return PostGroup[]
      */
     public static function groupPostsByDate(array $posts): array
     {
         $grouped = [];
         foreach ($posts as $post) {
-            $date = $post->date;
-            if (!isset($grouped[$date])) {
-                $grouped[$date] = [];
+            $dateKey = $post->date->format('Y-m-d');
+            if (!isset($grouped[$dateKey])) {
+                $grouped[$dateKey] = new PostGroup(
+                    date: $post->date,
+                    posts: []
+                );
             }
-            $grouped[$date][] = $post;
+            $grouped[$dateKey]->posts[] = $post;
         }
-        return $grouped;
+        return array_values($grouped);
     }
 
     /**
@@ -85,7 +89,10 @@ class PostUtils
     public static function getPostById(PDO $pdo, int $id): ?Post
     {
         $stmt = $pdo->prepare("
-            SELECT id, content, DATE_FORMAT(created_at, '%Y-%m-%d') as date
+            SELECT 
+                id, 
+                content, 
+                created_at as date
             FROM posts 
             WHERE id = ? AND created_at <= NOW()
             LIMIT 1

@@ -1,16 +1,18 @@
 <?php
 /**
- * @var array $groupedPosts
+ * @var \PainBlog\Models\PostGroup[] $groupedPosts
  * @var string $emptyMessage
  */
+use PainBlog\Config;
+use DateTime;
 ?>
 <?php if (empty($groupedPosts)): ?>
     <div class="no-posts"><?= htmlspecialchars($emptyMessage) ?></div>
 <?php else: ?>
-    <?php foreach ($groupedPosts as $date => $posts): ?>
+    <?php foreach ($groupedPosts as $group): ?>
         <div class="post-group">
-            <h3 class="post-date-header"><?= htmlspecialchars($date) ?></h3>
-            <?php foreach ($posts as $post): ?>
+            <h3 class="post-date-header"><?= $group->getFormattedDate() ?></h3>
+            <?php foreach ($group->posts as $post): ?>
                 <?php include VIEWS_PATH . '/Components/PostCard.php'; ?>
             <?php endforeach; ?>
         </div>

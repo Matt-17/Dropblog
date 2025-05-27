@@ -12,16 +12,19 @@ class Post
     public function __construct(
         public readonly int $id,
         public readonly string $content,
-        public readonly string $date,
+        public readonly DateTime $date,
         public readonly string $excerpt
     ) {}
 
     public static function fromArray(array $data): self
     {
+        $date = new DateTime($data['date']);
+        $date->setTimezone(new \DateTimeZone(Config::TIMEZONE));
+
         return new self(
             id: (int)$data['id'],
             content: $data['content'],
-            date: $data['date'],
+            date: $date,
             excerpt: $data['excerpt'] ?? self::generateExcerpt($data['content'])
         );
     }
@@ -53,7 +56,16 @@ class Post
 
     public function getFormattedDate(): string
     {
-        $date = new DateTime($this->date);
-        return $date->format(Config::DATE_FORMAT);
+        return $this->date->format(Config::DATE_FORMAT);
+    }
+
+    public function getYear(): int
+    {
+        return (int)$this->date->format('Y');
+    }
+
+    public function getMonth(): int
+    {
+        return (int)$this->date->format('m');
     }
 } 
