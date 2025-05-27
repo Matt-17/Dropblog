@@ -12,8 +12,8 @@ Options -Indexes
   # 2) Verzeichnisse/Dateien, die mit "_" beginnen, sperren
   RewriteRule ^_ - [F,L]
 
-  # 3) Admin: /admin/foo → /admin/foo.php
-  RewriteRule ^admin/([^/]+)/?$ admin/$1.php [L,QSA]
+  # 3) Admin API: /admin/foo → index.php?site=admin&action=foo
+  RewriteRule ^admin/([^/]+)/?$ index.php?site=admin&action=$1 [L,QSA]
 
   # 4) Post: /post/ABCDEFGH → index.php?site=post&id=ABCDEFGH
   RewriteRule ^post/([A-Za-z0-9]{8})/?$ index.php?site=post&id=$1 [L,QSA]

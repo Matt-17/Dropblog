@@ -1,8 +1,0 @@
-# Erlaube Authorization Header
-SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
-
-# Nur POST-Requests erlauben
-<LimitExcept POST>
-    Order deny,allow
-    Deny from all
-</LimitExcept> 
