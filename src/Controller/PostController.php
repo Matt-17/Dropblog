@@ -23,7 +23,7 @@ class PostController implements ControllerInterface
         $controller = new self();
         $router->add(
             'GET',
-            'post',
+            'post/(?P<hash>[A-Za-z0-9]{8})',
             [$controller, 'show']
         );
     } 
