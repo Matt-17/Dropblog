@@ -14,8 +14,13 @@ class Router
     public function dispatch(string $path): string
     {
         foreach ($this->routes as $route => $handler) {
+            // Exakte Übereinstimmung
             if ($route === $path) {
                 return $handler();
+            }
+            // Prüfe auf Prefix-Matching, z.B. 'post' für 'post/{id}'
+            if (strpos($path, $route . '/') === 0) {
+                return $handler($path);
             }
         }
 

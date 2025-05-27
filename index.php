@@ -41,18 +41,22 @@ $router->add('month', function() {
 });
 
 // Post-Route
-$router->add('post', function() use ($pdo) {
-    if (!empty($_GET['id'])) {
-        $id = HashIdHelper::decode($_GET['id']);
+$router->add('post', function($path) use ($pdo) {
+    // Hole die ID aus dem Path, z.B. 'post/o72yl5njhi'
+    $parts = explode('/', $path);
+    $hashId = $parts[1] ?? null;
+    if ($hashId) {
+        $id = HashIdHelper::decode($hashId);
         $post = get_post_by_id($pdo, $id);
-        if ($post) {                                                                        
-            $GLOBALS['post'] = $post; // <- Hier wird $post global gesetzt
+        if ($post) {
+            $GLOBALS['post'] = $post;
             return '_content/post.php';
         }
     }
     http_response_code(404);
     return '_content/404.php';
 });
+
 
 // Dispatch der Route
 $path = trim(parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH), '/');
