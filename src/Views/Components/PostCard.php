@@ -8,7 +8,7 @@ use PainBlog\Utils\HashIdHelper;
 
 <article class="post">
     <a href="/post/<?= HashIdHelper::encode($post->id) ?>" class="avatar-link">
-        <img src="/avatar.png" alt="Avatar" class="avatar">
+        <img src="/assets/images/avatar.png" alt="Avatar" class="avatar">
     </a>
     <div class="post-content">
         <?= $post->getFormattedContent() ?>

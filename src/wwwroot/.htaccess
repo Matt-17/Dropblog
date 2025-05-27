@@ -24,3 +24,8 @@ Options -Indexes
   # 6) Alles andere → Front-Controller
   RewriteRule ^.*$ index.php [L,QSA]
 </IfModule>
+
+# Cache-Control für Assets
+<FilesMatch "\.(ico|pdf|jpg|jpeg|png|gif|webp|svg|css|js)$">
+    Header set Cache-Control "max-age=31536000, public"
+</FilesMatch>
