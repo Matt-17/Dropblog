@@ -45,8 +45,8 @@ $router->add('post', function() use ($pdo) {
     if (!empty($_GET['id'])) {
         $id = HashIdHelper::decode($_GET['id']);
         $post = get_post_by_id($pdo, $id);
-        if ($post) {
-            // Optional: $GLOBALS['post'] = $post; // falls du es global brauchst
+        if ($post) {                                                                        
+            $GLOBALS['post'] = $post; // <- Hier wird $post global gesetzt
             return '_content/post.php';
         }
     }
