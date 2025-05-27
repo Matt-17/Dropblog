@@ -48,6 +48,15 @@ class Router {
         $this->routes[] = new Route($method, $pattern, $handler, $isApi);
     }
 
+    public function addLast(string $method, string $pattern, callable $handler, bool $isApi = false): void {
+        // Remove any existing catch-all routes
+        $this->routes = array_filter($this->routes, function($route) {
+            return $route->pattern !== '#^.*$#';
+        });
+        // Add the new route at the end
+        $this->routes[] = new Route($method, $pattern, $handler, $isApi);
+    }
+
     public function dispatch(string $path): array {
         $method = $_SERVER['REQUEST_METHOD'];
         

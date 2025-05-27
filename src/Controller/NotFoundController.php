@@ -13,7 +13,7 @@ class NotFoundController implements ControllerInterface
 
         $controller = new self();
         // Ganz am Ende: alle GET-Requests, die sonst kein Match hatten
-        $router->add(
+        $router->addLast(
             'GET',
             '.*',
             [$controller, 'handle']
