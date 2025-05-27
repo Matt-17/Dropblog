@@ -1,6 +1,7 @@
 <?php
 namespace PainBlog\Utils;
-
+                 
+use PainBlog\Config;
 use Hashids\Hashids;
 
 class HashIdHelper {
@@ -8,7 +9,7 @@ class HashIdHelper {
 
     private static function getHashids(): Hashids {
         if (self::$hashids === null) {
-            self::$hashids = new Hashids(HASHIDS_SALT, 8, '0123456789abcdefghijklmnopqrstuvwxyz'); 
+            self::$hashids = new Hashids(Config::HASHIDS_SALT, 8, '0123456789abcdefghijklmnopqrstuvwxyz'); 
         }
         return self::$hashids;
     }

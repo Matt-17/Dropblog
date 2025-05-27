@@ -1,23 +1,13 @@
 <?php
-// Hole die neuesten Posts
-$stmt = $pdo->query("
-    SELECT p.*, DATE_FORMAT(p.created_at, '%Y-%m-%d') as date
-    FROM posts p
-    WHERE p.created_at <= NOW()
-    ORDER BY p.created_at DESC
-    LIMIT 10
-");
-$posts = $stmt->fetchAll();
+use PainBlog\Utils\PostUtils;
 
-// Gruppiere Posts nach Datum
-$groupedPosts = [];
-foreach ($posts as $post) {
-    $date = $post['date'];
-    if (!isset($groupedPosts[$date])) {
-        $groupedPosts[$date] = [];
-    }
-    $groupedPosts[$date][] = $post;
-}
+// Hole die 10 neuesten Posts
+$where = "created_at <= NOW()";
+$params = [];
+$groupedPosts = PostUtils::getGroupedPosts($GLOBALS['pdo'], $where, $params);
+
+// Optional: Limit auf 10 neueste (je nach SQL kannst du auch den Query anpassen)
+$groupedPosts = array_slice($groupedPosts, 0, 10);
 
 $emptyMessage = 'Noch keine Posts vorhanden.';
-include '_shared/post_group.php'; 
+include '_shared/post_group.php';
