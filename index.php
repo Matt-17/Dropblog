@@ -14,8 +14,15 @@ use PainBlog\Utils\DateUtils;
 use PainBlog\Utils\MarkdownUtils;
 
 // Initialisierung
-Config::init();
-$pdo = Database::getConnection();
+Config::init();                      
+define('BLOG_TITLE', Config::BLOG_TITLE); // Damit _layout.php die Konstante kennt
+
+// Datenbankverbindung
+$pdo = Database::getConnection();     
+
+// Setze Jahr/Monat Defaults (kann durch $_GET überschrieben werden)
+$currentYear = isset($_GET['year']) ? (int)$_GET['year'] : date('Y');
+$currentMonth = isset($_GET['month']) ? (int)$_GET['month'] : date('n');
 
 // Router erstellen
 $router = new Router();
