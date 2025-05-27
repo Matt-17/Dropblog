@@ -26,6 +26,11 @@ class HomeController implements ControllerInterface
             '',               // Pattern für "/"
             [$controller, 'index']
         );
+    }     
+
+    public static function isApi(): bool
+    {
+        return false;
     }
 
     public function index(): array

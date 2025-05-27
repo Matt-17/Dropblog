@@ -25,7 +25,7 @@ class NotFoundController implements ControllerInterface
         return false;
     }
 
-    public function handle(array $segments): array
+    public function handle(array $segments = []): array
     {
         http_response_code(404);
         return [
