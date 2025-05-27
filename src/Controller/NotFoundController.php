@@ -9,11 +9,12 @@ class NotFoundController implements ControllerInterface
     public static function register(Router $router): void
     {
         // Default-404-View
-        $router->setDefault404('_shared/404.php');
+        $router->setDefault404('Shared/404.php');
+
+        $router->add('404', function() {
+            http_response_code(404);
+            return ['view' => 'Shared/404.php', 'vars' => []];
+        });
     }
-    public function handle(array $s): array
-    {
-        http_response_code(404);
-        return ['view' => '_shared/404.php', 'vars' => []];
-    }
+    public function handle(array $s): array { return []; }
 }

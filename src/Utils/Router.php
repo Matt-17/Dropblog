@@ -5,7 +5,7 @@ class Router
 {
     private \PDO $pdo;
     private array $routes = [];
-    private string $default404 = '_content/404.php';
+    private string $default404 = 'Shared/404.php';
 
     public function __construct(\PDO $pdo)
     {

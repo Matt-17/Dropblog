@@ -16,7 +16,7 @@ class MonthController implements ControllerInterface
             $groupedPosts  = PostUtils::groupPostsByDate($posts);
 
             return [
-                'view' => '_shared/post_group.php',
+                'view' => 'Components/PostList.php',
                 'vars' => [
                     'groupedPosts'  => $groupedPosts,
                     'emptyMessage'  => 'Keine Posts für diesen Monat vorhanden.',

@@ -17,9 +17,8 @@ class PostController implements ControllerInterface
 
             if (!$post) {
                 http_response_code(404);
-                // $pageTitle könntest du hier setzen, wird in 404.php genutzt
                 return [
-                    'view' => '_shared/404.php',
+                    'view' => 'Shared/404.php',
                     'vars' => ['pageTitle' => '404 – Eintrag nicht gefunden'],
                 ];
             }
@@ -27,12 +26,12 @@ class PostController implements ControllerInterface
             $groupedPosts = PostUtils::groupPostsByDate([$post]);
 
             return [
-                'view' => '_shared/post_group.php',
+                'view' => 'Components/PostList.php',
                 'vars' => [
                     'groupedPosts' => $groupedPosts,
                     'emptyMessage' => '',
-                    'currentYear'  => (int)$post['date'][0-3], // wenn Datum parsen nötig
-                    'currentMonth' => (int)substr($post['date'],5,2),
+                    'currentYear'  => (int)substr($post['date'], 0, 4),
+                    'currentMonth' => (int)substr($post['date'], 5, 2),
                 ],
             ];
         });

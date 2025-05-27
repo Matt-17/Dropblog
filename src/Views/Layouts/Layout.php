@@ -2,6 +2,9 @@
 use PainBlog\Config;
 use PainBlog\Utils\DateUtils;
 
+// Define the views directory path
+define('VIEWS_PATH', __DIR__ . '/..');
+
 // Titel direkt aus Config
 $title = Config::BLOG_TITLE;
 
@@ -33,7 +36,13 @@ $next       = DateUtils::getNextMonth($currentMonth, $currentYear);
   </header>
 
   <div class="content">
-    <?php include $content; ?>
+    <?php 
+    $viewPath = VIEWS_PATH . '/' . ltrim($content, '/');
+    if (!file_exists($viewPath)) {
+        throw new \RuntimeException("View file not found: {$viewPath}");
+    }
+    include $viewPath; 
+    ?>
   </div>
 
   <footer class="footer">
@@ -53,4 +62,4 @@ $next       = DateUtils::getNextMonth($currentMonth, $currentYear);
     <div class="powered-by">Powered by <?= htmlspecialchars($title) ?></div>
   </footer>
 </body>
-</html>
+</html> 
