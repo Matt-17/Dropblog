@@ -26,6 +26,11 @@ class PostController implements ControllerInterface
             'post/(?P<hash>[A-Za-z0-9]{8})',
             [$controller, 'show']
         );
+    } 
+
+    public static function isApi(): bool
+    {
+        return false;
     }
 
     public function show(string $hash): array

@@ -15,6 +15,11 @@ class MonthController implements ControllerInterface
     public function __construct()
     {
         $this->pdo = Database::getConnection();
+    }  
+
+    public static function isApi(): bool
+    {
+        return false;
     }
 
     public static function register(Router $router): void

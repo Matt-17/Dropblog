@@ -18,14 +18,10 @@ class NotFoundController implements ControllerInterface
             '.*',
             [$controller, 'handle']
         );
-    }
+    } 
 
-    public function handle(array $segments): array
+    public static function isApi(): bool
     {
-        http_response_code(404);
-        return [
-            'view' => 'Shared/404.php',
-            'vars' => []
-        ];
+        return false;
     }
 }
