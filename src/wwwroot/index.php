@@ -31,11 +31,15 @@ if (isset($response['status'])) {
 // Check if this is an API route
 $controllerClass = 'PainBlog\\Controller\\' . ucfirst(explode('/', $path)[0]) . 'Controller';
 if (class_exists($controllerClass) && is_callable([$controllerClass, 'isApi']) && $controllerClass::isApi()) {
+    // For API routes, extract vars before including the view
+    if (isset($response['vars'])) {
+        extract($response['vars'], EXTR_OVERWRITE);
+    }
     require __DIR__ . '/../Views/' . $response['view'];
     exit;
 }
 
-// Variablen für View
+// For non-API routes, extract vars and include layout
 extract($response['vars'], EXTR_OVERWRITE);
 $content = $response['view'];
 
