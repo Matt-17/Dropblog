@@ -23,19 +23,31 @@ class AdminController
 
     public function handleUpdate(): array
     {
-        // Check for admin token
-        $token = $_GET['token'] ?? '';
-        if ($token !== Config::ADMIN_TOKEN) {
+        // Check request method
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            return ['view' => 'Shared/error.php', 'vars' => [
+                'message' => 'Method not allowed',
+                'code' => 405
+            ]];
+        }
+
+        // Verify API key
+        $auth_header = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['http_authorization'] ?? '';
+        if (empty($auth_header) || !preg_match('/^Bearer\s+(.+)$/i', $auth_header, $matches)) {
             http_response_code(401);
-            return [
-                'view' => 'Shared/error.php',
-                'vars' => [
-                    'error' => [
-                        'code' => 401,
-                        'message' => 'Unauthorized'
-                    ]
-                ]
-            ];
+            return ['view' => 'Shared/error.php', 'vars' => [
+                'message' => 'Unauthorized',
+                'code' => 401
+            ]];
+        }
+
+        if ($matches[1] !== Config::ADMIN_API_KEY) {
+            http_response_code(403);
+            return ['view' => 'Shared/error.php', 'vars' => [
+                'message' => 'Forbidden',
+                'code' => 403
+            ]];
         }
 
         // Run migrations
