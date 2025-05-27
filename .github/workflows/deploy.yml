@@ -65,6 +65,47 @@ jobs:
       # 4) Trigger des Update-Skripts
       - name: Trigger Update Script
         run: |
-          curl -fsS -X POST \
+          echo "Triggering database update..."
+          
+          # Make the request and capture both response and HTTP code
+          response=$(curl -sS -X POST \
             -H "Authorization: Bearer ${{ secrets.ADMIN_API_KEY }}" \
-            "${{ vars.BLOG_URL }}/admin/update"
+            -H "Content-Type: application/json" \
+            -w "\n%{http_code}" \
+            "${{ vars.BLOG_URL }}/admin/update")
+          
+          # Split response and HTTP code
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | sed '$d')
+          
+          echo "HTTP Status: $http_code"
+          echo "Response: $body"
+          
+          # Check HTTP code
+          if [ "$http_code" -ne 200 ]; then
+            echo "Error: Update request failed with HTTP code $http_code"
+            exit 1
+          fi
+          
+          # Parse JSON response
+          if ! echo "$body" | jq -e . >/dev/null 2>&1; then
+            echo "Error: Invalid JSON response"
+            exit 1
+          fi
+          
+          # Check for success in response
+          if ! echo "$body" | jq -e '.success == true' >/dev/null 2>&1; then
+            error_msg=$(echo "$body" | jq -r '.message // "Unknown error"')
+            echo "Error: Update failed - $error_msg"
+            exit 1
+          fi
+          
+          # Check migration results
+          if echo "$body" | jq -e '.results | length > 0' >/dev/null 2>&1; then
+            echo "Applied migrations:"
+            echo "$body" | jq -r '.results[] | "  - \(.file): \(.status)"'
+          else
+            echo "No new migrations to apply"
+          fi
+          
+          echo "Update completed successfully"

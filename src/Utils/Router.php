@@ -35,6 +35,9 @@ class Router
             if ($key === 'month' && preg_match('#^([0-9]{4})/([0-9]{2})$#', $path, $m)) {
                 return $handler($m[1], $m[2]);
             }
+            if ($key === 'admin/update' && $path === 'admin/update') {
+                return $handler();
+            }
         }
         http_response_code(404);
         return ['view' => $this->default404, 'vars' => []];
