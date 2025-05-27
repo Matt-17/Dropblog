@@ -35,12 +35,9 @@ class PostController implements ControllerInterface
 
     public function show(string $hash): array
     {
-        print("PostController::show called with hash: " . $hash);
         $id = HashIdHelper::decode($hash);
-        error_log("Decoded ID: " . ($id ? $id : 'null'));
         $post = $id ? PostUtils::getPostById($this->pdo, $id) : null;
-        error_log("Post found: " . ($post ? 'yes' : 'no'));
-
+     
         if (!$post) {
             return [
                 'view' => 'Shared/404.php',
