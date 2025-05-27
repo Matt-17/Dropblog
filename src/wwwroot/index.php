@@ -11,7 +11,7 @@ $pdo    = Database::getConnection();
 $router = new Router($pdo);
 
 // Auto-register Controller-Klassen
-foreach (glob(__DIR__.'/../src/Controller/*Controller.php') as $file) {
+foreach (glob(__DIR__.'/../Controller/*Controller.php') as $file) {
     require_once $file;
     $class = 'PainBlog\\Controller\\'.basename($file, '.php');
     if (is_callable([$class,'register'])) {
@@ -28,4 +28,4 @@ extract($response['vars'], EXTR_OVERWRITE);
 $content = $response['view'];
 
 // Layout laden
-include __DIR__ . '/../src/Shared/Layout.php';
+include __DIR__ . '/../Views/Layouts/Layout.php';
