@@ -26,28 +26,31 @@ class AdminController
         // Check request method
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405);
-            return ['view' => 'Shared/error.php', 'vars' => [
+            return $this->jsonResponse([
+                'success' => false,
                 'message' => 'Method not allowed',
                 'code' => 405
-            ]];
+            ]);
         }
 
         // Verify API key
         $auth_header = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['http_authorization'] ?? '';
         if (empty($auth_header) || !preg_match('/^Bearer\s+(.+)$/i', $auth_header, $matches)) {
             http_response_code(401);
-            return ['view' => 'Shared/error.php', 'vars' => [
+            return $this->jsonResponse([
+                'success' => false,
                 'message' => 'Unauthorized',
                 'code' => 401
-            ]];
+            ]);
         }
 
         if ($matches[1] !== Config::ADMIN_API_KEY) {
             http_response_code(403);
-            return ['view' => 'Shared/error.php', 'vars' => [
+            return $this->jsonResponse([
+                'success' => false,
                 'message' => 'Forbidden',
                 'code' => 403
-            ]];
+            ]);
         }
 
         // Run migrations
@@ -64,25 +67,28 @@ class AdminController
                 $this->pdo->exec($sql);
                 $applied[] = $filename;
             } catch (\PDOException $e) {
-                return [
-                    'view' => 'Shared/error.php',
-                    'vars' => [
-                        'error' => [
-                            'code' => 500,
-                            'message' => 'Migration failed: ' . $e->getMessage()
-                        ]
-                    ]
-                ];
+                http_response_code(500);
+                return $this->jsonResponse([
+                    'success' => false,
+                    'message' => 'Migration failed: ' . $e->getMessage(),
+                    'code' => 500
+                ]);
             }
         }
 
+        return $this->jsonResponse([
+            'success' => true,
+            'message' => 'Migrations applied successfully',
+            'applied' => $applied
+        ]);
+    }
+
+    private function jsonResponse(array $data): array
+    {
         return [
-            'view' => 'Shared/error.php',
-            'vars' => [
-                'success' => true,
-                'message' => 'Migrations applied successfully',
-                'applied' => $applied
-            ]
+            'view' => 'Shared/json.php',
+            'vars' => ['data' => $data]
         ];
     }
+} 
 } 
