@@ -60,7 +60,7 @@ jobs:
             --exclude='.github' \
             --exclude='README' \
             --exclude='LICENSE' \
-            --exclude='src/_config/config.template.php' \
+            --exclude='Config.template.php' \
             ./src/ ./publish/
 
       # ────────────────────────────────────────────────────────────────
