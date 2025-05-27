@@ -60,6 +60,7 @@ jobs:
             --exclude='README' \
             --exclude='LICENSE' \
             --exclude='Config.template.php' \
+            --exclude='composer.*' \
             ./src/ ./publish/
 
       # ────────────────────────────────────────────────────────────────

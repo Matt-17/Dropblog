@@ -60,12 +60,6 @@ body {
     padding-bottom: 10px;
 }
 
-.post-date {
-    color: #666;
-    font-size: 0.9em;
-    margin-bottom: 15px;
-}
-
 .no-posts {
     text-align: center;
     color: #666;
@@ -104,33 +98,6 @@ h1 {
     font-size: 0.8em;
     color: #999;
     margin-top: 10px;
-}
-
-.post-navigation {
-    margin-top: 40px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 0;
-    border-top: 1px solid #eee;
-}
-
-.post-navigation a {
-    color: #0066cc;
-    text-decoration: none;
-    max-width: 45%;
-}
-
-.post-navigation a:hover {
-    text-decoration: underline;
-}
-
-.prev-post {
-    text-align: left;
-}
-
-.next-post {
-    text-align: right;
 }
 
 .post-group {

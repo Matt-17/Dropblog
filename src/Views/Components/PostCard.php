@@ -3,11 +3,9 @@
  * @var \PainBlog\Models\Post $post
  */
 ?>
-<article class="post-item">
-    <div class="post-meta">
-        <time datetime="<?= $post->date ?>"><?= $post->date ?></time>
-    </div>
-    <div class="post-excerpt">
-        <?= $post->excerpt ?>
+<article class="post">
+    <a href="/post/<?= $post->id ?>" class="avatar-link">📝</a>
+    <div class="post-content">
+        <p><?= $post->excerpt ?></p>
     </div>
 </article> 
