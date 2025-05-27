@@ -3,8 +3,6 @@
  * @var \PainBlog\Models\PostGroup[] $groupedPosts
  * @var string $emptyMessage
  */
-use PainBlog\Config;
-use DateTime;
 ?>
 <?php if (empty($groupedPosts)): ?>
     <div class="no-posts"><?= htmlspecialchars($emptyMessage) ?></div>

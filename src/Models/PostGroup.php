@@ -2,6 +2,7 @@
 namespace PainBlog\Models;
 
 use DateTime;
+use PainBlog\Config;
 
 class PostGroup
 {
