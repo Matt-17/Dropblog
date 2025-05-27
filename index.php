@@ -1,82 +1,72 @@
-<?php                              
+<?php
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-require_once __DIR__ . '/vendor/autoload.php';    
+require_once __DIR__ . '/vendor/autoload.php';
+
+use PainBlog\Config;
 use PainBlog\Utils\HashIdHelper;
 use PainBlog\Utils\Database;
-use PainBlog\Config;
+use PainBlog\Utils\Router;
+use PainBlog\Utils\PostUtils;
+use PainBlog\Utils\DateUtils;
+use PainBlog\Utils\MarkdownUtils;
 
-Config::init();  // Setzt Zeitzone, Error Reporting, etc.
-$pdo = Database::getConnection();  // Holt PDO-Verbindung
+// Initialisierung
+Config::init();
+$pdo = Database::getConnection();
 
-require_once '_config/functions.php';
+// Router erstellen
+$router = new Router();
+$router->setDefault404('_content/404.php');
 
-// URL-Pfad extrahieren
-$requestUri = $_SERVER['REQUEST_URI'] ?? '';
-$path = parse_url($requestUri, PHP_URL_PATH);
+// Startseite
+$router->add('', fn() => '_content/home.php');
 
-// Entferne führende und abschließende Slashes
-$path = trim($path, '/');
-
-// Setze Standardwerte
-$currentYear = date('Y');
-$currentMonth = date('n');
-
-// Routing
-if (isset($_GET['site'])) {
-    switch ($_GET['site']) {
-       
-        case 'post':
-            if (!empty($_GET['id'])) {
-                $url   = $_GET['id'];                                
-                $id = HashIdHelper::decode($url);
-                $post  = get_post_by_id($pdo, $id);
-
-                if (!$post) {
-                    header("HTTP/1.0 404 Not Found");
-                    $content = '_content/404.php';
-                } else {
-                    $content  = '_content/post.php';
-                }
-            } else {
-                header("HTTP/1.0 404 Not Found");
-                $content = '_content/404.php';
-            }
-            break;
-
-        case 'month':
-            if (isset($_GET['year']) && isset($_GET['month'])) {
-                $currentYear = (int)$_GET['year'];
-                $currentMonth = (int)$_GET['month'];
-                $content = '_content/month.php';
-            } else {
-                header("HTTP/1.0 404 Not Found");
-                $content = '_content/404.php';
-            }
-            break;
-
-        default:
-            header("HTTP/1.0 404 Not Found");
-            $content = '_content/404.php';
-
+// Monat
+$router->add('month', function() {
+    if (isset($_GET['year'], $_GET['month'])) {
+        return '_content/month.php';
     }
-} elseif (empty($path)) {
-    // Startseite
-    $content = '_content/home.php';
-} else {
-    // 404
-    header("HTTP/1.0 404 Not Found");
+    http_response_code(404);
+    return '_content/404.php';
+});
+
+// Post-Route
+$router->add('post', function() use ($pdo) {
+    if (!empty($_GET['id'])) {
+        $id = HashIdHelper::decode($_GET['id']);
+        $post = get_post_by_id($pdo, $id);
+        if ($post) {
+            // Optional: $GLOBALS['post'] = $post; // falls du es global brauchst
+            return '_content/post.php';
+        }
+    }
+    http_response_code(404);
+    return '_content/404.php';
+});
+
+// Dispatch der Route
+$path = trim(parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH), '/');
+$content = $router->dispatch($path);
+
+// Prüfen, ob Content-Datei existiert
+if (!file_exists($content)) {
+    http_response_code(404);
     $content = '_content/404.php';
 }
 
-// Prüfe ob die Content-Datei existiert
-if (!file_exists($content)) {
-    header("HTTP/1.0 404 Not Found");
-    $content = '_content/404.php';
-}
+// Globale Wrapper-Funktionen, damit alles weiterhin funktioniert
+function get_month_names() { return DateUtils::getMonthNames(); }
+function get_previous_month($month, $year) { return DateUtils::getPreviousMonth($month, $year); }
+function get_next_month($month, $year) { return DateUtils::getNextMonth($month, $year); }
+function is_future_month($month, $year) { return DateUtils::isFutureMonth($month, $year); }
+function format_date($date) { return DateUtils::formatDate($date); }
+function get_post_by_id($pdo, $id) { return PostUtils::getPostById($pdo, $id); }
+function get_grouped_posts($pdo, $where_clause, $params = []) { return PostUtils::getGroupedPosts($pdo, $where_clause, $params); }
+function id_to_url($id) { return PostUtils::idToUrl($id); }
+function markdown_to_html($markdown) { return MarkdownUtils::markdownToHtml($markdown); }
 
 // Layout einbinden
 include '_shared/_layout.php';
-?> 
