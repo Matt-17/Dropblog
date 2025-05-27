@@ -2,6 +2,9 @@
 use PainBlog\Config;
 use PainBlog\Utils\DateUtils;
 
+// Start output buffering
+ob_start();
+
 // Define the views directory path
 define('VIEWS_PATH', __DIR__ . '/..');
 
@@ -21,6 +24,22 @@ $currentMonth = $currentMonth ?? date('n');
 $monthNames = DateUtils::getMonthNames();
 $prev       = DateUtils::getPreviousMonth($currentMonth, $currentYear);
 $next       = DateUtils::getNextMonth($currentMonth, $currentYear);
+
+// Get the view content first
+$viewPath = VIEWS_PATH . '/' . ltrim($content, '/');
+if (!file_exists($viewPath)) {
+    throw new \RuntimeException("View file not found: {$viewPath}");
+}
+
+// Capture the view output
+ob_start();
+include $viewPath;
+$viewContent = ob_get_clean();
+
+// Now we can safely set response codes if needed
+if (isset($status)) {
+    http_response_code($status);
+}
 ?>
 <!DOCTYPE html>
 <html lang="de">
@@ -36,13 +55,7 @@ $next       = DateUtils::getNextMonth($currentMonth, $currentYear);
   </header>
 
   <div class="content">
-    <?php 
-    $viewPath = VIEWS_PATH . '/' . ltrim($content, '/');
-    if (!file_exists($viewPath)) {
-        throw new \RuntimeException("View file not found: {$viewPath}");
-    }
-    include $viewPath; 
-    ?>
+    <?= $viewContent ?>
   </div>
 
   <footer class="footer">
@@ -62,4 +75,7 @@ $next       = DateUtils::getNextMonth($currentMonth, $currentYear);
     <div class="powered-by">Powered by <?= htmlspecialchars($title) ?></div>
   </footer>
 </body>
-</html> 
+</html>
+<?php
+// End output buffering and send the content
+ob_end_flush(); 
