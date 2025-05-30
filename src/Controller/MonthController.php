@@ -1,11 +1,11 @@
 <?php
 // src/Controller/MonthController.php
-namespace PainBlog\Controller;
+namespace Dropblog\Controller;
 
-use PainBlog\Utils\PostUtils;
-use PainBlog\Utils\Database;
-use PainBlog\Utils\Router;
-use PainBlog\Controller\ControllerInterface;
+use Dropblog\Utils\PostUtils;
+use Dropblog\Utils\Database;
+use Dropblog\Utils\Router;
+use Dropblog\Controller\ControllerInterface;
 use PDO;
 
 class MonthController implements ControllerInterface

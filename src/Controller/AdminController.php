@@ -1,9 +1,9 @@
 <?php
-namespace PainBlog\Controller;
+namespace Dropblog\Controller;
 
-use PainBlog\Config;
-use PainBlog\Utils\Database;
-use PainBlog\Utils\Router;
+use Dropblog\Config;
+use Dropblog\Utils\Database;
+use Dropblog\Utils\Router;
 use PDO;
 
 class AdminController implements ControllerInterface

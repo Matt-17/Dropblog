@@ -1,8 +1,8 @@
 <?php
-namespace PainBlog\Utils;
+namespace Dropblog\Utils;
 
 use DateTime;
-use PainBlog\Config;
+use Dropblog\Config;
 
 class DateUtils
 {

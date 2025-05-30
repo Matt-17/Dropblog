@@ -1,10 +1,10 @@
 <?php
-namespace PainBlog\Utils;
+namespace Dropblog\Utils;
 
 use PDO;
 use DateTime;
-use PainBlog\Models\Post;
-use PainBlog\Models\PostGroup;
+use Dropblog\Models\Post;
+use Dropblog\Models\PostGroup;
 
 class PostUtils
 {

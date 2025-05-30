@@ -1,6 +1,6 @@
-# PainBlog
+# Dropblog
 
-A minimalist, no-frills blogging platform that focuses on simplicity and performance. PainBlog is designed for those who want to share their thoughts without the complexity of traditional blogging platforms.
+A minimalist, no-frills blogging platform that focuses on simplicity and performance. Dropblog is designed for those who want to share their thoughts without the complexity of traditional blogging platforms.
 
 ## Features
 
@@ -23,8 +23,8 @@ A minimalist, no-frills blogging platform that focuses on simplicity and perform
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/painblog.git
-   cd painblog
+   git clone https://github.com/yourusername/dropblog.git
+   cd dropblog
    ```
 
 2. Install dependencies:
@@ -54,7 +54,7 @@ A minimalist, no-frills blogging platform that focuses on simplicity and perform
 Edit `src/Config.php` to set up your blog:
 
 ```php
-namespace PainBlog;
+namespace Dropblog;
 
 class Config
 {

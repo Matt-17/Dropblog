@@ -1,6 +1,6 @@
 <?php
 /**
- * @var \PainBlog\Models\PostGroup[] $groupedPosts
+ * @var \Dropblog\Models\PostGroup[] $groupedPosts
  * @var string $emptyMessage
  */
 ?>

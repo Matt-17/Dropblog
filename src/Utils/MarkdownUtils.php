@@ -1,5 +1,5 @@
 <?php
-namespace PainBlog\Utils;
+namespace Dropblog\Utils;
 
 use Parsedown;
 

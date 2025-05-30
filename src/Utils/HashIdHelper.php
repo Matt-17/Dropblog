@@ -1,7 +1,7 @@
 <?php
-namespace PainBlog\Utils;
+namespace Dropblog\Utils;
                  
-use PainBlog\Config;
+use Dropblog\Config;
 use Hashids\Hashids;
 
 class HashIdHelper {

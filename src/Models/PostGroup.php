@@ -1,9 +1,9 @@
 <?php
-namespace PainBlog\Models;
+namespace Dropblog\Models;
 
 use DateTime;
-use PainBlog\Config;
-use PainBlog\Utils\DateUtils;
+use Dropblog\Config;
+use Dropblog\Utils\DateUtils;
 
 class PostGroup
 {

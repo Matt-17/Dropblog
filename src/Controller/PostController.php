@@ -1,12 +1,12 @@
 <?php
 // src/Controller/PostController.php
-namespace PainBlog\Controller;
+namespace Dropblog\Controller;
 
-use PainBlog\Utils\Database;
-use PainBlog\Utils\HashIdHelper;
-use PainBlog\Utils\PostUtils;
-use PainBlog\Utils\Router;
-use PainBlog\Controller\ControllerInterface;
+use Dropblog\Utils\Database;
+use Dropblog\Utils\HashIdHelper;
+use Dropblog\Utils\PostUtils;
+use Dropblog\Utils\Router;
+use Dropblog\Controller\ControllerInterface;
 use PDO;
 
 class PostController implements ControllerInterface

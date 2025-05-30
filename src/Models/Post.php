@@ -1,7 +1,7 @@
 <?php
-namespace PainBlog\Models;
+namespace Dropblog\Models;
 
-use PainBlog\Config;
+use Dropblog\Config;
 use Parsedown;
 use DateTime;
 

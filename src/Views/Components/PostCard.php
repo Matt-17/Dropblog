@@ -1,9 +1,9 @@
 <?php
 /**
- * @var \PainBlog\Models\Post $post
+ * @var \Dropblog\Models\Post $post
  */
-use PainBlog\Models\Post;
-use PainBlog\Utils\HashIdHelper;
+use Dropblog\Models\Post;
+use Dropblog\Utils\HashIdHelper;
 ?>
 
 <article class="post">

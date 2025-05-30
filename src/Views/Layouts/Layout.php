@@ -1,6 +1,6 @@
 <?php
-use PainBlog\Config;
-use PainBlog\Utils\DateUtils;
+use Dropblog\Config;
+use Dropblog\Utils\DateUtils;
 
 // Start output buffering
 ob_start();

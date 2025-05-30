@@ -1,9 +1,9 @@
 <?php
-namespace PainBlog\Utils;
+namespace Dropblog\Utils;
 
 use PDO;
 use PDOException;
-use PainBlog\Config;
+use Dropblog\Config;
 
 class Database
 {

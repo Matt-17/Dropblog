@@ -1,9 +1,9 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use PainBlog\Config;
-use PainBlog\Utils\Database;
-use PainBlog\Utils\Router;
+use Dropblog\Config;
+use Dropblog\Utils\Database;
+use Dropblog\Utils\Router;
 
 // Bootstrap
 Config::init();
@@ -13,7 +13,7 @@ $router = new Router($pdo);
 // Auto-register Controller-Klassen
 foreach (glob(__DIR__.'/../Controller/*Controller.php') as $file) {
     require_once $file;
-    $class = 'PainBlog\\Controller\\'.basename($file, '.php');
+    $class = 'Dropblog\\Controller\\'.basename($file, '.php');
     if (is_callable([$class,'register'])) {
         $class::register($router);
     }
@@ -29,7 +29,7 @@ if (isset($response['status'])) {
 }
 
 // Check if this is an API route
-$controllerClass = 'PainBlog\\Controller\\' . ucfirst(explode('/', $path)[0]) . 'Controller';
+$controllerClass = 'Dropblog\\Controller\\' . ucfirst(explode('/', $path)[0]) . 'Controller';
 if (class_exists($controllerClass) && is_callable([$controllerClass, 'isApi']) && $controllerClass::isApi()) {
     // For API routes, extract vars before including the view
     if (isset($response['vars'])) {

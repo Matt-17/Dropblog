@@ -1,5 +1,5 @@
 <?php
-namespace PainBlog;
+namespace Dropblog;
 
 class Config
 {
@@ -18,7 +18,7 @@ class Config
 
     // URL-Generierung
     public const URL_LENGTH = 8;
-    public const HASHIDS_SALT = 'painblog';
+    public const HASHIDS_SALT = 'dropblog';
 
     // Zeitzone (als Konstante oder init)
     public const TIMEZONE = 'Europe/Berlin';

@@ -1,7 +1,7 @@
 <?php
-namespace PainBlog\Controller;
+namespace Dropblog\Controller;
 
-use PainBlog\Utils\Router;
+use Dropblog\Utils\Router;
 
 interface ControllerInterface
 {
