@@ -29,4 +29,20 @@ class PostModel
         }
         return false;
     }
+
+    /**
+     * Update an existing blog post
+     * 
+     * @param int $id The ID of the post to update
+     * @param string $content The new markdown content of the post
+     * @return bool True if the update was successful, false otherwise
+     */
+    public function update(int $id, string $content): bool
+    {
+        $stmt = $this->pdo->prepare("UPDATE posts SET content = :content, updated_at = NOW() WHERE id = :id");
+        $stmt->bindParam(':content', $content);
+        $stmt->bindParam(':id', $id);
+        
+        return $stmt->execute();
+    }
 }

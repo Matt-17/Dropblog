@@ -26,6 +26,7 @@ class AdminController implements ControllerInterface
         $controller = new self();                                       
         $router->add('POST', 'admin/update', [$controller, 'handleUpdate'], true);
         $router->add('POST', 'admin/posts', [$controller, 'handleCreatePost'], true);
+        $router->add('PUT', 'admin/posts/{id}', [$controller, 'handleUpdatePost'], true);
     }
 
     public static function isApi(): bool
@@ -143,6 +144,45 @@ class AdminController implements ControllerInterface
             'message' => 'Migrations applied successfully',
             'applied' => $applied
         ], 200);
+    }
+
+    public function handleUpdatePost(int $id): array
+    {
+        // Authenticate
+        $authResult = $this->authenticate();
+        if ($authResult !== true) {
+            return $authResult;
+        }
+
+        // Validate request
+        if ($_SERVER['REQUEST_METHOD'] !== 'PUT') {
+            return $this->jsonResponse([
+                'success' => false, 
+                'message' => 'Method not allowed'
+            ], 405);
+        }
+
+        $input = json_decode(file_get_contents('php://input'), true);
+        if (empty($input['content'])) {
+            return $this->jsonResponse([
+                'success' => false, 
+                'message' => 'Missing content'
+            ], 400);
+        }
+
+        // Update post
+        if ($this->postModel->update($id, $input['content'])) {
+            return $this->jsonResponse([
+                'success' => true, 
+                'message' => 'Post updated successfully',
+                'post_id' => $id
+            ], 200);
+        } else {
+            return $this->jsonResponse([
+                'success' => false, 
+                'message' => 'Failed to update post'
+            ], 500);
+        }
     }
 
     private function jsonResponse(array $data, int $status = 200): array
