@@ -54,4 +54,18 @@ class Post
     {
         return (int)$this->date->format('m');
     }
+
+    public function getHighlightedContent(?array $keywords = null): string
+    {
+        $content = $this->getFormattedContent();
+        if (!$keywords || !is_array($keywords) || count($keywords) === 0) {
+            return $content;
+        }
+        foreach ($keywords as $word) {
+            if (trim($word) !== '') {
+                $content = preg_replace('/(' . preg_quote($word, '/') . ')/iu', '<mark>$1</mark>', $content);
+            }
+        }
+        return $content;
+    }
 } 

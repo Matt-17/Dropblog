@@ -23,12 +23,6 @@ function highlight_keywords($text, $keywords) {
         <img src="<?= PostModel::getTypeIcon($post->type) ?>" alt="<?= ucfirst($post->type) ?>" class="icon">
     </a>
     <div class="post-content">
-        <?php
-        if (isset($keywords) && is_array($keywords) && count($keywords) > 0) {
-            echo highlight_keywords($post->getFormattedContent(), $keywords);
-        } else {
-            echo $post->getFormattedContent();
-        }
-        ?>
+        <?= $post->getHighlightedContent($keywords ?? []) ?>
     </div>
 </article> 
