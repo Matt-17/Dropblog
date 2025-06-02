@@ -3,6 +3,9 @@ namespace Dropblog;
 
 class Config
 {
+    // Debug mode
+    public const DEBUG = false;
+
     // Datenbank-Konfiguration
     public const DB_HOST = '{{DB_HOST}}';
     public const DB_NAME = '{{DB_NAME}}';
