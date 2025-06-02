@@ -8,16 +8,18 @@ class Localization
 {
     private static ?string $currentLocale = null;
     private static array $translations = [];
-    private static string $defaultLocale = 'en-US';
     private static ?string $resourcesPath = null;
 
     public static function initialize(string $resourcesPath): void
     {
         self::$resourcesPath = $resourcesPath;
         
-        // Get locale from Config, fallback to default
-        $configLocale = defined('Dropblog\Config::LOCALE') ? Config::LOCALE : self::$defaultLocale;
-        self::setLocale($configLocale);
+        // Get locale from Config - throw error if not set
+        if (!defined('Dropblog\Config::LOCALE') || empty(Config::LOCALE)) {
+            throw new \RuntimeException('Config::LOCALE must be set. Please configure your locale in Config.php');
+        }
+        
+        self::setLocale(Config::LOCALE);
     }
 
     public static function setLocale(string $locale): void
@@ -28,7 +30,24 @@ class Localization
 
     public static function getCurrentLocale(): string
     {
-        return self::$currentLocale ?? self::$defaultLocale;
+        if (self::$currentLocale === null) {
+            throw new \RuntimeException('Localization not initialized. Call Localization::initialize() first.');
+        }
+        return self::$currentLocale;
+    }
+
+    /**
+     * Debug method to show current state of localization system
+     */
+    public static function debug(): array
+    {
+        return [
+            'current_locale' => self::$currentLocale,
+            'resources_path' => self::$resourcesPath,
+            'loaded_files' => array_keys(self::$translations),
+            'config_locale' => defined('Dropblog\Config::LOCALE') ? Config::LOCALE : 'NOT_SET',
+            'fallback_chain' => self::$currentLocale ? self::buildFallbackChain(self::$currentLocale) : null,
+        ];
     }
 
     public static function translate(string $key, array $params = []): string
