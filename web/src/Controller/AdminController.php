@@ -142,10 +142,23 @@ class AdminController implements ControllerInterface
         $applied = [];
         foreach ($migrations as $migration) {
             $filename = basename($migration);
+            
+            // Check if migration has already been applied
+            $stmt = $this->pdo->prepare("SELECT id FROM migrations WHERE filename = ?");
+            $stmt->execute([$filename]);
+            if ($stmt->fetch()) {
+                continue; // Skip if already applied
+            }
+
             $sql = file_get_contents($migration);
             
             try {
                 $this->pdo->exec($sql);
+                
+                // Record the migration as applied
+                $stmt = $this->pdo->prepare("INSERT INTO migrations (filename) VALUES (?)");
+                $stmt->execute([$filename]);
+                
                 $applied[] = $filename;
             } catch (\PDOException $e) {
                 return $this->jsonResponse([
@@ -153,6 +166,13 @@ class AdminController implements ControllerInterface
                     'message' => 'Migration failed: ' . $e->getMessage()
                 ], 500);
             }
+        }
+
+        if (empty($applied)) {
+            return $this->jsonResponse([
+                'success' => true,
+                'message' => 'No new migrations to apply'
+            ], 200);
         }
 
         return $this->jsonResponse([
