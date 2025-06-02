@@ -48,8 +48,14 @@ class SyntaxHighlighter
             $highlighted = preg_replace('/<\?php<br\s*\/?>/', '', $highlighted, 1);
         }
 
-        // Clean up and style
-        $highlighted = str_replace(['<code>', '</code>'], '', $highlighted);
+        // Clean up and extract just the content between <code> tags
+        if (preg_match('/<code[^>]*>(.*?)<\/code>/s', $highlighted, $matches)) {
+            $highlighted = $matches[1];
+        } else {
+            // Fallback: remove outer tags
+            $highlighted = preg_replace('/<\/?span[^>]*>/', '', $highlighted);
+            $highlighted = str_replace(['<code>', '</code>', '<pre>', '</pre>'], '', $highlighted);
+        }
         
         return '<pre class="language-php"><code>' . $highlighted . '</code></pre>';
     }
@@ -60,11 +66,11 @@ class SyntaxHighlighter
     private static function highlightJavaScript(string $code): string
     {
         $keywords = ['function', 'var', 'let', 'const', 'if', 'else', 'for', 'while', 'return', 'class', 'extends', 'import', 'export'];
-        $highlighted = htmlspecialchars($code);
+        $highlighted = $code;
         
         // Highlight keywords
         foreach ($keywords as $keyword) {
-            $highlighted = preg_replace('/\b' . $keyword . '\b/', '<span class="keyword">' . $keyword . '</span>', $highlighted);
+            $highlighted = preg_replace('/\b' . preg_quote($keyword, '/') . '\b/', '<span class="keyword">' . $keyword . '</span>', $highlighted);
         }
         
         // Highlight strings
@@ -72,9 +78,9 @@ class SyntaxHighlighter
         $highlighted = preg_replace("/'([^']*)'/", '<span class="string">\'$1\'</span>', $highlighted);
         
         // Highlight comments
-        $highlighted = preg_replace('/\/\/(.*)$/', '<span class="comment">//$1</span>', $highlighted, -1, PREG_OFFSET_CAPTURE);
+        $highlighted = preg_replace('/\/\/(.*)$/m', '<span class="comment">//$1</span>', $highlighted);
         
-        return '<pre class="language-javascript"><code>' . $highlighted . '</code></pre>';
+        return '<pre class="language-javascript"><code>' . htmlspecialchars($highlighted, ENT_NOQUOTES) . '</code></pre>';
     }
 
     /**
@@ -82,7 +88,7 @@ class SyntaxHighlighter
      */
     private static function highlightCss(string $code): string
     {
-        $highlighted = htmlspecialchars($code);
+        $highlighted = $code;
         
         // Highlight selectors
         $highlighted = preg_replace('/([.#]?[a-zA-Z][a-zA-Z0-9_-]*)\s*{/', '<span class="selector">$1</span> {', $highlighted);
@@ -93,7 +99,7 @@ class SyntaxHighlighter
         // Highlight values
         $highlighted = preg_replace('/:\s*([^;]+);/', ': <span class="value">$1</span>;', $highlighted);
         
-        return '<pre class="language-css"><code>' . $highlighted . '</code></pre>';
+        return '<pre class="language-css"><code>' . htmlspecialchars($highlighted, ENT_NOQUOTES) . '</code></pre>';
     }
 
     /**
@@ -144,19 +150,20 @@ class SyntaxHighlighter
             'get', 'set', 'value', 'yield', 'where', 'select', 'from', 'orderby', 'group', 'join'
         ];
         
-        $highlighted = htmlspecialchars($code);
+        // Start with plain text (no HTML escaping since we're post-processing)
+        $highlighted = $code;
         
-        // Highlight keywords
+        // Highlight keywords (word boundaries to avoid partial matches)
         foreach ($keywords as $keyword) {
-            $highlighted = preg_replace('/\b' . $keyword . '\b/', '<span class="keyword">' . $keyword . '</span>', $highlighted);
+            $highlighted = preg_replace('/\b' . preg_quote($keyword, '/') . '\b/', '<span class="keyword">' . $keyword . '</span>', $highlighted);
         }
         
-        // Highlight strings (regular strings)
-        $highlighted = preg_replace('/"([^"\\\\]*(\\\\.[^"\\\\]*)*)"/', '<span class="string">"$1"</span>', $highlighted);
-        $highlighted = preg_replace("/'([^'\\\\]*(\\\\.[^'\\\\]*)*)'/",'<span class="string">\'$1\'</span>', $highlighted);
+        // Highlight strings (simple patterns to avoid conflicts)
+        $highlighted = preg_replace('/"([^"\\\\]*(?:\\\\.[^"\\\\]*)*)"/', '<span class="string">"$1"</span>', $highlighted);
+        $highlighted = preg_replace("/'([^'\\\\]*(?:\\\\.[^'\\\\]*)*)'/",'<span class="string">\'$1\'</span>', $highlighted);
         
         // Highlight verbatim strings (@"...")
-        $highlighted = preg_replace('/@"([^"]*(""|[^"])*)"/', '<span class="string">@"$1"</span>', $highlighted);
+        $highlighted = preg_replace('/@"([^"]*(?:""[^"]*)*)"/', '<span class="string">@"$1"</span>', $highlighted);
         
         // Highlight single-line comments
         $highlighted = preg_replace('/\/\/(.*)$/m', '<span class="comment">//$1</span>', $highlighted);
@@ -166,9 +173,6 @@ class SyntaxHighlighter
         
         // Highlight attributes
         $highlighted = preg_replace('/\[([^\]]+)\]/', '<span class="attr">[$1]</span>', $highlighted);
-        
-        // Highlight generic types
-        $highlighted = preg_replace('/&lt;([^&]+)&gt;/', '<span class="generic">&lt;$1&gt;</span>', $highlighted);
         
         return '<pre class="language-csharp"><code>' . $highlighted . '</code></pre>';
     }

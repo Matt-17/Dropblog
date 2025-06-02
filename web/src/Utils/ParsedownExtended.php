@@ -6,56 +6,26 @@ use Parsedown;
 
 class ParsedownExtended extends Parsedown
 {
-    protected function blockFencedCode($line)
+    public function text($text)
     {
-        $block = parent::blockFencedCode($line);
+        // Get the normal Parsedown output
+        $html = parent::text($text);
         
-        if (isset($block)) {
-            return $block;
-        }
-
-        if (preg_match('/^[ ]*```[ ]*([a-zA-Z0-9_+-]*)[ ]*$/', $line['text'], $matches)) {
-            $language = !empty($matches[1]) ? $matches[1] : 'text';
-            
-            return [
-                'char' => $line['text'][0],
-                'openerLength' => 3,
-                'language' => $language,
-                'element' => [
-                    'name' => 'pre',
-                    'attributes' => [
-                        'class' => "language-{$language}"
-                    ],
-                    'handler' => [
-                        'function' => 'element',
-                        'argument' => [
-                            'name' => 'code',
-                            'text' => '',
-                        ],
-                        'destination' => 'text'
-                    ]
-                ],
-            ];
-        }
+        // Post-process to add syntax highlighting
+        return $this->addSyntaxHighlighting($html);
     }
-
-    protected function blockFencedCodeComplete($block)
+    
+    private function addSyntaxHighlighting($html)
     {
-        // Get language from the block's element attributes
-        $language = $block['element']['attributes']['class'] ?? 'text';
-        $language = str_replace('language-', '', $language);
+        // Pattern to match code blocks with language classes
+        $pattern = '/<pre><code class="language-([^"]+)">(.*?)<\/code><\/pre>/s';
         
-        // Get code from the block's text
-        $code = $block['element']['handler']['argument']['text'];
-        
-        // Use our PHP syntax highlighter
-        $highlighted = SyntaxHighlighter::highlight($code, $language);
-        
-        return [
-            'element' => [
-                'rawHtml' => $highlighted,
-                'allowRawHtmlInSafeMode' => true
-            ]
-        ];
+        return preg_replace_callback($pattern, function($matches) {
+            $language = $matches[1];
+            $code = html_entity_decode($matches[2], ENT_QUOTES | ENT_HTML5);
+            
+            // Use our syntax highlighter
+            return SyntaxHighlighter::highlight($code, $language);
+        }, $html);
     }
 } 
