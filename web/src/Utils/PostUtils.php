@@ -16,9 +16,11 @@ class PostUtils
      */
     public static function getPostsOfLastWeek(PDO $pdo): array
     {
-        // Erster Tag der Woche (Montag)
-        $monday = new DateTime('monday this week');
-        $monday->setTime(0, 0);
+      
+        // 7 Tage zurück von heute
+        $lastWeek = new DateTime();
+        $lastWeek->modify('-7 days');
+        $lastWeek->setTime(0, 0, 0);
 
         $stmt = $pdo->prepare("
             SELECT 
@@ -30,7 +32,7 @@ class PostUtils
               AND created_at <= NOW()
             ORDER BY created_at DESC
         ");
-        $stmt->execute([ $monday->format('Y-m-d H:i:s') ]);
+        $stmt->execute([ $lastWeek->format('Y-m-d H:i:s') ]);
         return array_map(fn($row) => Post::fromArray($row), $stmt->fetchAll(PDO::FETCH_ASSOC));
     }
 
