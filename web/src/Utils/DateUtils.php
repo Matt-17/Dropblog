@@ -3,27 +3,26 @@ namespace Dropblog\Utils;
 
 use DateTime;
 use Dropblog\Config;
+use Dropblog\Utils\Localization;
 
 class DateUtils
 {
-    private static array $monthNames = [
-        1 => 'Januar',
-        2 => 'Februar',
-        3 => 'März',
-        4 => 'April',
-        5 => 'Mai',
-        6 => 'Juni',
-        7 => 'Juli',
-        8 => 'August',
-        9 => 'September',
-        10 => 'Oktober',
-        11 => 'November',
-        12 => 'Dezember'
-    ];
-
     public static function getMonthNames(): array
     {
-        return self::$monthNames;
+        return [
+            1 => Localization::t('months.january'),
+            2 => Localization::t('months.february'),
+            3 => Localization::t('months.march'),
+            4 => Localization::t('months.april'),
+            5 => Localization::t('months.may'),
+            6 => Localization::t('months.june'),
+            7 => Localization::t('months.july'),
+            8 => Localization::t('months.august'),
+            9 => Localization::t('months.september'),
+            10 => Localization::t('months.october'),
+            11 => Localization::t('months.november'),
+            12 => Localization::t('months.december')
+        ];
     }
 
     public static function getPreviousMonth(int $month, int $year): array
@@ -59,6 +58,7 @@ class DateUtils
     {
         $formatted = $date->format(Config::DATE_FORMAT);
         $month = (int)$date->format('n');
-        return str_replace($date->format('F'), self::$monthNames[$month], $formatted);
+        $monthNames = self::getMonthNames();
+        return str_replace($date->format('F'), $monthNames[$month], $formatted);
     }
 }

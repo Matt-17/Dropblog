@@ -4,6 +4,7 @@ namespace Dropblog\Controller;
 
 use Dropblog\Utils\PostUtils;
 use Dropblog\Utils\Router;
+use Dropblog\Utils\Localization;
 use Dropblog\Controller\ControllerInterface;
 use PDO;
 
@@ -43,7 +44,7 @@ class HomeController implements ControllerInterface
             'view' => 'ListPage.php',
             'vars' => [
                 'groupedPosts' => $groupedPosts,
-                'emptyMessage' => 'Noch keine Posts vorhanden.',
+                'emptyMessage' => Localization::t('messages.no_posts_month'),
                 'moreResultsExist' => false,
             ],
         ];

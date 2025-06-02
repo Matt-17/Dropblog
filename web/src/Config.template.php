@@ -18,6 +18,9 @@ class Config
 
     // Blog-Konfiguration
     public const BLOG_TITLE = '{{BLOG_TITLE}}';
+    
+    // Localization
+    public const LOCALE = 'en-US'; // e.g., 'en-US', 'de-DE', 'de-AT'
 
     // URL-Generierung
     public const URL_LENGTH = 8;

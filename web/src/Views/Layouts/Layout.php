@@ -1,6 +1,7 @@
 <?php
 use Dropblog\Config;
 use Dropblog\Utils\DateUtils;
+use Dropblog\Utils\Localization;
 
 // Start output buffering
 ob_start();
@@ -8,12 +9,15 @@ ob_start();
 // Define the views directory path
 define('VIEWS_PATH', __DIR__ . '/..');
 
+// Initialize localization
+Localization::initialize(__DIR__ . '/../../resources');
+
 // Titel direkt aus Config
 $title = Config::BLOG_TITLE;
 
 // Sicherstellen, dass die View-Datei gesetzt ist
 if (!isset($content)) {
-    throw new \RuntimeException('Fehlende View-Datei');
+    throw new \RuntimeException(Localization::t('messages.missing_view'));
 }
 
 // Defaults für Jahr/Monat, falls ein Controller sie nicht explizit gesetzt hat
@@ -28,7 +32,7 @@ $next       = DateUtils::getNextMonth($currentMonth, $currentYear);
 // Get the view content first
 $viewPath = VIEWS_PATH . '/' . ltrim($content, '/');
 if (!file_exists($viewPath)) {
-    throw new \RuntimeException("View file not found: {$viewPath}");
+    throw new \RuntimeException(Localization::t('messages.view_not_found') . ": {$viewPath}");
 }
 
 // Capture the view output
@@ -40,9 +44,11 @@ $viewContent = ob_get_clean();
 if (isset($status)) {
     http_response_code($status);
 }
+
+$currentLocale = Localization::getCurrentLocale();
 ?>
 <!DOCTYPE html>
-<html lang="de">
+<html lang="<?= htmlspecialchars($currentLocale) ?>">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -59,21 +65,21 @@ if (isset($status)) {
   </div>
 
   <footer class="footer">
-    <a href="/<?= $prev['year'] ?>/<?= sprintf('%02d', $prev['month']) ?>">
+    <a href="/<?= $prev['year'] ?>/<?= sprintf('%02d', $prev['month']) ?>" title="<?= Localization::t('navigation.previous_month') ?>">
       ← <?= htmlspecialchars($monthNames[$prev['month']]) ?>
     </a>
     •
-    <a href="/<?= $currentYear ?>/<?= sprintf('%02d', $currentMonth) ?>" class="current-month">
+    <a href="/<?= $currentYear ?>/<?= sprintf('%02d', $currentMonth) ?>" class="current-month" title="<?= Localization::t('navigation.current_month') ?>">
       <?= htmlspecialchars($monthNames[$currentMonth]) ?> <?= $currentYear ?>
     </a>
     <?php if (!DateUtils::isFutureMonth($next['month'], $next['year'])): ?> •
-      <a href="/<?= $next['year'] ?>/<?= sprintf('%02d', $next['month']) ?>">
+      <a href="/<?= $next['year'] ?>/<?= sprintf('%02d', $next['month']) ?>" title="<?= Localization::t('navigation.next_month') ?>">
         <?= htmlspecialchars($monthNames[$next['month']]) ?> →
       </a>
     <?php endif; ?>
-    • <a href="/">Startseite</a>
-    • <a href="/search">Suche</a>
-    <div class="powered-by">Powered by <?= htmlspecialchars($title) ?></div>
+    • <a href="/"><?= Localization::t('common.home') ?></a>
+    • <a href="/search"><?= Localization::t('common.search') ?></a>
+    <div class="powered-by"><?= Localization::t('common.powered_by', ['title' => $title]) ?></div>
   </footer>
 </body>
 </html>

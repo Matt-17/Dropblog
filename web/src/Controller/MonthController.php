@@ -5,6 +5,7 @@ namespace Dropblog\Controller;
 use Dropblog\Utils\PostUtils;
 use Dropblog\Utils\Database;
 use Dropblog\Utils\Router;
+use Dropblog\Utils\Localization;
 use Dropblog\Controller\ControllerInterface;
 use PDO;
 
@@ -44,7 +45,7 @@ class MonthController implements ControllerInterface
             'view' => 'ListPage.php',
             'vars' => [
                 'groupedPosts'  => $groupedPosts,
-                'emptyMessage'  => 'Keine Posts für diesen Monat vorhanden.',
+                'emptyMessage'  => Localization::t('messages.no_posts_month'),
                 'currentYear'   => $y,
                 'currentMonth'  => $m,
                 'moreResultsExist' => false,
