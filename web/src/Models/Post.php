@@ -12,18 +12,22 @@ class Post
     public function __construct(
         public readonly int $id,
         public readonly string $content,
-        public readonly DateTime $date
+        public readonly DateTime $date,
+        public readonly string $type,
+        public readonly ?array $metadata
     ) {}
 
     public static function fromArray(array $data): self
     {
-        $date = new DateTime($data['date']);
+        $date = new DateTime($data['created_at']);
         $date->setTimezone(new \DateTimeZone(Config::TIMEZONE));
 
         return new self(
             id: (int)$data['id'],
             content: $data['content'],
-            date: $date
+            date: $date,
+            type: $data['type'] ?? 'note',
+            metadata: isset($data['metadata']) ? json_decode($data['metadata'], true) : null
         );
     }
 
