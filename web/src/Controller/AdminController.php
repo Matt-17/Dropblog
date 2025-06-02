@@ -12,11 +12,13 @@ class AdminController implements ControllerInterface
 {
     private PDO $pdo;
     private PostModel $postModel;
+    private bool $isDebug;
 
     public function __construct()
     {
         $this->pdo = Database::getConnection();
         $this->postModel = new PostModel();
+        $this->isDebug = Config::DEBUG ?? false;
     }
 
     public static function register(Router $router): void
@@ -41,12 +43,18 @@ class AdminController implements ControllerInterface
 
         // Validate request
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return $this->jsonResponse(['success' => false, 'message' => 'Method not allowed', 'code' => 405]);
+            return $this->jsonResponse([
+                'success' => false, 
+                'message' => 'Method not allowed'
+            ], 405);
         }
 
         $input = json_decode(file_get_contents('php://input'), true);
         if (empty($input['content'])) {
-            return $this->jsonResponse(['success' => false, 'message' => 'Missing content', 'code' => 400]);
+            return $this->jsonResponse([
+                'success' => false, 
+                'message' => 'Missing content'
+            ], 400);
         }
 
         // Create post
@@ -62,11 +70,13 @@ class AdminController implements ControllerInterface
                 'message' => 'Post created successfully', 
                 'post_id' => $postId,
                 'post_hash' => $hash,
-                'post_url' => $url,
-                'code' => 201
-            ]);
+                'post_url' => $url
+            ], 201);
         } else {
-            return $this->jsonResponse(['success' => false, 'message' => 'Failed to create post', 'code' => 500]);
+            return $this->jsonResponse([
+                'success' => false, 
+                'message' => 'Failed to create post'
+            ], 500);
         }
     }
 
@@ -75,12 +85,18 @@ class AdminController implements ControllerInterface
         $auth_header = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['http_authorization'] ?? '';
 
         if (empty($auth_header) || !preg_match('/^Bearer\s+(.+)$/i', $auth_header, $matches)) {
-            return $this->jsonResponse(['success' => false, 'message' => 'Unauthorized', 'code' => 401]);
+            return $this->jsonResponse([
+                'success' => false, 
+                'message' => 'Unauthorized'
+            ], 401);
         }
 
         $api_key = $matches[1];
         if ($api_key !== Config::ADMIN_API_KEY) {
-            return $this->jsonResponse(['success' => false, 'message' => 'Forbidden', 'code' => 403]);
+            return $this->jsonResponse([
+                'success' => false, 
+                'message' => 'Forbidden'
+            ], 403);
         }
         return true;
     }
@@ -93,54 +109,12 @@ class AdminController implements ControllerInterface
             return $authResult;
         }
 
-        // Debug-Ausgabe
-        $debug = [];
-        $debug[] = "Request Method: " . $_SERVER['REQUEST_METHOD'];
-        $debug[] = "All Headers: " . print_r(getallheaders(), true);
-        $debug[] = "Raw Authorization Header: " . ($_SERVER['HTTP_AUTHORIZATION'] ?? 'nicht gesetzt');
-        $debug[] = "Authorization Header (lowercase): " . ($_SERVER['http_authorization'] ?? 'nicht gesetzt');
-        $debug[] = "All Server Variables: " . print_r($_SERVER, true);
-
         // Check request method
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            http_response_code(405);
             return $this->jsonResponse([
                 'success' => false,
-                'message' => 'Method not allowed',
-                'code' => 405,
-                'debug' => $debug
-            ]);
-        }
-
-        // Verify API key
-        $auth_header = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['http_authorization'] ?? '';
-        $debug[] = "Auth Header Value: " . $auth_header;
-
-        if (empty($auth_header) || !preg_match('/^Bearer\s+(.+)$/i', $auth_header, $matches)) {
-            $debug[] = "Auth Header ungültig oder leer";
-            $debug[] = "Regex Match Result: " . print_r($matches, true);
-            http_response_code(401);
-            return $this->jsonResponse([
-                'success' => false,
-                'message' => 'Unauthorized',
-                'code' => 401,
-                'debug' => $debug
-            ]);
-        }
-
-        $api_key = $matches[1];
-        $debug[] = "Extracted API Key: " . $api_key;
-        $debug[] = "Expected API Key: " . Config::ADMIN_API_KEY;
-
-        if ($api_key !== Config::ADMIN_API_KEY) {
-            $debug[] = "API Key stimmt nicht überein";
-            http_response_code(403);
-            return $this->jsonResponse([
-                'success' => false,
-                'message' => 'Forbidden',
-                'code' => 403,
-                'debug' => $debug
-            ]);
+                'message' => 'Method not allowed'
+            ], 405);
         }
 
         // Run migrations
@@ -157,30 +131,38 @@ class AdminController implements ControllerInterface
                 $this->pdo->exec($sql);
                 $applied[] = $filename;
             } catch (\PDOException $e) {
-                http_response_code(500);
                 return $this->jsonResponse([
                     'success' => false,
-                    'message' => 'Migration failed: ' . $e->getMessage(),
-                    'code' => 500,
-                    'debug' => $debug
-                ]);
+                    'message' => 'Migration failed: ' . $e->getMessage()
+                ], 500);
             }
         }
 
         return $this->jsonResponse([
             'success' => true,
             'message' => 'Migrations applied successfully',
-            'applied' => $applied,
-            'debug' => $debug
-        ]);
+            'applied' => $applied
+        ], 200);
     }
 
-    private function jsonResponse(array $data): array
+    private function jsonResponse(array $data, int $status = 200): array
     {
+        // Add debug information only in debug mode
+        if ($this->isDebug) {
+            $data['debug'] = [
+                'request_method' => $_SERVER['REQUEST_METHOD'],
+                'headers' => getallheaders(),
+                'auth_header' => $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['http_authorization'] ?? 'not set'
+            ];
+        }
+
         return [
             'view' => 'Shared/json.php',
             'vars' => ['data' => $data],
-            'status' => $data['code'] ?? 200
+            'status' => $status,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ]
         ];
     }
 }
