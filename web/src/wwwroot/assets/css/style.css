@@ -11,8 +11,15 @@ body {
     background-color: #eee;
 }
 
+/* --- Header --- */
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+    flex-shrink: 0; /* Prevent header from shrinking */
+}
+
 .content {
-    flex: 1;
+    flex: 1; /* This takes up all available space, pushing footer down */
 }
 
 .post {
@@ -78,12 +85,13 @@ body {
 }
 
 .footer {
-    margin-top: auto;
+    margin-top: auto; /* This ensures footer sticks to bottom when content is short */
     padding: 1rem 0;
     border-top: 1px solid #ccc;
     text-align: center;
     color: #888;
     font-size: 0.85rem;
+    flex-shrink: 0; /* Prevent footer from shrinking */
 }
 
 .footer a {
