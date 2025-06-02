@@ -58,8 +58,22 @@ class AdminController implements ControllerInterface
             ], 400);
         }
 
-        // Create post
-        $postId = $this->postModel->create($input['content']);
+        // Validate post type if provided
+        $type = $input['type'] ?? 'note';
+        if (!in_array($type, PostModel::VALID_TYPES)) {
+            return $this->jsonResponse([
+                'success' => false,
+                'message' => 'Invalid post type',
+                'valid_types' => PostModel::VALID_TYPES
+            ], 400);
+        }
+
+        // Create post with type and metadata
+        $postId = $this->postModel->create(
+            $input['content'],
+            $type,
+            $input['metadata'] ?? null
+        );
 
         if ($postId) {
             // Generate HashId for the post URL
@@ -71,7 +85,9 @@ class AdminController implements ControllerInterface
                 'message' => 'Post created successfully', 
                 'post_id' => $postId,
                 'post_hash' => $hash,
-                'post_url' => $url
+                'post_url' => $url,
+                'type' => $type,
+                'icon' => PostModel::getTypeIcon($type)
             ], 201);
         } else {
             return $this->jsonResponse([
@@ -179,13 +195,39 @@ class AdminController implements ControllerInterface
             ], 400);
         }
 
-        // Update post
-        if ($this->postModel->update($postId, $input['content'])) {
+        // Validate post type if provided
+        if (isset($input['type']) && !in_array($input['type'], PostModel::VALID_TYPES)) {
+            return $this->jsonResponse([
+                'success' => false,
+                'message' => 'Invalid post type',
+                'valid_types' => PostModel::VALID_TYPES
+            ], 400);
+        }
+
+        // Get current post data
+        $currentPost = $this->postModel->getById($postId);
+        if (!$currentPost) {
+            return $this->jsonResponse([
+                'success' => false,
+                'message' => 'Post not found'
+            ], 404);
+        }
+
+        // Update post with new type and metadata if provided
+        if ($this->postModel->update(
+            $postId,
+            $input['content'],
+            $input['type'] ?? null,
+            $input['metadata'] ?? null
+        )) {
+            $type = $input['type'] ?? $currentPost['type'];
             return $this->jsonResponse([
                 'success' => true, 
                 'message' => 'Post updated successfully',
                 'post_id' => $postId,
-                'post_hash' => $hash
+                'post_hash' => $hash,
+                'type' => $type,
+                'icon' => PostModel::getTypeIcon($type)
             ], 200);
         } else {
             return $this->jsonResponse([
