@@ -190,7 +190,7 @@ class AdminController implements ControllerInterface
             return $authResult;
         }
 
-        // Validate request
+        // Validate request method
         if ($_SERVER['REQUEST_METHOD'] !== 'PUT') {
             return $this->jsonResponse([
                 'success' => false, 
@@ -208,12 +208,18 @@ class AdminController implements ControllerInterface
         }
 
         $input = json_decode(file_get_contents('php://input'), true);
-        if (empty($input['content'])) {
+        
+        // Get current post data to preserve content if not provided in update
+        $currentPost = $this->postModel->getById($postId);
+        if (!$currentPost) {
             return $this->jsonResponse([
-                'success' => false, 
-                'message' => 'Missing content'
-            ], 400);
+                'success' => false,
+                'message' => 'Post not found'
+            ], 404);
         }
+
+        // Use existing content if not provided in the input
+        $contentToUpdate = $input['content'] ?? $currentPost['content'];
 
         // Validate post type if provided
         if (isset($input['type']) && !in_array($input['type'], PostModel::VALID_TYPES)) {
@@ -224,19 +230,10 @@ class AdminController implements ControllerInterface
             ], 400);
         }
 
-        // Get current post data
-        $currentPost = $this->postModel->getById($postId);
-        if (!$currentPost) {
-            return $this->jsonResponse([
-                'success' => false,
-                'message' => 'Post not found'
-            ], 404);
-        }
-
-        // Update post with new type and metadata if provided
+        // Update post with new type and metadata if provided, using existing content if not provided
         if ($this->postModel->update(
             $postId,
-            $input['content'],
+            $contentToUpdate, // Use contentToUpdate here
             $input['type'] ?? null,
             $input['metadata'] ?? null
         )) {
