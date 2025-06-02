@@ -1,7 +1,7 @@
 <?php
 namespace Dropblog\Utils;
 
-use Parsedown;
+use ParsedownExtended;
 
 class MarkdownUtils
 {
@@ -10,7 +10,7 @@ class MarkdownUtils
         static $parsedown = null;
 
         if ($parsedown === null) {
-            $parsedown = new Parsedown();
+            $parsedown = new ParsedownExtended();
             $parsedown->setSafeMode(true);
         }
 

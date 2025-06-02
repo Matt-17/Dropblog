@@ -2,12 +2,12 @@
 namespace Dropblog\Models;
 
 use Dropblog\Config;
-use Parsedown;
+use Dropblog\Utils\ParsedownExtended;
 use DateTime;
 
 class Post
 {
-    private static ?Parsedown $parsedown = null;
+    private static ?ParsedownExtended $parsedown = null;
 
     public function __construct(
         public readonly int $id,
@@ -34,7 +34,7 @@ class Post
     public function getFormattedContent(): string
     {
         if (self::$parsedown === null) {
-            self::$parsedown = new Parsedown();
+            self::$parsedown = new ParsedownExtended();
             self::$parsedown->setSafeMode(true);
         }
         return self::$parsedown->text($this->content);

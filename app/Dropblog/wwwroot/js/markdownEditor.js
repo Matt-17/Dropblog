@@ -5,25 +5,66 @@ window.markdownEditor = {
 
         const start = textarea.selectionStart;
         const end = textarea.selectionEnd;
-        const selectedText = textarea.value.substring(start, end);
+        let selectedText = textarea.value.substring(start, end);
+        
+        // Trim spaces from selected text
+        const trimmedText = selectedText.trim();
+        const leadingSpaces = selectedText.length - selectedText.trimStart().length;
+        const trailingSpaces = selectedText.length - selectedText.trimEnd().length;
         
         let newText;
         let newCursorPos;
+        let newSelectionStart, newSelectionEnd;
         
-        if (selectedText) {
-            // Text is selected - wrap it
-            newText = before + selectedText + after;
-            newCursorPos = start + before.length + selectedText.length + after.length;
+        if (trimmedText) {
+            // Text is selected - wrap the trimmed text
+            if (before === '[link text](url)') {
+                // Smart link handling
+                if (this.isURL(trimmedText)) {
+                    // If selected text is a URL, put it in the URL part
+                    newText = '[link text](' + trimmedText + ')';
+                    newSelectionStart = start + leadingSpaces + 1; // Position at start of "link text"
+                    newSelectionEnd = start + leadingSpaces + 10; // Select "link text"
+                } else {
+                    // If selected text is not a URL, put it in the text part
+                    newText = '[' + trimmedText + '](url)';
+                    newSelectionStart = start + leadingSpaces + trimmedText.length + 3; // Position at "url"
+                    newSelectionEnd = start + leadingSpaces + trimmedText.length + 6; // Select "url"
+                }
+                newCursorPos = newSelectionEnd;
+            } else if (before === '```') {
+                // Code block with selected text - put text on new line
+                newText = '```\n' + trimmedText + '\n```';
+                newCursorPos = start + leadingSpaces + 4 + trimmedText.length + 1; // After the code text
+            } else {
+                // Regular formatting - wrap trimmed text
+                newText = before + trimmedText + after;
+                newCursorPos = start + leadingSpaces + before.length + trimmedText.length + after.length;
+            }
         } else {
             // No selection - insert template with cursor positioned inside
             if (before === '**' || before === '*' || before === '<u>') {
                 // For formatting, position cursor between markers
                 newText = before + after;
                 newCursorPos = start + before.length;
+            } else if (before === '`') {
+                // Inline code
+                newText = '`code`';
+                newCursorPos = start + 1; // Position cursor at start of "code"
+                newSelectionStart = start + 1;
+                newSelectionEnd = start + 5; // Select "code"
+            } else if (before === '```') {
+                // Code block
+                newText = '```\ncode\n```';
+                newCursorPos = start + 4; // Position cursor after first newline
+                newSelectionStart = start + 4;
+                newSelectionEnd = start + 8; // Select "code"
             } else if (before === '[link text](url)') {
                 // For links, select "link text" part
                 newText = '[link text](url)';
-                newCursorPos = start + 1; // Position cursor at start of "link text"
+                newCursorPos = start + 1;
+                newSelectionStart = start + 1;
+                newSelectionEnd = start + 10; // Select "link text"
             } else {
                 newText = before;
                 newCursorPos = start + before.length;
@@ -31,16 +72,74 @@ window.markdownEditor = {
         }
         
         // Replace selected text or insert at cursor
-        textarea.value = textarea.value.substring(0, start) + newText + textarea.value.substring(end);
+        const adjustedStart = start + leadingSpaces;
+        const adjustedEnd = end - trailingSpaces;
+        textarea.value = textarea.value.substring(0, adjustedStart) + newText + textarea.value.substring(adjustedEnd);
         
-        // Set cursor position
+        // Set cursor position or selection
         textarea.focus();
-        if (before === '[link text](url)' && !selectedText) {
-            // For links, select "link text"
-            textarea.setSelectionRange(start + 1, start + 10); // Select "link text"
+        if (newSelectionStart !== undefined && newSelectionEnd !== undefined) {
+            textarea.setSelectionRange(newSelectionStart, newSelectionEnd);
         } else {
             textarea.setSelectionRange(newCursorPos, newCursorPos);
         }
+        
+        // Trigger input event to update Blazor binding
+        textarea.dispatchEvent(new Event('input', { bubbles: true }));
+    },
+
+    insertCode: function (elementId, isBlock = false, language = '') {
+        if (isBlock) {
+            if (language) {
+                this.insertMarkdown(elementId, '```' + language, '');
+            } else {
+                this.insertMarkdown(elementId, '```', '');
+            }
+        } else {
+            this.insertMarkdown(elementId, '`', '`');
+        }
+    },
+
+    insertCodeWithLanguage: function (elementId, language = '') {
+        const textarea = document.getElementById(elementId);
+        if (!textarea) return;
+
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        let selectedText = textarea.value.substring(start, end);
+        
+        // Trim spaces from selected text
+        const trimmedText = selectedText.trim();
+        const leadingSpaces = selectedText.length - selectedText.trimStart().length;
+        
+        let newText;
+        let newSelectionStart, newSelectionEnd;
+        
+        if (trimmedText) {
+            // Text is selected - put text on new line with language
+            newText = '```' + language + '\n' + trimmedText + '\n```';
+            newSelectionStart = start + leadingSpaces + 3; // Position at start of language
+            newSelectionEnd = start + leadingSpaces + 3 + language.length; // Select language
+        } else {
+            // No selection - insert template with language
+            newText = '```' + language + '\ncode\n```';
+            if (language) {
+                newSelectionStart = start + 4 + language.length; // Position after language and newline
+                newSelectionEnd = start + 8 + language.length; // Select "code"
+            } else {
+                newSelectionStart = start + 3; // Position at language spot
+                newSelectionEnd = start + 3; // Cursor at language spot
+            }
+        }
+        
+        // Replace selected text or insert at cursor
+        const adjustedStart = start + leadingSpaces;
+        const adjustedEnd = end - (selectedText.length - selectedText.trimEnd().length);
+        textarea.value = textarea.value.substring(0, adjustedStart) + newText + textarea.value.substring(adjustedEnd);
+        
+        // Set cursor position or selection
+        textarea.focus();
+        textarea.setSelectionRange(newSelectionStart, newSelectionEnd);
         
         // Trigger input event to update Blazor binding
         textarea.dispatchEvent(new Event('input', { bubbles: true }));
@@ -94,6 +193,17 @@ window.markdownEditor = {
         textarea.dispatchEvent(new Event('input', { bubbles: true }));
     },
 
+    isURL: function (text) {
+        try {
+            new URL(text);
+            return true;
+        } catch {
+            // Also check for common URL patterns without protocol
+            return /^(www\.|[a-zA-Z0-9-]+\.[a-zA-Z]{2,})/.test(text) || 
+                   /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/.test(text);
+        }
+    },
+
     getSelectionInfo: function (elementId) {
         const textarea = document.getElementById(elementId);
         if (!textarea) return { start: 0, end: 0, selectedText: '' };
@@ -103,5 +213,14 @@ window.markdownEditor = {
             end: textarea.selectionEnd,
             selectedText: textarea.value.substring(textarea.selectionStart, textarea.selectionEnd)
         };
+    },
+
+    // Force update the textarea value for Blazor binding
+    forceUpdate: function (elementId) {
+        const textarea = document.getElementById(elementId);
+        if (!textarea) return;
+        
+        textarea.dispatchEvent(new Event('input', { bubbles: true }));
+        textarea.dispatchEvent(new Event('change', { bubbles: true }));
     }
 }; 

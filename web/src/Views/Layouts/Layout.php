@@ -54,8 +54,6 @@ $currentLocale = Localization::getCurrentLocale();
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><?= htmlspecialchars($title) ?></title>
   <link rel="stylesheet" href="/assets/css/style.css">
-  <!-- Prism.js CSS for syntax highlighting -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
 </head>
 <body>
   <header class="header">
@@ -83,10 +81,6 @@ $currentLocale = Localization::getCurrentLocale();
     • <a href="/search"><?= Localization::t('common.search') ?></a>
     <div class="powered-by"><?= Localization::t('common.powered_by', ['title' => $title]) ?></div>
   </footer>
-
-  <!-- Prism.js JavaScript for syntax highlighting -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
 </body>
 </html>
 <?php

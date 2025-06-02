@@ -10,7 +10,7 @@
     <div class="post-form">
         <div class="form-group">
             <label for="postContent" class="form-label">Content:</label>
-            <MarkdownEditor @bind-Value="content" />
+            <MarkdownEditor @bind-Value="content" @bind-Value:after="OnContentChanged" />
         </div>
 
         <PostTypeSelector @bind-SelectedType="selectedType" />
@@ -178,6 +178,13 @@
     private bool isSuccess = false;
     private string postUrl = string.Empty;
 
+    private void OnContentChanged()
+    {
+        // This ensures the content is properly synchronized
+        // when the user types and then immediately clicks post
+        StateHasChanged();
+    }
+
     private async Task CreatePost()
     {
         if (string.IsNullOrWhiteSpace(content))
@@ -201,7 +208,7 @@
                 isSuccess = true;
                 postUrl = response.PostUrl;
                 
-                // Clear form after successful post
+                // Clear form only after successful post
                 content = string.Empty;
                 selectedType = "note";
             }
@@ -209,12 +216,14 @@
             {
                 statusMessage = $"❌ Failed to create post: {response.Message}";
                 isSuccess = false;
+                // Don't clear content on error - user can fix and retry
             }
         }
         catch (Exception ex)
         {
             statusMessage = $"❌ Error creating post: {ex.Message}";
             isSuccess = false;
+            // Don't clear content on error - user can fix and retry
         }
         finally
         {

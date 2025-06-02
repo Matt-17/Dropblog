@@ -199,8 +199,9 @@ code[class*="language-"] {
 
 /* Override Prism theme for better integration */
 pre[class*="language-"] {
-    background: #2d3748 !important;
-    border: 1px solid #4a5568;
+    background: #f8f8f8 !important;
+    border: 1px solid #e1e1e1 !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Copy button styling (if you want to add copy functionality later) */
@@ -216,4 +217,45 @@ pre[class*="language-"] {
 
 .code-toolbar .toolbar .toolbar-item {
     display: inline-block;
+}
+
+/* --- PHP-only Syntax Highlighting --- */
+.keyword {
+    color: #d73a49;
+    font-weight: bold;
+}
+
+.string {
+    color: #032f62;
+}
+
+.comment {
+    color: #6a737d;
+    font-style: italic;
+}
+
+.selector {
+    color: #6f42c1;
+    font-weight: bold;
+}
+
+.property {
+    color: #005cc5;
+}
+
+.value {
+    color: #032f62;
+}
+
+.tag {
+    color: #22863a;
+}
+
+.attr {
+    color: #6f42c1;
+}
+
+.generic {
+    color: #005cc5;
+    font-style: italic;
 }

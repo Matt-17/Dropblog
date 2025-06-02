@@ -13,6 +13,35 @@
         <button type="button" class="btn btn-sm" @onclick="@(() => InsertMarkdownAsync("<u>", "</u>"))" title="Underline">
             <u>U</u>
         </button>
+        <button type="button" class="btn btn-sm" @onclick="@(() => InsertCodeAsync(false))" title="Inline Code">
+            <code>`</code>
+        </button>
+        <div class="code-block-group">
+            <button type="button" class="btn btn-sm" @onclick="@(() => InsertCodeAsync(true))" title="Code Block">
+                <code>```</code>
+            </button>
+            <select @bind="selectedLanguage" class="language-select" title="Code Language">
+                <option value="">Plain</option>
+                <option value="javascript">JavaScript</option>
+                <option value="typescript">TypeScript</option>
+                <option value="python">Python</option>
+                <option value="csharp">C#</option>
+                <option value="java">Java</option>
+                <option value="cpp">C++</option>
+                <option value="html">HTML</option>
+                <option value="css">CSS</option>
+                <option value="php">PHP</option>
+                <option value="sql">SQL</option>
+                <option value="bash">Bash</option>
+                <option value="json">JSON</option>
+                <option value="xml">XML</option>
+                <option value="yaml">YAML</option>
+                <option value="markdown">Markdown</option>
+            </select>
+            <button type="button" class="btn btn-sm" @onclick="InsertCodeWithLanguageAsync" title="Code Block with Language">
+                <code>```lang</code>
+            </button>
+        </div>
         <button type="button" class="btn btn-sm" @onclick="ToggleListAsync" title="Toggle List">
             ☰
         </button>
@@ -24,6 +53,7 @@
               id="@textareaId"
               @bind="Value" 
               @bind:event="oninput"
+              @onblur="ForceUpdateAsync"
               class="form-control editor-textarea" 
               placeholder="Write your post in Markdown..."
               rows="10"></textarea>
@@ -42,6 +72,8 @@
         padding: 8px;
         display: flex;
         gap: 4px;
+        flex-wrap: wrap;
+        align-items: center;
     }
 
     .btn {
@@ -64,6 +96,39 @@
 
     .btn:active {
         background-color: #dee2e6;
+    }
+
+    .btn code {
+        font-size: 10px;
+        font-weight: bold;
+        background: none;
+        padding: 0;
+        color: inherit;
+    }
+
+    .code-block-group {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        background-color: white;
+        padding: 2px;
+    }
+
+    .language-select {
+        border: none;
+        background: none;
+        font-size: 11px;
+        padding: 2px 4px;
+        min-width: 80px;
+        height: 24px;
+        outline: none;
+        cursor: pointer;
+    }
+
+    .language-select:focus {
+        background-color: #f0f8ff;
     }
 
     .editor-textarea {
@@ -98,6 +163,7 @@
 @code {
     private ElementReference textareaRef;
     private string textareaId = Guid.NewGuid().ToString();
+    private string selectedLanguage = "";
 
     [Parameter] public string Value { get; set; } = string.Empty;
     [Parameter] public EventCallback<string> ValueChanged { get; set; }
@@ -118,6 +184,37 @@
         }
     }
 
+    private async Task InsertCodeAsync(bool isBlock)
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("markdownEditor.insertCode", textareaId, isBlock);
+            await UpdateValueFromTextarea();
+        }
+        catch
+        {
+            // Fallback
+            Value += isBlock ? "```\ncode\n```" : "`code`";
+            await ValueChanged.InvokeAsync(Value);
+        }
+    }
+
+    private async Task InsertCodeWithLanguageAsync()
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("markdownEditor.insertCodeWithLanguage", textareaId, selectedLanguage);
+            await UpdateValueFromTextarea();
+        }
+        catch
+        {
+            // Fallback
+            var lang = string.IsNullOrEmpty(selectedLanguage) ? "" : selectedLanguage;
+            Value += $"```{lang}\ncode\n```";
+            await ValueChanged.InvokeAsync(Value);
+        }
+    }
+
     private async Task ToggleListAsync()
     {
         try
@@ -130,6 +227,19 @@
             // Fallback to simple append
             Value += "- ";
             await ValueChanged.InvokeAsync(Value);
+        }
+    }
+
+    private async Task ForceUpdateAsync()
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("markdownEditor.forceUpdate", textareaId);
+            await UpdateValueFromTextarea();
+        }
+        catch
+        {
+            // Ignore errors in force update
         }
     }
 
