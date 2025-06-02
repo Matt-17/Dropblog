@@ -1,4 +1,4 @@
-name: Deploy MacCatalyst App (Manual Only)
+name: Deploy MacCatalyst App
 
 on:
   # push:

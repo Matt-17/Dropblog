@@ -26,7 +26,7 @@ class AdminController implements ControllerInterface
         $controller = new self();                                       
         $router->add('POST', 'admin/update', [$controller, 'handleUpdate'], true);
         $router->add('POST', 'admin/posts', [$controller, 'handleCreatePost'], true);
-        $router->add('PUT', 'admin/posts/{hash}', [$controller, 'handleUpdatePost'], true);
+        $router->add('PUT', 'admin/posts/(?P<hash>[A-Za-z0-9]{8})', [$controller, 'handleUpdatePost'], true);
     }
 
     public static function isApi(): bool
