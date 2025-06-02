@@ -8,7 +8,7 @@ use InvalidArgumentException;
 class PostModel
 {
     private PDO $pdo;
-    public const VALID_TYPES = ['note', 'link', 'comment', 'quote', 'photo', 'code', 'question'];
+    public const VALID_TYPES = ['note', 'link', 'comment', 'quote', 'photo', 'code', 'question', 'shopping', 'rant', 'poll', 'media', 'book', 'announcement', 'calendar'];
 
     public function __construct()
     {
