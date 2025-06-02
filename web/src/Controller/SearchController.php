@@ -56,13 +56,16 @@ class SearchController implements ControllerInterface
              $emptyMessage = 'Bitte geben Sie einen Suchbegriff ein.';
         }
 
+        $keywords = array_filter(explode(' ', $query));
+
         return [
             'view' => 'SearchPage.php',
             'vars' => [
                 'groupedPosts' => $groupedPosts,
                 'query' => htmlspecialchars($query),
                 'emptyMessage' => $emptyMessage,
-                'moreResultsExist' => $moreResultsExist
+                'moreResultsExist' => $moreResultsExist,
+                'keywords' => $keywords,
             ],
         ];
     }
