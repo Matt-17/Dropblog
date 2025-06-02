@@ -41,7 +41,11 @@ class ParsedownExtended extends Parsedown
 
     protected function blockFencedCodeComplete($block)
     {
-        $language = $block['language'] ?? 'text';
+        // Get language from the block's element attributes
+        $language = $block['element']['attributes']['class'] ?? 'text';
+        $language = str_replace('language-', '', $language);
+        
+        // Get code from the block's text
         $code = $block['element']['handler']['argument']['text'];
         
         // Use our PHP syntax highlighter
