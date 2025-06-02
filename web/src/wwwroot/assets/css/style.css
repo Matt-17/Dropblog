@@ -172,3 +172,48 @@ mark {
     padding: 0 2px;
     border-radius: 2px;
 }
+
+/* --- Code Highlighting --- */
+pre[class*="language-"] {
+    margin: 1.5em 0;
+    padding: 1em;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 0.9em;
+    line-height: 1.4;
+}
+
+code[class*="language-"] {
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+}
+
+/* Inline code */
+:not(pre) > code {
+    background-color: #f1f1f1;
+    padding: 0.2em 0.4em;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: #c7254e;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+}
+
+/* Override Prism theme for better integration */
+pre[class*="language-"] {
+    background: #2d3748 !important;
+    border: 1px solid #4a5568;
+}
+
+/* Copy button styling (if you want to add copy functionality later) */
+.code-toolbar {
+    position: relative;
+}
+
+.code-toolbar .toolbar {
+    position: absolute;
+    top: 0.5em;
+    right: 0.5em;
+}
+
+.code-toolbar .toolbar .toolbar-item {
+    display: inline-block;
+}
