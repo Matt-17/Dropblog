@@ -80,7 +80,10 @@ class Localization
         // Build fallback chain based on locale
         $fallbackFiles = self::buildFallbackChain($locale);
         
-        foreach ($fallbackFiles as $filename) {
+        // Check files in REVERSE order - most specific first
+        $reversedFiles = array_reverse($fallbackFiles);
+        
+        foreach ($reversedFiles as $filename) {
             if (!isset(self::$translations[$filename])) {
                 self::loadTranslationFile($filename);
             }
