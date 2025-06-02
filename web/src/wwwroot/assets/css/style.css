@@ -221,16 +221,16 @@ pre[class*="language-"] {
 
 /* --- PHP-only Syntax Highlighting --- */
 .keyword {
-    color: #d73a49;
+    color: #569cd6; /* VS Blue for keywords */
     font-weight: bold;
 }
 
 .string {
-    color: #032f62;
+    color: #ce9178; /* VS Orange for strings */
 }
 
 .comment {
-    color: #6a737d;
+    color: #6a9955; /* VS Green for comments */
     font-style: italic;
 }
 

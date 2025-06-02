@@ -19,7 +19,7 @@ class ParsedownExtended extends Parsedown
             $code = html_entity_decode($matches[2], ENT_QUOTES | ENT_HTML5);
             
             // Use our safe syntax highlighter
-            return SimpleSyntaxHighlighter::highlight($code, $language);
+            return SyntaxHighlighter::highlight($code, $language);
         }, $html);
     }
 } 
