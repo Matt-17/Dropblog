@@ -1,0 +1,142 @@
+@using Microsoft.AspNetCore.Components.Web
+
+<div class="post-type-selector">
+    <label class="selector-label">Choose post type:</label>
+    <div class="type-grid">
+        @foreach (var postType in PostTypes)
+        {
+            <label class="type-option @(SelectedType == postType.Value ? "selected" : "")" 
+                   @onclick="@(() => SelectType(postType.Value))">
+                <input type="radio" 
+                       name="postType" 
+                       value="@postType.Value" 
+                       checked="@(SelectedType == postType.Value)" 
+                       @onchange="@(() => SelectType(postType.Value))" />
+                <div class="type-content">
+                    <img src="@($"assets/images/icon-{postType.Value}.png")" 
+                         alt="@postType.Text" 
+                         class="type-icon" />
+                    <span class="type-text">@postType.Text</span>
+                </div>
+            </label>
+        }
+    </div>
+</div>
+
+<style>
+    .post-type-selector {
+        margin-bottom: 20px;
+    }
+
+    .selector-label {
+        display: block;
+        margin-bottom: 12px;
+        font-weight: 600;
+        color: #555;
+        font-size: 14px;
+    }
+
+    .type-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+        gap: 8px;
+        max-width: 100%;
+    }
+
+    .type-option {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 12px 8px;
+        border: 2px solid #e1e5e9;
+        border-radius: 8px;
+        background-color: white;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-align: center;
+        min-height: 80px;
+    }
+
+    .type-option:hover {
+        border-color: #007bff;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 123, 255, 0.1);
+    }
+
+    .type-option.selected {
+        border-color: #007bff;
+        background-color: #f0f8ff;
+        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+    }
+
+    .type-option input[type="radio"] {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .type-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        width: 100%;
+    }
+
+    .type-icon {
+        width: 32px;
+        height: 32px;
+        object-fit: contain;
+        filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.1));
+    }
+
+    .type-text {
+        font-size: 11px;
+        font-weight: 500;
+        color: #666;
+        line-height: 1.2;
+        word-break: break-word;
+    }
+
+    .type-option.selected .type-text {
+        color: #007bff;
+        font-weight: 600;
+    }
+
+    .type-option.selected .type-icon {
+        filter: drop-shadow(1px 1px 2px rgba(0, 123, 255, 0.3));
+    }
+</style>
+
+@code {
+    [Parameter] public string SelectedType { get; set; } = "note";
+    [Parameter] public EventCallback<string> SelectedTypeChanged { get; set; }
+
+    private static readonly List<PostTypeOption> PostTypes = new()
+    {
+        new PostTypeOption("note", "Note"),
+        new PostTypeOption("link", "Link"),
+        new PostTypeOption("comment", "Comment"),
+        new PostTypeOption("quote", "Quote"),
+        new PostTypeOption("photo", "Photo"),
+        new PostTypeOption("code", "Code"),
+        new PostTypeOption("question", "Question"),
+        new PostTypeOption("shopping", "Shopping"),
+        new PostTypeOption("rant", "Rant"),
+        new PostTypeOption("poll", "Poll"),
+        new PostTypeOption("media", "Media"),
+        new PostTypeOption("book", "Book"),
+        new PostTypeOption("announcement", "Announcement"),
+        new PostTypeOption("calendar", "Calendar")
+    };
+
+    private async Task SelectType(string type)
+    {
+        SelectedType = type;
+        await SelectedTypeChanged.InvokeAsync(type);
+    }
+
+    private record PostTypeOption(string Value, string Text);
+} 

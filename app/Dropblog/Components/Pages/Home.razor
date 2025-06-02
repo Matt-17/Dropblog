@@ -1,5 +1,225 @@
 ﻿@page "/"
+@using Dropblog.Services
+@inject BlogApiService ApiService
 
-<h1>Hello, world!</h1>
+<PageTitle>New Post - Dropblog</PageTitle>
 
-Welcome to your new app.
+<div class="new-post-container">
+    <h1>✍️ Create New Post</h1>
+    
+    <div class="post-form">
+        <div class="form-group">
+            <label for="postContent" class="form-label">Content:</label>
+            <MarkdownEditor @bind-Value="content" />
+        </div>
+
+        <PostTypeSelector @bind-SelectedType="selectedType" />
+
+        <div class="form-actions">
+            <button class="btn btn-primary" @onclick="CreatePost" disabled="@isPosting">
+                @if (isPosting)
+                {
+                    <span class="spinner"></span>
+                    <text>Posting...</text>
+                }
+                else
+                {
+                    <text>📤 Post</text>
+                }
+            </button>
+        </div>
+
+        @if (!string.IsNullOrEmpty(statusMessage))
+        {
+            <div class="status-message @(isSuccess ? "success" : "error")">
+                @statusMessage
+                @if (isSuccess && !string.IsNullOrEmpty(postUrl))
+                {
+                    <br />
+                    <a href="@($"https://numbertools.de{postUrl}")" target="_blank" class="post-link">
+                        View Post 🔗
+                    </a>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .new-post-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    h1 {
+        color: #333;
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 2rem;
+    }
+
+    .post-form {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e1e5e9;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #555;
+        font-size: 14px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 14px;
+        background-color: #fff;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+    }
+
+    .form-actions {
+        margin-top: 30px;
+        text-align: center;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+        background-color: #0056b3;
+        transform: translateY(-1px);
+    }
+
+    .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .spinner {
+        width: 16px;
+        height: 16px;
+        border: 2px solid transparent;
+        border-top: 2px solid currentColor;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    .status-message {
+        margin-top: 20px;
+        padding: 15px;
+        border-radius: 8px;
+        font-weight: 500;
+        text-align: center;
+    }
+
+    .status-message.success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    .status-message.error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+
+    .post-link {
+        color: #007bff;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .post-link:hover {
+        text-decoration: underline;
+    }
+</style>
+
+@code {
+    private string content = string.Empty;
+    private string selectedType = "note";
+    private bool isPosting = false;
+    private string statusMessage = string.Empty;
+    private bool isSuccess = false;
+    private string postUrl = string.Empty;
+
+    private async Task CreatePost()
+    {
+        if (string.IsNullOrWhiteSpace(content))
+        {
+            statusMessage = "⚠️ Please enter some content for your post.";
+            isSuccess = false;
+            return;
+        }
+
+        isPosting = true;
+        statusMessage = string.Empty;
+        StateHasChanged();
+
+        try
+        {
+            var response = await ApiService.CreatePostAsync(content.Trim(), selectedType);
+
+            if (response.Success)
+            {
+                statusMessage = "✅ Post created successfully!";
+                isSuccess = true;
+                postUrl = response.PostUrl;
+                
+                // Clear form after successful post
+                content = string.Empty;
+                selectedType = "note";
+            }
+            else
+            {
+                statusMessage = $"❌ Failed to create post: {response.Message}";
+                isSuccess = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            statusMessage = $"❌ Error creating post: {ex.Message}";
+            isSuccess = false;
+        }
+        finally
+        {
+            isPosting = false;
+            StateHasChanged();
+        }
+    }
+}

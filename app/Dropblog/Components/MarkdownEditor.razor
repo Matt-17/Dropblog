@@ -1,0 +1,153 @@
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.JSInterop
+@inject IJSRuntime JSRuntime
+
+<div class="markdown-editor">
+    <div class="toolbar">
+        <button type="button" class="btn btn-sm" @onclick="@(() => InsertMarkdownAsync("**", "**"))" title="Bold">
+            <strong>B</strong>
+        </button>
+        <button type="button" class="btn btn-sm" @onclick="@(() => InsertMarkdownAsync("*", "*"))" title="Italic">
+            <em>I</em>
+        </button>
+        <button type="button" class="btn btn-sm" @onclick="@(() => InsertMarkdownAsync("<u>", "</u>"))" title="Underline">
+            <u>U</u>
+        </button>
+        <button type="button" class="btn btn-sm" @onclick="ToggleListAsync" title="Toggle List">
+            ☰
+        </button>
+        <button type="button" class="btn btn-sm" @onclick="@(() => InsertMarkdownAsync("[link text](url)", ""))" title="Link">
+            🔗
+        </button>
+    </div>
+    <textarea @ref="textareaRef" 
+              id="@textareaId"
+              @bind="Value" 
+              @bind:event="oninput"
+              class="form-control editor-textarea" 
+              placeholder="Write your post in Markdown..."
+              rows="10"></textarea>
+</div>
+
+<style>
+    .markdown-editor {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .toolbar {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #ddd;
+        padding: 8px;
+        display: flex;
+        gap: 4px;
+    }
+
+    .btn {
+        background-color: white;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        padding: 4px 8px;
+        cursor: pointer;
+        font-size: 12px;
+        min-width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn:hover {
+        background-color: #e9ecef;
+    }
+
+    .btn:active {
+        background-color: #dee2e6;
+    }
+
+    .editor-textarea {
+        border: none;
+        outline: none;
+        resize: vertical;
+        font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+        font-size: 14px;
+        line-height: 1.5;
+        padding: 12px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .form-control {
+        display: block;
+        width: 100%;
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #212529;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        appearance: none;
+        border-radius: 0.375rem;
+        transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    }
+</style>
+
+@code {
+    private ElementReference textareaRef;
+    private string textareaId = Guid.NewGuid().ToString();
+
+    [Parameter] public string Value { get; set; } = string.Empty;
+    [Parameter] public EventCallback<string> ValueChanged { get; set; }
+
+    private async Task InsertMarkdownAsync(string before, string after)
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("markdownEditor.insertMarkdown", textareaId, before, after);
+            // Get the updated value from the textarea
+            await UpdateValueFromTextarea();
+        }
+        catch
+        {
+            // Fallback to simple append if JSInterop fails
+            Value += before + "text" + after;
+            await ValueChanged.InvokeAsync(Value);
+        }
+    }
+
+    private async Task ToggleListAsync()
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("markdownEditor.toggleList", textareaId);
+            await UpdateValueFromTextarea();
+        }
+        catch
+        {
+            // Fallback to simple append
+            Value += "- ";
+            await ValueChanged.InvokeAsync(Value);
+        }
+    }
+
+    private async Task UpdateValueFromTextarea()
+    {
+        try
+        {
+            // Small delay to ensure DOM is updated
+            await Task.Delay(50);
+            await textareaRef.FocusAsync();
+            
+            // The value should be automatically updated through the @bind directive
+            // but we trigger the event to ensure proper state synchronization
+            await ValueChanged.InvokeAsync(Value);
+        }
+        catch
+        {
+            // Ignore errors in value update
+        }
+    }
+} 

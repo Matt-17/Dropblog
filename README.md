@@ -238,6 +238,134 @@ The app uses the same configuration as the web version, accessed through the RES
     └── workflows/    # CI/CD configuration
 ```
 
+# MAUI Mobile App
+
+A cross-platform mobile and desktop app for creating blog posts using .NET MAUI and Blazor.
+
+## App Features
+
+- ✍️ **Enhanced Markdown Editor** with intelligent text handling:
+  - **Bold** (`**text**`) - Wraps selected text or positions cursor inside `**|**`
+  - *Italic* (`*text*`) - Wraps selected text or positions cursor inside `*|*`
+  - <u>Underline</u> (`<u>text</u>`) - Wraps selected text or positions cursor inside tags
+  - **Smart Lists** - Toggle list formatting (adds/removes `- ` on current line)
+  - **Smart Links** - Inserts `[link text](url)` with "link text" pre-selected
+  - **Code blocks** - Supports both inline `` `code` `` and fenced ```code blocks```
+  - Real-time cursor positioning and text selection
+
+- 🎨 **Visual Post Type Selector** - Beautiful horizontal grid with icons:
+  - 📝 Note, 🔗 Link, 💬 Comment, 💭 Quote, 📷 Photo, 💻 Code, ❓ Question
+  - 🛒 Shopping, 😤 Rant, 📊 Poll, 🎵 Media, 📚 Book, 📢 Announcement, 📅 Calendar
+  - **Original blog icons** shared from the web version
+  - Hover effects and visual feedback
+  - Responsive grid layout for all screen sizes
+
+- 🌐 **Direct Publishing** to your blog via API
+- ✅ **Success Feedback** with link to view published post
+- 📱 **Cross-platform** support (Windows, Android, iOS, macOS)
+
+## Recent App Enhancements
+
+### 🎯 Smart Markdown Editor
+- **Text Selection Aware**: If you select text and click Bold, it becomes `**selected text**`
+- **Cursor Positioning**: If nothing is selected, cursor is positioned optimally (e.g., inside `**|**`)
+- **Smart Lists**: Toggle list formatting intelligently - adds/removes dashes as needed
+- **Link Templates**: Inserts link template with "link text" automatically selected for easy editing
+- **Smart URL Detection**: If selected text is a URL, automatically places it in the URL field
+
+### 🎨 Visual Post Type Selection
+- **Icon Grid Layout**: Replaced dropdown with visual grid showing actual blog icons
+- **Better UX**: Large, clickable cards with icons and labels
+- **Shared Assets**: References the same icons as the web version (no duplication)
+- **Positioning**: Post type selection moved below content editor for better workflow
+
+### 🔧 Technical Improvements
+- **JSInterop Integration**: Enhanced editor with JavaScript for proper text manipulation
+- **Responsive Design**: Optimized for both desktop and mobile screens
+- **Error Handling**: Graceful fallbacks + preserves content on errors
+- **Real-time Updates**: Proper content synchronization between editor and form
+
+## App Configuration
+
+The app is currently hardcoded to work with:
+- **Domain**: `numbertools.de`
+- **API Key**: `ADMIN_API_KEY`
+- **Endpoint**: `POST /admin/posts`
+
+To change these settings, edit `app/Dropblog/Services/BlogApiService.cs`:
+
+```csharp
+private const string BaseUrl = "https://your-domain.com";
+private const string ApiKey = "YOUR_API_KEY";
+```
+
+## Building and Running the App
+
+### Prerequisites
+- .NET 9.0 SDK
+- Platform-specific workloads for your target platform
+
+### Build
+```bash
+cd app
+dotnet build
+```
+
+### Run on Windows
+```bash
+dotnet run --framework net9.0-windows10.0.19041.0
+```
+
+### Run on Android (with emulator/device)
+```bash
+dotnet run --framework net9.0-android
+```
+
+### Run on iOS (with simulator/device)
+```bash
+dotnet run --framework net9.0-ios
+```
+
+### Run on macOS
+```bash
+dotnet run --framework net9.0-maccatalyst
+```
+
+## App User Experience
+
+The app provides an intuitive experience:
+
+1. **Write Content**: Use the enhanced markdown editor with smart formatting
+2. **Format Text**: Select text and use toolbar buttons for instant formatting
+3. **Choose Type**: Visually select post type from the icon grid below the editor
+4. **Publish**: Click the Post button to publish directly to your blog
+5. **Success**: Get immediate feedback with a link to view your published post
+
+## App Project Structure
+
+```
+app/Dropblog/
+├── Components/
+│   ├── Layout/
+│   │   ├── MainLayout.razor      # Main app layout
+│   │   └── NavMenu.razor         # Navigation menu
+│   ├── Pages/
+│   │   └── Home.razor            # Main post creation page
+│   ├── MarkdownEditor.razor      # Enhanced markdown editor with JSInterop
+│   ├── PostTypeSelector.razor    # Visual post type selector
+│   └── _Imports.razor            # Global imports
+├── Services/
+│   └── BlogApiService.cs         # API communication service
+├── wwwroot/
+│   ├── css/
+│   │   └── app.css              # Global styles + responsive CSS
+│   ├── js/
+│   │   └── markdownEditor.js    # JavaScript for enhanced editor
+│   └── index.html               # Main HTML template
+├── MauiProgram.cs               # App configuration
+└── Dropblog.csproj             # Project file
+```
+
 ## API Endpoints
 
 ### Admin API

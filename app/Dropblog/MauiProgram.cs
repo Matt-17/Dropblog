@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Dropblog.Services;
 
 namespace Dropblog
 {
@@ -15,6 +16,9 @@ namespace Dropblog
                 });
 
             builder.Services.AddMauiBlazorWebView();
+
+            // Add HTTP client and API service
+            builder.Services.AddHttpClient<BlogApiService>();
 
 #if DEBUG
     		builder.Services.AddBlazorWebViewDeveloperTools();
