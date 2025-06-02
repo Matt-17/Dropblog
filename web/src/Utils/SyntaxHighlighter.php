@@ -103,7 +103,7 @@ class SyntaxHighlighter // Renamed from SimpleSyntaxHighlighter
             $highlighted = htmlspecialchars($line);
             // Highlight tags and attributes (simplified)
             $highlighted = preg_replace('/(&lt;\/?)([a-zA-Z0-9\-]+)/i', '$1<span class="tag">$2</span>', $highlighted);
-            $highlighted = preg_replace('/([a-zA-Z0-9\-]+)=(&quot;[^&quot;]*&quot;|'[^']*'|[\w\-]+)/i', '<span class="attr">$1</span>=<span class="string">$2</span>', $highlighted);
+            $highlighted = preg_replace('/([a-zA-Z0-9\-]+)=(&quot;[^&quot;]*&quot;|&#039;[^&#039;]*&#039;|[\w\-]+)/i', '<span class="attr">$1</span>=<span class="string">$2</span>', $highlighted);
             $result[] = $highlighted;
         }
         return '<pre class="language-html"><code>' . implode("\n", $result) . '</code></pre>';
