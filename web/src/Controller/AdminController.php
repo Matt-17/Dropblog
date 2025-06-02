@@ -26,7 +26,7 @@ class AdminController implements ControllerInterface
         $controller = new self();                                       
         $router->add('POST', 'admin/update', [$controller, 'handleUpdate'], true);
         $router->add('POST', 'admin/posts', [$controller, 'handleCreatePost'], true);
-        $router->add('PUT', 'admin/posts/{id}', [$controller, 'handleUpdatePost'], true);
+        $router->add('PUT', 'admin/posts/{hash}', [$controller, 'handleUpdatePost'], true);
     }
 
     public static function isApi(): bool
@@ -146,7 +146,7 @@ class AdminController implements ControllerInterface
         ], 200);
     }
 
-    public function handleUpdatePost(int $id): array
+    public function handleUpdatePost(string $hash): array
     {
         // Authenticate
         $authResult = $this->authenticate();
@@ -162,6 +162,15 @@ class AdminController implements ControllerInterface
             ], 405);
         }
 
+        // Decode HashId to get post ID
+        $postId = HashIdHelper::decode($hash);
+        if (!$postId) {
+            return $this->jsonResponse([
+                'success' => false, 
+                'message' => 'Invalid post hash'
+            ], 400);
+        }
+
         $input = json_decode(file_get_contents('php://input'), true);
         if (empty($input['content'])) {
             return $this->jsonResponse([
@@ -171,11 +180,12 @@ class AdminController implements ControllerInterface
         }
 
         // Update post
-        if ($this->postModel->update($id, $input['content'])) {
+        if ($this->postModel->update($postId, $input['content'])) {
             return $this->jsonResponse([
                 'success' => true, 
                 'message' => 'Post updated successfully',
-                'post_id' => $id
+                'post_id' => $postId,
+                'post_hash' => $hash
             ], 200);
         } else {
             return $this->jsonResponse([
