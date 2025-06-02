@@ -2,6 +2,7 @@
 /**
  * @var \Dropblog\Models\PostGroup[] $groupedPosts
  * @var string $emptyMessage
+ * @var bool $moreResultsExist
  */
 ?>
 <?php if (empty($groupedPosts)): ?>
@@ -15,4 +16,7 @@
             <?php endforeach; ?>
         </div>
     <?php endforeach; ?>
+    <?php if (isset($moreResultsExist) && $moreResultsExist): ?>
+        <p>Nicht alle Posts wurden berücksichtigt (mehr als 100 gefunden).</p>
+    <?php endif; ?>
 <?php endif; ?> 

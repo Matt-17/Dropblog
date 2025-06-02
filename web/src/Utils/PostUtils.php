@@ -111,4 +111,35 @@ class PostUtils
     {
         return HashIdHelper::encode($id);
     }
+
+    /**
+     * Search for posts containing all keywords.
+     *
+     * @param PDO $pdo
+     * @param string $query The search query string.
+     * @return Post[]
+     */
+    public static function searchPosts(PDO $pdo, string $query): array
+    {
+        $keywords = array_filter(explode(' ', $query)); // Split by space and remove empty keywords
+
+        if (empty($keywords)) {
+            return []; // Return empty array if no keywords
+        }
+
+        $sql = "SELECT id, content, created_at as date, type, metadata FROM posts WHERE";
+        $params = [];
+
+        foreach ($keywords as $index => $keyword) {
+            $sql .= ($index > 0 ? " AND" : "") . " content LIKE ?";
+            $params[] = '%' . $keyword . '%';
+        }
+
+        $sql .= " AND created_at <= NOW() ORDER BY created_at DESC LIMIT 101";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+
+        return array_map(fn($row) => Post::fromArray($row), $stmt->fetchAll(PDO::FETCH_ASSOC));
+    }
 }

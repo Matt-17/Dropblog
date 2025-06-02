@@ -72,6 +72,7 @@ if (isset($status)) {
       </a>
     <?php endif; ?>
     • <a href="/">Startseite</a>
+    • <a href="/search">Suche</a>
     <div class="powered-by">Powered by <?= htmlspecialchars($title) ?></div>
   </footer>
 </body>
