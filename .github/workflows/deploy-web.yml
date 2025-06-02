@@ -39,7 +39,7 @@ jobs:
             -e "s/{{DB_PASS}}/${{ secrets.DB_PASS }}/g" \
             -e "s/{{ADMIN_API_KEY}}/${{ secrets.ADMIN_API_KEY }}/g" \
             -e "s/{{BLOG_TITLE}}/${{ vars.BLOG_TITLE }}/g" \
-            Config.template.php > Config.php
+            Config.php > Config.php
 
       - name: Prepare publish directory
         run: |
@@ -49,7 +49,7 @@ jobs:
             --exclude='.github' \
             --exclude='README' \
             --exclude='LICENSE' \
-            --exclude='Config.template.php' \
+            --exclude='Config.php' \
             --exclude='composer.*' \
             ./web/src/ ./publish/
 
