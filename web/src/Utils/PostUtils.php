@@ -19,7 +19,7 @@ class PostUtils
       
         // 7 Tage zurück von heute
         $lastWeek = new DateTime();
-        $lastWeek->modify('-7 days');
+        $lastWeek->modify('-6 days');
         $lastWeek->setTime(0, 0, 0);
 
         $stmt = $pdo->prepare("
