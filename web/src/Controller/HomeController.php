@@ -40,10 +40,11 @@ class HomeController implements ControllerInterface
         $groupedPosts = PostUtils::groupPostsByDate($posts);
 
         return [
-            'view' => 'Components/PostList.php',
+            'view' => 'ListPage.php',
             'vars' => [
                 'groupedPosts' => $groupedPosts,
                 'emptyMessage' => 'Noch keine Posts vorhanden.',
+                'moreResultsExist' => false,
             ],
         ];
     }

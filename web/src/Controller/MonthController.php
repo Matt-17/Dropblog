@@ -41,12 +41,13 @@ class MonthController implements ControllerInterface
         $groupedPosts = PostUtils::groupPostsByDate($posts);
 
         return [
-            'view' => 'Components/PostList.php',
+            'view' => 'ListPage.php',
             'vars' => [
                 'groupedPosts'  => $groupedPosts,
                 'emptyMessage'  => 'Keine Posts für diesen Monat vorhanden.',
                 'currentYear'   => $y,
                 'currentMonth'  => $m,
+                'moreResultsExist' => false,
             ],
         ];
     }

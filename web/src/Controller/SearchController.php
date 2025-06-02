@@ -49,14 +49,15 @@ class SearchController implements ControllerInterface
 
             if (empty($posts)) {
                 $emptyMessage = 'Keine Posts gefunden für: ' . htmlspecialchars($query);
+            } else {
+                 $groupedPosts = PostUtils::groupPostsByDate($posts);
             }
-             $groupedPosts = PostUtils::groupPostsByDate($posts);
         } else {
              $emptyMessage = 'Bitte geben Sie einen Suchbegriff ein.';
         }
 
         return [
-            'view' => 'Components/PostList.php',
+            'view' => 'SearchPage.php',
             'vars' => [
                 'groupedPosts' => $groupedPosts,
                 'query' => htmlspecialchars($query),

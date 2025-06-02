@@ -15,7 +15,8 @@ use Dropblog\Models\PostGroup;
     </form>
 </div>
 
-<?php 
-// Include the PostList component to display results
-include VIEWS_PATH . '/Components/PostList.php'; 
-?> 
+<?php if (empty($groupedPosts)): ?>
+    <div class="no-posts"><?= htmlspecialchars($emptyMessage) ?></div>
+<?php else: ?>
+    <?php include VIEWS_PATH . '/ListPage.php'; ?>
+<?php endif; ?> 
