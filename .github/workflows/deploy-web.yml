@@ -1,12 +1,14 @@
-name: Deploy Blog
+name: Deploy Web Application
 
 on:
   push:
     branches: [ main ]
+    paths:
+      - 'web/src/**'
   workflow_dispatch:
 
 jobs:
-  deploy:
+  deploy-web:
     runs-on: ubuntu-latest
 
     steps:

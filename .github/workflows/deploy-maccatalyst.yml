@@ -1,0 +1,45 @@
+name: Deploy MacCatalyst App (Manual Only)
+
+on:
+  # push:
+  #   branches: [ main ]
+  #   paths:
+  #     - 'app/**'
+  workflow_dispatch:
+
+jobs:
+  build-maccatalyst:
+    runs-on: macos-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        working-directory: app/Dropblog
+        run: dotnet restore
+
+      - name: Build MacCatalyst App
+        working-directory: app/Dropblog
+        run: dotnet build -c Release -f net9.0-maccatalyst
+
+      - name: Create MacCatalyst Package
+        working-directory: app/Dropblog
+        run: dotnet publish -c Release -f net9.0-maccatalyst -o ./publish
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: MacCatalyst Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          files: app/Dropblog/publish/Dropblog.app
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
