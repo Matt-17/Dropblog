@@ -101,6 +101,25 @@ src/
   - Requires Bearer token authentication
   - Returns JSON response with migration results
 
+- **POST /admin/posts**
+  - Creates a new blog post
+  - Requires Bearer token authentication
+  - Request body should be JSON with a `content` field containing markdown text
+  - Example:```json
+{
+  "content": "# My Blog Post Title\n\nHere is some content in *Markdown* format."
+    }
+```  - Returns JSON response with post details including URL
+  - Example response:```json
+{
+  "success": true,
+  "message": "Post created successfully",
+  "post_id": 123,
+  "post_hash": "a1b2c3d4",
+  "post_url": "/post/a1b2c3d4",
+      "code": 201
+    }
+```
 ## Development
 
 ### Adding New Features

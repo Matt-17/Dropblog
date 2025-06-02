@@ -47,7 +47,7 @@ class PostController implements ControllerInterface
 
         $groupedPosts = PostUtils::groupPostsByDate([$post]);
 
-        return [
+        return [                                                                            
             'view' => 'Components/PostList.php',
             'vars' => [
                 'groupedPosts' => $groupedPosts,
