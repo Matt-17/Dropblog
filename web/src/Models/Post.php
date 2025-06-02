@@ -19,7 +19,7 @@ class Post
 
     public static function fromArray(array $data): self
     {
-        $date = new DateTime($data['created_at']);
+        $date = new DateTime($data['date']);
         $date->setTimezone(new \DateTimeZone(Config::TIMEZONE));
 
         return new self(

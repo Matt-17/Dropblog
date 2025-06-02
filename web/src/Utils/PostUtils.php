@@ -26,7 +26,9 @@ class PostUtils
             SELECT 
                 id,
                 content,
-                created_at as date
+                created_at as date,
+                type,
+                metadata
             FROM posts
             WHERE created_at >= ?
               AND created_at <= NOW()
@@ -50,7 +52,9 @@ class PostUtils
             SELECT 
                 id,
                 content,
-                created_at as date
+                created_at as date,
+                type,
+                metadata
             FROM posts
             WHERE YEAR(created_at) = ?
               AND MONTH(created_at) = ?
@@ -91,7 +95,9 @@ class PostUtils
             SELECT 
                 id, 
                 content, 
-                created_at as date
+                created_at as date,
+                type,
+                metadata
             FROM posts 
             WHERE id = ? AND created_at <= NOW()
             LIMIT 1
