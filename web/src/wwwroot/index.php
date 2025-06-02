@@ -4,9 +4,11 @@ require_once __DIR__ . '/../vendor/autoload.php';
 use Dropblog\Config;
 use Dropblog\Utils\Database;
 use Dropblog\Utils\Router;
+use Dropblog\Utils\Localization;
 
 // Bootstrap
 Config::init();
+Localization::initialize(__DIR__ . '/../resources');
 $pdo    = Database::getConnection();
 $router = new Router($pdo);
 

@@ -9,7 +9,7 @@ class Localization
     private static ?string $currentLocale = null;
     private static array $translations = [];
     private static string $defaultLocale = 'en-US';
-    private static string $resourcesPath;
+    private static ?string $resourcesPath = null;
 
     public static function initialize(string $resourcesPath): void
     {
@@ -115,6 +115,10 @@ class Localization
 
     private static function loadTranslationFile(string $filename): void
     {
+        if (self::$resourcesPath === null) {
+            throw new \RuntimeException('Localization system not initialized. Call Localization::initialize() first.');
+        }
+
         if (!isset(self::$translations[$filename])) {
             $filePath = self::$resourcesPath . "/locales/{$filename}";
             
