@@ -153,15 +153,3 @@
 .retry-btn:hover {
     background: #0056b3;
 }
-
-.type-emoji {
-    font-size: 48px;
-    line-height: 1;
-    margin-bottom: 4px;
-}
-
-@media (max-width: 767px) {
-    .type-emoji {
-        font-size: 32px;
-    }
-}

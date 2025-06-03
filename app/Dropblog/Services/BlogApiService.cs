@@ -74,8 +74,7 @@ public class BlogApiService
                     var postTypes = apiResponse.PostTypes.Select(pt => new PostTypeInfo(
                         pt.Slug ?? "",
                         pt.Name ?? "",
-                        pt.Emoji,
-                        pt.IconPath
+                        pt.IconPath ?? $"/post-types/{pt.IconFilename}"
                     )).ToList();
 
                     return new PostTypesResponse
@@ -228,21 +227,19 @@ internal class PostTypeApiData
     public string? Name { get; set; }
     public string? Description { get; set; }
     public string? IconFilename { get; set; }
-    public string? Emoji { get; set; }
     public string? IconPath { get; set; }
     public bool IsActive { get; set; }
     public int SortOrder { get; set; }
 }
 
 // Public data models
-public record PostTypeInfo(string Slug, string Name, string? Emoji = null, string? IconPath = null);
+public record PostTypeInfo(string Slug, string Name, string IconPath);
 
 public record PostTypeCreateRequest(
     string Slug, 
     string Name, 
     string? Description = null, 
-    string? IconFilename = null, 
-    string? Emoji = null,
+    string IconFilename = "",
     int SortOrder = 0
 );
 
@@ -250,6 +247,6 @@ public record PostTypeStats(
     int Id, 
     string Slug, 
     string Name, 
-    string? Emoji, 
+    string IconFilename, 
     int PostCount
 ); 

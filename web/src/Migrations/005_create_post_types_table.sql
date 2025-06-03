@@ -7,8 +7,7 @@ CREATE TABLE IF NOT EXISTS post_types (
     slug VARCHAR(50) NOT NULL UNIQUE,
     name VARCHAR(100) NOT NULL,
     description TEXT NULL,
-    icon_filename VARCHAR(255) NULL,
-    emoji VARCHAR(10) NULL,
+    icon_filename VARCHAR(255) NOT NULL,
     is_active TINYINT(1) NOT NULL DEFAULT 1,
     sort_order INT(11) NOT NULL DEFAULT 0,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -19,21 +18,21 @@ CREATE TABLE IF NOT EXISTS post_types (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Insert default post types (migrating from hardcoded values)
-INSERT INTO post_types (slug, name, description, icon_filename, emoji, sort_order) VALUES
-('note', 'Note', 'Default text post for thoughts and updates', 'icon-note.png', '📝', 1),
-('link', 'Link', 'Share interesting links with context', 'icon-link.png', '🔗', 2),
-('comment', 'Comment', 'Comments or responses to other content', 'icon-comment.png', '💬', 3),
-('quote', 'Quote', 'Share quotes with proper attribution', 'icon-quote.png', '💭', 4),
-('photo', 'Photo', 'Photo posts with descriptions', 'icon-photo.png', '📷', 5),
-('code', 'Code', 'Code snippets and programming content', 'icon-code.png', '💻', 6),
-('question', 'Question', 'Ask questions to your audience', 'icon-question.png', '❓', 7),
-('shopping', 'Shopping', 'Product recommendations and shopping lists', 'icon-shopping.png', '🛒', 8),
-('rant', 'Rant', 'Express strong opinions and frustrations', 'icon-rant.png', '😤', 9),
-('poll', 'Poll', 'Create polls and surveys', 'icon-poll.png', '📊', 10),
-('media', 'Media', 'Share music, videos, and media content', 'icon-media.png', '🎵', 11),
-('book', 'Book', 'Book reviews and reading recommendations', 'icon-book.png', '📚', 12),
-('announcement', 'Announcement', 'Important announcements and news', 'icon-announcement.png', '📢', 13),
-('calendar', 'Calendar', 'Events and date-related content', 'icon-calendar.png', '📅', 14);
+INSERT INTO post_types (slug, name, description, icon_filename, sort_order) VALUES
+('note', 'Note', 'Default text post for thoughts and updates', 'icon-note.png', 1),
+('link', 'Link', 'Share interesting links with context', 'icon-link.png', 2),
+('comment', 'Comment', 'Comments or responses to other content', 'icon-comment.png', 3),
+('quote', 'Quote', 'Share quotes with proper attribution', 'icon-quote.png', 4),
+('photo', 'Photo', 'Photo posts with descriptions', 'icon-photo.png', 5),
+('code', 'Code', 'Code snippets and programming content', 'icon-code.png', 6),
+('question', 'Question', 'Ask questions to your audience', 'icon-question.png', 7),
+('shopping', 'Shopping', 'Product recommendations and shopping lists', 'icon-shopping.png', 8),
+('rant', 'Rant', 'Express strong opinions and frustrations', 'icon-rant.png', 9),
+('poll', 'Poll', 'Create polls and surveys', 'icon-poll.png', 10),
+('media', 'Media', 'Share music, videos, and media content', 'icon-media.png', 11),
+('book', 'Book', 'Book reviews and reading recommendations', 'icon-book.png', 12),
+('announcement', 'Announcement', 'Important announcements and news', 'icon-announcement.png', 13),
+('calendar', 'Calendar', 'Events and date-related content', 'icon-calendar.png', 14);
 
 -- Add post_type_id column to posts table
 ALTER TABLE posts 

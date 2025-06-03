@@ -102,7 +102,6 @@ class AdminController implements ControllerInterface
                 'post_type' => [
                     'slug' => $postType['slug'],
                     'name' => $postType['name'],
-                    'emoji' => $postType['emoji'],
                     'icon_path' => PostType::getIconPath($postType)
                 ]
             ], 201);
@@ -337,10 +336,10 @@ class AdminController implements ControllerInterface
         $input = json_decode(file_get_contents('php://input'), true);
         
         // Validate required fields
-        if (empty($input['slug']) || empty($input['name'])) {
+        if (empty($input['slug']) || empty($input['name']) || empty($input['icon_filename'])) {
             return $this->jsonResponse([
                 'success' => false, 
-                'message' => 'Missing required fields: slug and name are required'
+                'message' => 'Missing required fields: slug, name, and icon_filename are required'
             ], 400);
         }
 

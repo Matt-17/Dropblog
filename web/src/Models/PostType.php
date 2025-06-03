@@ -26,7 +26,7 @@ class PostType
     {
         if (self::$typeCache === null) {
             $stmt = $this->pdo->prepare("
-                SELECT id, slug, name, description, icon_filename, emoji, sort_order 
+                SELECT id, slug, name, description, icon_filename, sort_order 
                 FROM post_types 
                 WHERE is_active = 1 
                 ORDER BY sort_order ASC, name ASC
@@ -46,7 +46,7 @@ class PostType
     public function getAll(): array
     {
         $stmt = $this->pdo->prepare("
-            SELECT id, slug, name, description, icon_filename, emoji, is_active, sort_order,
+            SELECT id, slug, name, description, icon_filename, is_active, sort_order,
                    created_at, updated_at
             FROM post_types 
             ORDER BY sort_order ASC, name ASC
@@ -64,7 +64,7 @@ class PostType
     public function getBySlug(string $slug): array|false
     {
         $stmt = $this->pdo->prepare("
-            SELECT id, slug, name, description, icon_filename, emoji, is_active, sort_order
+            SELECT id, slug, name, description, icon_filename, is_active, sort_order
             FROM post_types 
             WHERE slug = :slug AND is_active = 1
         ");
@@ -82,7 +82,7 @@ class PostType
     public function getById(int $id): array|false
     {
         $stmt = $this->pdo->prepare("
-            SELECT id, slug, name, description, icon_filename, emoji, is_active, sort_order
+            SELECT id, slug, name, description, icon_filename, is_active, sort_order
             FROM post_types 
             WHERE id = :id
         ");
@@ -100,8 +100,8 @@ class PostType
     public function create(array $data): int|false
     {
         // Validate required fields
-        if (empty($data['slug']) || empty($data['name'])) {
-            throw new InvalidArgumentException("Slug and name are required");
+        if (empty($data['slug']) || empty($data['name']) || empty($data['icon_filename'])) {
+            throw new InvalidArgumentException("Slug, name, and icon_filename are required");
         }
 
         // Check if slug already exists
@@ -110,16 +110,15 @@ class PostType
         }
 
         $stmt = $this->pdo->prepare("
-            INSERT INTO post_types (slug, name, description, icon_filename, emoji, is_active, sort_order) 
-            VALUES (:slug, :name, :description, :icon_filename, :emoji, :is_active, :sort_order)
+            INSERT INTO post_types (slug, name, description, icon_filename, is_active, sort_order) 
+            VALUES (:slug, :name, :description, :icon_filename, :is_active, :sort_order)
         ");
         
         $params = [
             ':slug' => $data['slug'],
             ':name' => $data['name'],
             ':description' => $data['description'] ?? null,
-            ':icon_filename' => $data['icon_filename'] ?? null,
-            ':emoji' => $data['emoji'] ?? null,
+            ':icon_filename' => $data['icon_filename'],
             ':is_active' => $data['is_active'] ?? 1,
             ':sort_order' => $data['sort_order'] ?? 0
         ];
@@ -156,7 +155,7 @@ class PostType
         $updateFields = [];
         $params = [':id' => $id];
 
-        foreach (['slug', 'name', 'description', 'icon_filename', 'emoji', 'is_active', 'sort_order'] as $field) {
+        foreach (['slug', 'name', 'description', 'icon_filename', 'is_active', 'sort_order'] as $field) {
             if (array_key_exists($field, $data)) {
                 $updateFields[] = "$field = :$field";
                 $params[":$field"] = $data[$field];
@@ -213,19 +212,19 @@ class PostType
     }
 
     /**
-     * Get the icon path for a post type (with fallback)
+     * Get the icon path for a post type using virtual directory
      * 
      * @param array $postType Post type record
-     * @return string The path to the icon
+     * @return string The virtual path to the icon
      */
     public static function getIconPath(array $postType): string
     {
         if (!empty($postType['icon_filename'])) {
-            return "/assets/images/post-types/" . $postType['icon_filename'];
+            return "/post-types/" . $postType['icon_filename'];
         }
         
-        // Fallback to emoji or default icon
-        return "/assets/images/post-types/icon-default.png";
+        // Fallback to default icon
+        return "/post-types/icon-default.png";
     }
 
     /**
@@ -236,10 +235,10 @@ class PostType
     public function getUsageStats(): array
     {
         $stmt = $this->pdo->prepare("
-            SELECT pt.id, pt.slug, pt.name, pt.emoji, COUNT(p.id) as post_count
+            SELECT pt.id, pt.slug, pt.name, pt.icon_filename, COUNT(p.id) as post_count
             FROM post_types pt
             LEFT JOIN posts p ON pt.id = p.post_type_id
-            GROUP BY pt.id, pt.slug, pt.name, pt.emoji
+            GROUP BY pt.id, pt.slug, pt.name, pt.icon_filename
             ORDER BY post_count DESC, pt.name ASC
         ");
         $stmt->execute();

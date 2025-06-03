@@ -33,20 +33,9 @@
                            checked="@(SelectedType == postType.Slug)" 
                            @onchange="@(() => SelectType(postType.Slug))" />
                     <div class="type-content">
-                        @if (!string.IsNullOrEmpty(postType.Emoji))
-                        {
-                            <div class="type-emoji">@postType.Emoji</div>
-                        }
-                        else if (!string.IsNullOrEmpty(postType.IconPath))
-                        {
-                            <img src="@postType.IconPath" 
-                                 alt="@postType.Name" 
-                                 class="type-icon" />
-                        }
-                        else
-                        {
-                            <div class="type-emoji">📝</div>
-                        }
+                        <img src="@postType.IconPath" 
+                             alt="@postType.Name" 
+                             class="type-icon" />
                         <span class="type-text">@postType.Name</span>
                     </div>
                 </label>
@@ -126,20 +115,20 @@
         // Fallback post types if API is unavailable
         return new List<PostTypeInfo>
         {
-            new("note", "Note", "📝"),
-            new("link", "Link", "🔗"),
-            new("comment", "Comment", "💬"),
-            new("quote", "Quote", "💭"),
-            new("photo", "Photo", "📷"),
-            new("code", "Code", "💻"),
-            new("question", "Question", "❓"),
-            new("shopping", "Shopping", "🛒"),
-            new("rant", "Rant", "😤"),
-            new("poll", "Poll", "📊"),
-            new("media", "Media", "🎵"),
-            new("book", "Book", "📚"),
-            new("announcement", "Announcement", "📢"),
-            new("calendar", "Calendar", "📅")
+            new("note", "Note", "/post-types/icon-note.png"),
+            new("link", "Link", "/post-types/icon-link.png"),
+            new("comment", "Comment", "/post-types/icon-comment.png"),
+            new("quote", "Quote", "/post-types/icon-quote.png"),
+            new("photo", "Photo", "/post-types/icon-photo.png"),
+            new("code", "Code", "/post-types/icon-code.png"),
+            new("question", "Question", "/post-types/icon-question.png"),
+            new("shopping", "Shopping", "/post-types/icon-shopping.png"),
+            new("rant", "Rant", "/post-types/icon-rant.png"),
+            new("poll", "Poll", "/post-types/icon-poll.png"),
+            new("media", "Media", "/post-types/icon-media.png"),
+            new("book", "Book", "/post-types/icon-book.png"),
+            new("announcement", "Announcement", "/post-types/icon-announcement.png"),
+            new("calendar", "Calendar", "/post-types/icon-calendar.png")
         };
     }
 } 
