@@ -24,15 +24,16 @@ class PostUtils
 
         $stmt = $pdo->prepare("
             SELECT 
-                id,
-                content,
-                created_at as date,
-                type,
-                metadata
-            FROM posts
-            WHERE created_at >= ?
-              AND created_at <= NOW()
-            ORDER BY created_at DESC
+                p.id,
+                p.content,
+                p.created_at as date,
+                pt.slug as type,
+                p.metadata
+            FROM posts p
+            LEFT JOIN post_types pt ON p.post_type_id = pt.id
+            WHERE p.created_at >= ?
+              AND p.created_at <= NOW()
+            ORDER BY p.created_at DESC
         ");
         $stmt->execute([ $lastWeek->format('Y-m-d H:i:s') ]);
         return array_map(fn($row) => Post::fromArray($row), $stmt->fetchAll(PDO::FETCH_ASSOC));
@@ -50,16 +51,17 @@ class PostUtils
     {
         $stmt = $pdo->prepare("
             SELECT 
-                id,
-                content,
-                created_at as date,
-                type,
-                metadata
-            FROM posts
-            WHERE YEAR(created_at) = ?
-              AND MONTH(created_at) = ?
-              AND created_at <= NOW()
-            ORDER BY created_at DESC
+                p.id,
+                p.content,
+                p.created_at as date,
+                pt.slug as type,
+                p.metadata
+            FROM posts p
+            LEFT JOIN post_types pt ON p.post_type_id = pt.id
+            WHERE YEAR(p.created_at) = ?
+              AND MONTH(p.created_at) = ?
+              AND p.created_at <= NOW()
+            ORDER BY p.created_at DESC
         ");
         $stmt->execute([ $year, $month ]);
         return array_map(fn($row) => Post::fromArray($row), $stmt->fetchAll(PDO::FETCH_ASSOC));
@@ -93,13 +95,14 @@ class PostUtils
     {
         $stmt = $pdo->prepare("
             SELECT 
-                id, 
-                content, 
-                created_at as date,
-                type,
-                metadata
-            FROM posts 
-            WHERE id = ? AND created_at <= NOW()
+                p.id, 
+                p.content, 
+                p.created_at as date,
+                pt.slug as type,
+                p.metadata
+            FROM posts p
+            LEFT JOIN post_types pt ON p.post_type_id = pt.id
+            WHERE p.id = ? AND p.created_at <= NOW()
             LIMIT 1
         ");
         $stmt->execute([$id]);
@@ -127,15 +130,15 @@ class PostUtils
             return []; // Return empty array if no keywords
         }
 
-        $sql = "SELECT id, content, created_at as date, type, metadata FROM posts WHERE";
+        $sql = "SELECT p.id, p.content, p.created_at as date, pt.slug as type, p.metadata FROM posts p LEFT JOIN post_types pt ON p.post_type_id = pt.id WHERE";
         $params = [];
 
         foreach ($keywords as $index => $keyword) {
-            $sql .= ($index > 0 ? " AND" : "") . " content LIKE ?";
+            $sql .= ($index > 0 ? " AND" : "") . " p.content LIKE ?";
             $params[] = '%' . $keyword . '%';
         }
 
-        $sql .= " AND created_at <= NOW() ORDER BY created_at DESC LIMIT 101";
+        $sql .= " AND p.created_at <= NOW() ORDER BY p.created_at DESC LIMIT 101";
 
         $stmt = $pdo->prepare($sql);
         $stmt->execute($params);
