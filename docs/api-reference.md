@@ -48,9 +48,10 @@ Authorization: Bearer YOUR_API_KEY
   "message": "Database updated successfully",
   "migrations_run": [
     "001_create_posts_table",
-    "002_add_post_types"
+    "002_add_post_types",
+    "005_create_post_types_table"
   ],
-  "total_migrations": 2
+  "total_migrations": 3
 }
 ```
 
@@ -91,14 +92,17 @@ Content-Type: application/json
 {
   "content": "# My Blog Post Title\n\nHere is some content in *Markdown* format.\n\n## Subheading\n\n- List item 1\n- List item 2\n\n**Bold text** and [link](https://example.com).",
   "post_type": "note",
-  "publish_date": "2024-03-15T10:30:00Z"
+  "metadata": {
+    "custom_field": "value"
+  }
 }
 ```
 
 **Request Parameters:**
 - `content` (required): Markdown content of the post
-- `post_type` (optional): Post type identifier (defaults to "note")
-- `publish_date` (optional): ISO 8601 timestamp (defaults to current time)
+- `post_type` (optional): Post type slug (defaults to "note")
+- `type` (optional): Legacy field name, use `post_type` instead
+- `metadata` (optional): JSON object with additional post metadata
 
 **Response (Success):**
 ```json
@@ -108,9 +112,12 @@ Content-Type: application/json
   "post_id": 123,
   "post_hash": "a1b2c3d4",
   "post_url": "/post/a1b2c3d4",
-  "post_type": "note",
-  "created_at": "2024-03-15T10:30:00Z",
-  "title": "My Blog Post Title"
+  "post_type": {
+    "slug": "note",
+    "name": "Note",
+    "emoji": "📝",
+    "icon_path": "/assets/images/post-types/icon-note.png"
+  }
 }
 ```
 
@@ -118,10 +125,9 @@ Content-Type: application/json
 ```json
 {
   "success": false,
-  "message": "Validation failed",
-  "errors": {
-    "content": "Content is required and cannot be empty"
-  }
+  "message": "Invalid post type",
+  "provided_type": "invalid-type",
+  "valid_types": ["note", "link", "comment", "quote", "photo", "code"]
 }
 ```
 
@@ -150,8 +156,9 @@ Content-Type: application/json
 ```
 
 **Request Parameters:**
-- `content` (required): Updated Markdown content
-- `post_type` (optional): New post type identifier
+- `content` (optional): Updated Markdown content
+- `post_type` (optional): New post type slug
+- `metadata` (optional): Updated metadata object
 
 **Response (Success):**
 ```json
@@ -160,8 +167,12 @@ Content-Type: application/json
   "message": "Post updated successfully", 
   "post_id": 123,
   "post_hash": "a1b2c3d4",
-  "post_url": "/post/a1b2c3d4",
-  "updated_at": "2024-03-15T14:45:00Z"
+  "post_type": {
+    "slug": "article",
+    "name": "Article",
+    "emoji": "📄",
+    "icon_path": "/assets/images/post-types/icon-article.png"
+  }
 }
 ```
 
@@ -255,6 +266,228 @@ Content-Type: application/json
 }
 ```
 
+## 🏷️ Post Types Management
+
+### Get Post Types
+
+Retrieves all available post types.
+
+**Endpoint:** `GET /admin/post-types`
+
+**Authentication:** Required
+
+**Query Parameters:**
+- `include_inactive` (optional): Set to "true" to include inactive post types
+
+**Request:**
+```http
+GET /admin/post-types HTTP/1.1
+Host: your-blog.com
+Authorization: Bearer YOUR_API_KEY
+```
+
+**Response (Success):**
+```json
+{
+  "success": true,
+  "post_types": [
+    {
+      "id": 1,
+      "slug": "note",
+      "name": "Note",
+      "description": "Default text post for thoughts and updates",
+      "icon_filename": "icon-note.png",
+      "emoji": "📝",
+      "icon_path": "/assets/images/post-types/icon-note.png",
+      "is_active": true,
+      "sort_order": 1
+    },
+    {
+      "id": 2,
+      "slug": "link",
+      "name": "Link",
+      "description": "Share interesting links with context",
+      "icon_filename": "icon-link.png",
+      "emoji": "🔗",
+      "icon_path": "/assets/images/post-types/icon-link.png",
+      "is_active": true,
+      "sort_order": 2
+    }
+  ],
+  "total_count": 2
+}
+```
+
+### Create Post Type
+
+Creates a new custom post type.
+
+**Endpoint:** `POST /admin/post-types`
+
+**Authentication:** Required
+
+**Request:**
+```http
+POST /admin/post-types HTTP/1.1
+Host: your-blog.com
+Authorization: Bearer YOUR_API_KEY
+Content-Type: application/json
+
+{
+  "slug": "recipe",
+  "name": "Recipe",
+  "description": "Cooking recipes and food content",
+  "emoji": "🍳",
+  "icon_filename": "icon-recipe.png",
+  "sort_order": 15
+}
+```
+
+**Request Parameters:**
+- `slug` (required): Unique identifier (2-50 chars, lowercase, alphanumeric + hyphens/underscores)
+- `name` (required): Display name for the post type
+- `description` (optional): Description of when to use this post type
+- `emoji` (optional): Emoji representation (recommended)
+- `icon_filename` (optional): Custom icon filename in post-types directory
+- `is_active` (optional): Whether the post type is active (default: true)
+- `sort_order` (optional): Display order (default: 0)
+
+**Response (Success):**
+```json
+{
+  "success": true,
+  "message": "Post type created successfully",
+  "post_type": {
+    "id": 15,
+    "slug": "recipe",
+    "name": "Recipe",
+    "description": "Cooking recipes and food content",
+    "emoji": "🍳",
+    "icon_filename": "icon-recipe.png",
+    "icon_path": "/assets/images/post-types/icon-recipe.png",
+    "is_active": true,
+    "sort_order": 15
+  }
+}
+```
+
+**Response (Validation Error):**
+```json
+{
+  "success": false,
+  "message": "Invalid slug format. Use 2-50 lowercase letters, numbers, hyphens, and underscores only."
+}
+```
+
+### Update Post Type
+
+Updates an existing post type.
+
+**Endpoint:** `PUT /admin/post-types/{id}`
+
+**Authentication:** Required
+
+**Path Parameters:**
+- `id`: Post type ID
+
+**Request:**
+```http
+PUT /admin/post-types/15 HTTP/1.1
+Host: your-blog.com
+Authorization: Bearer YOUR_API_KEY
+Content-Type: application/json
+
+{
+  "name": "Cooking Recipe",
+  "description": "Detailed cooking recipes with ingredients and instructions",
+  "sort_order": 20
+}
+```
+
+**Response (Success):**
+```json
+{
+  "success": true,
+  "message": "Post type updated successfully",
+  "post_type": {
+    "id": 15,
+    "slug": "recipe",
+    "name": "Cooking Recipe",
+    "description": "Detailed cooking recipes with ingredients and instructions",
+    "emoji": "🍳",
+    "icon_path": "/assets/images/post-types/icon-recipe.png",
+    "is_active": true,
+    "sort_order": 20
+  }
+}
+```
+
+### Delete Post Type
+
+Deletes a post type (only if no posts are using it).
+
+**Endpoint:** `DELETE /admin/post-types/{id}`
+
+**Authentication:** Required
+
+**Path Parameters:**
+- `id`: Post type ID
+
+**Response (Success):**
+```json
+{
+  "success": true,
+  "message": "Post type deleted successfully"
+}
+```
+
+**Response (In Use):**
+```json
+{
+  "success": false,
+  "message": "Cannot delete post type: 5 posts are using this type"
+}
+```
+
+### Get Post Type Usage Statistics
+
+Retrieves usage statistics for all post types.
+
+**Endpoint:** `GET /admin/post-types/stats`
+
+**Authentication:** Required
+
+**Response (Success):**
+```json
+{
+  "success": true,
+  "post_type_stats": [
+    {
+      "id": 1,
+      "slug": "note",
+      "name": "Note",
+      "emoji": "📝",
+      "post_count": 42
+    },
+    {
+      "id": 2,
+      "slug": "link",
+      "name": "Link", 
+      "emoji": "🔗",
+      "post_count": 15
+    },
+    {
+      "id": 15,
+      "slug": "recipe",
+      "name": "Recipe",
+      "emoji": "🍳",
+      "post_count": 0
+    }
+  ],
+  "total_types": 3
+}
+```
+
 ## 📊 Public API Endpoints
 
 ### Get Public Post
@@ -273,7 +506,11 @@ Content-Type: application/json
     "hash": "a1b2c3d4",
     "title": "My Blog Post Title", 
     "content_html": "<h1>My Blog Post Title</h1><p>Content here...</p>",
-    "post_type": "note",
+    "post_type": {
+      "slug": "note",
+      "name": "Note",
+      "emoji": "📝"
+    },
     "created_at": "2024-03-15T10:30:00Z",
     "url": "/post/a1b2c3d4"
   }
@@ -289,30 +526,89 @@ Content-Type: application/json
 **Query Parameters:**
 - `page` (optional): Page number
 - `limit` (optional): Posts per page (max: 50)
+- `type` (optional): Filter by post type slug
 
-## 🏷️ Post Types
+## 🎨 Post Type Icons and Images
 
-Dropblog supports various post types with visual indicators:
+### Icon Storage Options
 
-### Available Post Types
-- `note` - 📝 Default text post
-- `link` - 🔗 Link sharing
-- `comment` - 💬 Comment or response
-- `quote` - 💭 Quote or citation  
-- `photo` - 📷 Photo post
-- `code` - 💻 Code snippet
-- `question` - ❓ Question post
-- `shopping` - 🛒 Shopping/product post
-- `rant` - 😤 Rant or opinion
-- `poll` - 📊 Poll or survey
-- `media` - 🎵 Media content
-- `book` - 📚 Book review/recommendation
-- `announcement` - 📢 Important announcement
-- `calendar` - 📅 Event or date-related
+Dropblog supports multiple approaches for post type icons:
+
+#### 1. Emoji Icons (Recommended)
+- Set the `emoji` field when creating/updating post types
+- Cross-platform compatible
+- No file management required
+- Automatically scales for different screen sizes
+
+#### 2. Custom Icon Files
+- Upload PNG icons to `/web/src/wwwroot/assets/images/post-types/`
+- Set `icon_filename` field (e.g., "icon-recipe.png")
+- Recommended size: 64x64px for optimal display
+- Fallback to default icon if file not found
+
+#### 3. Icon Management
+- Icons are served from `/assets/images/post-types/{filename}`
+- Create the directory: `mkdir -p web/src/wwwroot/assets/images/post-types`
+- Default fallback icon: `icon-default.png`
+
+### Icon Guidelines
+
+- **Size**: 64x64px PNG files work best
+- **Style**: Simple, recognizable icons with good contrast
+- **Naming**: Use descriptive filenames like `icon-recipe.png`
+- **Fallback**: Always provide an emoji as fallback
+- **Optimization**: Compress images for web performance
+
+## 🏷️ Post Type System
+
+### Built-in Post Types
+
+Dropblog comes with 14 default post types:
+
+| Slug | Name | Emoji | Description |
+|------|------|-------|-------------|
+| `note` | Note | 📝 | Default text post for thoughts and updates |
+| `link` | Link | 🔗 | Share interesting links with context |
+| `comment` | Comment | 💬 | Comments or responses to other content |
+| `quote` | Quote | 💭 | Share quotes with proper attribution |
+| `photo` | Photo | 📷 | Photo posts with descriptions |
+| `code` | Code | 💻 | Code snippets and programming content |
+| `question` | Question | ❓ | Ask questions to your audience |
+| `shopping` | Shopping | 🛒 | Product recommendations and shopping lists |
+| `rant` | Rant | 😤 | Express strong opinions and frustrations |
+| `poll` | Poll | 📊 | Create polls and surveys |
+| `media` | Media | 🎵 | Share music, videos, and media content |
+| `book` | Book | 📚 | Book reviews and reading recommendations |
+| `announcement` | Announcement | 📢 | Important announcements and news |
+| `calendar` | Calendar | 📅 | Events and date-related content |
 
 ### Custom Post Types
 
-[TODO] Add support for custom post types in configuration.
+You can create unlimited custom post types for your specific needs:
+
+```bash
+# Example: Create a recipe post type
+curl -X POST \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "slug": "recipe",
+    "name": "Recipe", 
+    "description": "Cooking recipes and food content",
+    "emoji": "🍳",
+    "sort_order": 15
+  }' \
+  https://your-blog.com/admin/post-types
+```
+
+### Post Type Features
+
+- **Referential Integrity**: Cannot delete post types with existing posts
+- **Flexible Icons**: Support for emoji or custom image files
+- **Sorting**: Control display order with `sort_order` field
+- **Active/Inactive**: Temporarily disable post types without deletion
+- **Metadata Support**: Each post type can have custom metadata fields
+- **API Driven**: Fully manageable via REST API
 
 ## 📝 Content Processing
 

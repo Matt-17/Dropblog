@@ -1,55 +1,145 @@
 @using Microsoft.AspNetCore.Components.Web
+@using Dropblog.Services
+@inject BlogApiService ApiService
 
 <div class="post-type-selector">
     <label class="selector-label">Choose post type:</label>
-    <div class="type-grid">
-        @foreach (var postType in PostTypes)
-        {
-            <label class="type-option @(SelectedType == postType.Value ? "selected" : "")" 
-                   @onclick="@(() => SelectType(postType.Value))">
-                <input type="radio" 
-                       name="postType" 
-                       value="@postType.Value" 
-                       checked="@(SelectedType == postType.Value)" 
-                       @onchange="@(() => SelectType(postType.Value))" />
-                <div class="type-content">
-                    <img src="@($"assets/images/icon-{postType.Value}.png")" 
-                         alt="@postType.Text" 
-                         class="type-icon" />
-                    <span class="type-text">@postType.Text</span>
-                </div>
-            </label>
-        }
-    </div>
+    
+    @if (IsLoading)
+    {
+        <div class="loading-container">
+            <span class="spinner"></span>
+            <span>Loading post types...</span>
+        </div>
+    }
+    else if (!string.IsNullOrEmpty(ErrorMessage))
+    {
+        <div class="error-container">
+            <span class="error-icon">⚠️</span>
+            <span>@ErrorMessage</span>
+            <button class="retry-btn" @onclick="LoadPostTypes">Retry</button>
+        </div>
+    }
+    else
+    {
+        <div class="type-grid">
+            @foreach (var postType in PostTypes)
+            {
+                <label class="type-option @(SelectedType == postType.Slug ? "selected" : "")" 
+                       @onclick="@(() => SelectType(postType.Slug))">
+                    <input type="radio" 
+                           name="postType" 
+                           value="@postType.Slug" 
+                           checked="@(SelectedType == postType.Slug)" 
+                           @onchange="@(() => SelectType(postType.Slug))" />
+                    <div class="type-content">
+                        @if (!string.IsNullOrEmpty(postType.Emoji))
+                        {
+                            <div class="type-emoji">@postType.Emoji</div>
+                        }
+                        else if (!string.IsNullOrEmpty(postType.IconPath))
+                        {
+                            <img src="@postType.IconPath" 
+                                 alt="@postType.Name" 
+                                 class="type-icon" />
+                        }
+                        else
+                        {
+                            <div class="type-emoji">📝</div>
+                        }
+                        <span class="type-text">@postType.Name</span>
+                    </div>
+                </label>
+            }
+        </div>
+    }
 </div>
 
 @code {
     [Parameter] public string SelectedType { get; set; } = "note";
     [Parameter] public EventCallback<string> SelectedTypeChanged { get; set; }
 
-    private static readonly List<PostTypeOption> PostTypes = new()
-    {
-        new PostTypeOption("note", "Note"),
-        new PostTypeOption("link", "Link"),
-        new PostTypeOption("comment", "Comment"),
-        new PostTypeOption("quote", "Quote"),
-        new PostTypeOption("photo", "Photo"),
-        new PostTypeOption("code", "Code"),
-        new PostTypeOption("question", "Question"),
-        new PostTypeOption("shopping", "Shopping"),
-        new PostTypeOption("rant", "Rant"),
-        new PostTypeOption("poll", "Poll"),
-        new PostTypeOption("media", "Media"),
-        new PostTypeOption("book", "Book"),
-        new PostTypeOption("announcement", "Announcement"),
-        new PostTypeOption("calendar", "Calendar")
-    };
+    private List<PostTypeInfo> PostTypes = new();
+    private bool IsLoading = true;
+    private string ErrorMessage = "";
 
-    private async Task SelectType(string type)
+    protected override async Task OnInitializedAsync()
     {
-        SelectedType = type;
-        await SelectedTypeChanged.InvokeAsync(type);
+        await LoadPostTypes();
     }
 
-    private record PostTypeOption(string Value, string Text);
+    private async Task LoadPostTypes()
+    {
+        IsLoading = true;
+        ErrorMessage = "";
+        StateHasChanged();
+
+        try
+        {
+            var response = await ApiService.GetPostTypesAsync();
+            
+            if (response.Success && response.PostTypes != null)
+            {
+                PostTypes = response.PostTypes;
+                
+                // Ensure selected type is valid, fallback to first available
+                if (!PostTypes.Any(pt => pt.Slug == SelectedType))
+                {
+                    var firstType = PostTypes.FirstOrDefault();
+                    if (firstType != null)
+                    {
+                        SelectedType = firstType.Slug;
+                        await SelectedTypeChanged.InvokeAsync(SelectedType);
+                    }
+                }
+            }
+            else
+            {
+                ErrorMessage = response.Message ?? "Failed to load post types";
+                
+                // Fallback to basic types if API fails
+                PostTypes = GetFallbackPostTypes();
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Network error: {ex.Message}";
+            
+            // Fallback to basic types if API fails
+            PostTypes = GetFallbackPostTypes();
+        }
+        finally
+        {
+            IsLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task SelectType(string typeSlug)
+    {
+        SelectedType = typeSlug;
+        await SelectedTypeChanged.InvokeAsync(typeSlug);
+    }
+
+    private List<PostTypeInfo> GetFallbackPostTypes()
+    {
+        // Fallback post types if API is unavailable
+        return new List<PostTypeInfo>
+        {
+            new("note", "Note", "📝"),
+            new("link", "Link", "🔗"),
+            new("comment", "Comment", "💬"),
+            new("quote", "Quote", "💭"),
+            new("photo", "Photo", "📷"),
+            new("code", "Code", "💻"),
+            new("question", "Question", "❓"),
+            new("shopping", "Shopping", "🛒"),
+            new("rant", "Rant", "😤"),
+            new("poll", "Poll", "📊"),
+            new("media", "Media", "🎵"),
+            new("book", "Book", "📚"),
+            new("announcement", "Announcement", "📢"),
+            new("calendar", "Calendar", "📅")
+        };
+    }
 } 
