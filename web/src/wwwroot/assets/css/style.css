@@ -9,6 +9,7 @@ body {
     flex-direction: column;
     background-color: #eee;
     padding: 0 20px;
+    overflow-y: scroll;
 }
 
 /* --- Header --- */
@@ -272,7 +273,7 @@ pre[class*="language-"] {
         border: 1px solid #ddd;
         padding: 10px;
         background-color: white;
-        border-radius: 16px;
+        border-radius: 8px;
         box-shadow: 8px 8px 12px #000000;
         box-shadow: 8px 8px 12px rgba(0, 0, 0, 0.02);
     }
