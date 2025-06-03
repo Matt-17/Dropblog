@@ -13,7 +13,7 @@
 .type-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(64px, 1fr));
-    gap: 10px;
+    gap: 20px 10px;
     max-width: 100%;
 }
 
@@ -41,7 +41,7 @@
     width: 64px;
     overflow: hidden;
     box-shadow: 0 2px 4px #007bff;
-    box-shadow: 0 2px 8px rgba(0, 123, 192, 0.3);
+    box-shadow: 0 2px 4px rgba(0, 123, 192, 0.3);
 }
 
 @media (max-width: 767px) {
