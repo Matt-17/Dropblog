@@ -85,4 +85,4 @@ $currentLocale = Localization::getCurrentLocale();
 </html>
 <?php
 // End output buffering and send the content
-ob_end_flush(); 
+ob_end_flush();

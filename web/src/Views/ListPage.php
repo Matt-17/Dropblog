@@ -10,8 +10,8 @@ use Dropblog\Models\PostGroup;
 <?php if (empty($groupedPosts)): ?>
     <div class="no-posts"><?= htmlspecialchars($emptyMessage) ?></div>
 <?php else: ?>
-    <?php 
+    <?php
     // Include the PostList component to display the posts
-    include VIEWS_PATH . '/Components/PostList.php'; 
+    include VIEWS_PATH . '/Components/PostList.php';
     ?>
-<?php endif; ?> 
+<?php endif; ?>

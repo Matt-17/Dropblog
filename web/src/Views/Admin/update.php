@@ -13,4 +13,4 @@ if (isset($results)) {
         'message' => $message ?? 'Unknown error',
         'code' => $code ?? 500
     ]);
-} 
+}

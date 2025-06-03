@@ -4,4 +4,4 @@ echo json_encode([
     'success' => false,
     'message' => $message ?? 'Unknown error',
     'code' => $code ?? 500
-]); 
+]);

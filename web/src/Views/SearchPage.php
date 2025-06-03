@@ -20,4 +20,4 @@ use Dropblog\Utils\Localization;
     <div class="no-posts"><?= htmlspecialchars($emptyMessage) ?></div>
 <?php else: ?>
     <?php include VIEWS_PATH . '/ListPage.php'; ?>
-<?php endif; ?> 
+<?php endif; ?>

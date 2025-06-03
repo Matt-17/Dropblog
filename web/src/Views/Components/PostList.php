@@ -16,4 +16,4 @@ use Dropblog\Models\PostGroup;
 <?php endforeach; ?>
 <?php if (isset($moreResultsExist) && $moreResultsExist): ?>
     <p>Nicht alle Posts wurden berücksichtigt (mehr als 100 gefunden).</p>
-<?php endif; ?> 
+<?php endif; ?>

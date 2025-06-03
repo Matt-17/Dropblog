@@ -15,4 +15,4 @@ use Dropblog\Utils\HashIdHelper;
     <div class="post-content">
         <?= $post->getHighlightedContent($keywords ?? []) ?>
     </div>
-</article> 
+</article>
