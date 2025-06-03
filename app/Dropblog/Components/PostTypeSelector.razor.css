@@ -42,6 +42,7 @@
     overflow: hidden;
     box-shadow: 0 2px 4px #007bff;
     box-shadow: 0 2px 4px rgba(0, 123, 192, 0.3);
+    user-select: none;
 }
 
 @media (max-width: 767px) {

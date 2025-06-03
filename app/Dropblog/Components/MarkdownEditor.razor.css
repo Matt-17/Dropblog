@@ -1,7 +1,7 @@
 .markdown-editor {
-    border: 1px solid #ddd;
-    border-radius: 4px;
     overflow: hidden;
+    border-bottom: 1px solid #ddd;
+    outline: none;
 }
 
 .toolbar {
@@ -28,22 +28,22 @@
     justify-content: center;
 }
 
-.btn:hover {
-    background-color: #e9ecef;
-}
+    .btn:hover {
+        background-color: #e9ecef;
+    }
 
-.btn:active {
-    background-color: #dee2e6;
-}
+    .btn:active {
+        background-color: #dee2e6;
+    }
 
-.btn code {
-    font-size: 10px;
-    font-weight: bold;
-    background: none;
-    padding: 0;
-    color: inherit;
-    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-}
+    .btn code {
+        font-size: 10px;
+        font-weight: bold;
+        background: none;
+        padding: 0;
+        color: inherit;
+        font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    }
 
 .editor-textarea {
     border: none;
@@ -55,6 +55,8 @@
     padding: 12px;
     width: 100%;
     box-sizing: border-box;
+    resize: none;
+    border-radius: 0;
 }
 
 .form-control {
@@ -67,8 +69,29 @@
     color: #212529;
     background-color: #fff;
     background-clip: padding-box;
-    border: 1px solid #ced4da;
     appearance: none;
-    border-radius: 0.375rem;
     transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
-} 
+}
+
+/* Mobile/Android specific styles - full-size editor */
+@media (max-width: 768px) {
+    .markdown-editor {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        border: none;
+    }
+
+    .toolbar {
+        flex-shrink: 0;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .editor-textarea {
+        flex: 1;
+        resize: none;
+        min-height: 0;
+        padding: 16px;
+        font-size: 16px; /* Prevent zoom on iOS */
+    }
+}

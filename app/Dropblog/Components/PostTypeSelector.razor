@@ -33,7 +33,7 @@
                            checked="@(SelectedType == postType.Slug)" 
                            @onchange="@(() => SelectType(postType.Slug))" />
                     <div class="type-content">
-                        <img src="@postType.IconPath" 
+                        <img src="@("https://numbertools.de/"+postType.IconPath)" 
                              alt="@postType.Name" 
                              class="type-icon" />
                         <span class="type-text">@postType.Name</span>
