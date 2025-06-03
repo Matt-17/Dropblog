@@ -267,9 +267,7 @@ pre[class*="language-"] {
     font-style: italic;
 }
 
-@media-desktop {
-
-
+@media (min-width: 1025px) {
     .post-content {
         border: 1px solid #ddd;
         padding: 10px;
@@ -280,10 +278,11 @@ pre[class*="language-"] {
     }
 }
 
-@media-tablet {
+@media (min-width: 768px) and (max-width: 1024px) {
+    /* Inhalte für Tablet können hier rein */
 }
 
-@media-phone {
+@media (max-width: 767px) {
     body {
         padding: 0 10px;
     }
