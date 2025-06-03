@@ -1,12 +1,14 @@
 ﻿@inherits LayoutComponentBase
 
 <div class="page">
-    <div class="sidebar">
+    <!-- Desktop Sidebar Navigation -->
+    <div class="sidebar desktop-only">
         <NavMenu />
     </div>
 
-    <main>
-        <div class="top-row px-4">
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <div class="top-row desktop-only px-4">
             <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
         </div>
 
@@ -14,4 +16,9 @@
             @Body
         </article>
     </main>
+
+    <!-- Mobile Bottom Navigation -->
+    <div class="bottom-nav mobile-only">
+        <NavMenu />
+    </div>
 </div>

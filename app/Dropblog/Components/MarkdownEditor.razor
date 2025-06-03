@@ -14,34 +14,11 @@
             <u>U</u>
         </button>
         <button type="button" class="btn btn-sm" @onclick="@(() => InsertCodeAsync(false))" title="Inline Code">
-            <code>`</code>
+            <code>c</code>
         </button>
-        <div class="code-block-group">
-            <button type="button" class="btn btn-sm" @onclick="@(() => InsertCodeAsync(true))" title="Code Block">
-                <code>```</code>
-            </button>
-            <select @bind="selectedLanguage" class="language-select" title="Code Language">
-                <option value="">Plain</option>
-                <option value="javascript">JavaScript</option>
-                <option value="typescript">TypeScript</option>
-                <option value="python">Python</option>
-                <option value="csharp">C#</option>
-                <option value="java">Java</option>
-                <option value="cpp">C++</option>
-                <option value="html">HTML</option>
-                <option value="css">CSS</option>
-                <option value="php">PHP</option>
-                <option value="sql">SQL</option>
-                <option value="bash">Bash</option>
-                <option value="json">JSON</option>
-                <option value="xml">XML</option>
-                <option value="yaml">YAML</option>
-                <option value="markdown">Markdown</option>
-            </select>
-            <button type="button" class="btn btn-sm" @onclick="InsertCodeWithLanguageAsync" title="Code Block with Language">
-                <code>```lang</code>
-            </button>
-        </div>
+        <button type="button" class="btn btn-sm" @onclick="@(() => InsertCodeAsync(true))" title="Code Block">
+            <code>&lt;c/&gt;</code>
+        </button>
         <button type="button" class="btn btn-sm" @onclick="ToggleListAsync" title="Toggle List">
             ☰
         </button>
@@ -59,111 +36,9 @@
               rows="10"></textarea>
 </div>
 
-<style>
-    .markdown-editor {
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        overflow: hidden;
-    }
-
-    .toolbar {
-        background-color: #f8f9fa;
-        border-bottom: 1px solid #ddd;
-        padding: 8px;
-        display: flex;
-        gap: 4px;
-        flex-wrap: wrap;
-        align-items: center;
-    }
-
-    .btn {
-        background-color: white;
-        border: 1px solid #ccc;
-        border-radius: 3px;
-        padding: 4px 8px;
-        cursor: pointer;
-        font-size: 12px;
-        min-width: 28px;
-        height: 28px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .btn:hover {
-        background-color: #e9ecef;
-    }
-
-    .btn:active {
-        background-color: #dee2e6;
-    }
-
-    .btn code {
-        font-size: 10px;
-        font-weight: bold;
-        background: none;
-        padding: 0;
-        color: inherit;
-    }
-
-    .code-block-group {
-        display: flex;
-        align-items: center;
-        gap: 2px;
-        border: 1px solid #ccc;
-        border-radius: 3px;
-        background-color: white;
-        padding: 2px;
-    }
-
-    .language-select {
-        border: none;
-        background: none;
-        font-size: 11px;
-        padding: 2px 4px;
-        min-width: 80px;
-        height: 24px;
-        outline: none;
-        cursor: pointer;
-    }
-
-    .language-select:focus {
-        background-color: #f0f8ff;
-    }
-
-    .editor-textarea {
-        border: none;
-        outline: none;
-        resize: vertical;
-        font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-        font-size: 14px;
-        line-height: 1.5;
-        padding: 12px;
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    .form-control {
-        display: block;
-        width: 100%;
-        padding: 0.375rem 0.75rem;
-        font-size: 1rem;
-        font-weight: 400;
-        line-height: 1.5;
-        color: #212529;
-        background-color: #fff;
-        background-clip: padding-box;
-        border: 1px solid #ced4da;
-        appearance: none;
-        border-radius: 0.375rem;
-        transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
-    }
-</style>
-
 @code {
     private ElementReference textareaRef;
     private string textareaId = Guid.NewGuid().ToString();
-    private string selectedLanguage = "";
 
     [Parameter] public string Value { get; set; } = string.Empty;
     [Parameter] public EventCallback<string> ValueChanged { get; set; }
@@ -195,22 +70,6 @@
         {
             // Fallback
             Value += isBlock ? "```\ncode\n```" : "`code`";
-            await ValueChanged.InvokeAsync(Value);
-        }
-    }
-
-    private async Task InsertCodeWithLanguageAsync()
-    {
-        try
-        {
-            await JSRuntime.InvokeVoidAsync("markdownEditor.insertCodeWithLanguage", textareaId, selectedLanguage);
-            await UpdateValueFromTextarea();
-        }
-        catch
-        {
-            // Fallback
-            var lang = string.IsNullOrEmpty(selectedLanguage) ? "" : selectedLanguage;
-            Value += $"```{lang}\ncode\n```";
             await ValueChanged.InvokeAsync(Value);
         }
     }
