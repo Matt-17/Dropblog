@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36127.28 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dropblog", "Dropblog\Dropblog.csproj", "{084A9612-6BC3-4326-93B1-C3632FC08E2E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{084A9612-6BC3-4326-93B1-C3632FC08E2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{084A9612-6BC3-4326-93B1-C3632FC08E2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{084A9612-6BC3-4326-93B1-C3632FC08E2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{084A9612-6BC3-4326-93B1-C3632FC08E2E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8AC0F120-5029-4181-8FBD-9CF07C3CB0DC}
+	EndGlobalSection
+EndGlobal
