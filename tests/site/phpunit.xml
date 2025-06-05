@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
+         bootstrap="bootstrap.php"
+         colors="true"
+         testdox="true"
+         cacheDirectory=".phpunit.cache"
+         requireCoverageMetadata="false">
+
+    <testsuites>
+        <testsuite name="Unit">
+            <directory>./Models</directory>
+        </testsuite>
+    </testsuites>
+
+    <source>
+        <include>
+            <directory suffix=".php">../../web/site</directory>
+        </include>
+        <exclude>
+            <directory>../../web/site/vendor</directory>
+            <directory>../../web/site/wwwroot</directory>
+            <directory>../../web/site/resources</directory>
+            <directory>../../web/site/assets</directory>
+            <file>../../web/site/update.php</file>
+        </exclude>
+    </source>
+
+    <coverage>
+        <report>
+            <html outputDirectory="coverage" lowUpperBound="50" highLowerBound="80"/>
+            <text outputFile="php://stdout"/>
+        </report>
+    </coverage>
+
+    <php>
+        <env name="APP_ENV" value="testing"/>
+    </php>
+</phpunit> 

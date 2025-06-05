@@ -1,0 +1,26 @@
+{
+    "name": "dropblog/tests",
+    "description": "Test suite for Dropblog",
+    "type": "project",
+    "require": {
+        "php": ">=8.2"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Dropblog\\": "../../web/site/",
+            "Dropblog\\Tests\\": "./"
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "test-coverage": "phpunit --coverage-html coverage",
+        "test-verbose": "phpunit --testdox --verbose"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    }
+} 

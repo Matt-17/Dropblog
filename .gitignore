@@ -67,7 +67,11 @@ Thumbs.db
 
 # Composer
 web/site/vendor/**
+tests/site/vendor/**
 composer.lock
+
+# PhpUnit
+.phpunit.cache
 
 # Environment file
 .env
