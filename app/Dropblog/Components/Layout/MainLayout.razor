@@ -1,4 +1,9 @@
-﻿@inherits LayoutComponentBase
+﻿@using Dropblog.Services
+@inherits LayoutComponentBase
+@inject IBlogConfigurationService BlogConfig
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+@implements IDisposable
 
 <div class="page">
     <!-- Desktop Sidebar Navigation -->
@@ -9,7 +14,39 @@
     <!-- Main Content Area -->
     <main class="main-content">
         <div class="top-row desktop-only px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+            <div class="blog-selector-dropdown">
+                <button class="dropdown-toggle" @onclick="ToggleDropdown" @onclick:stopPropagation="true">
+                    <span class="current-blog-text">
+                        @if (BlogConfig.CurrentBlogSite != BlogSite.Empty)
+                        {
+                            @BlogConfig.CurrentBlogSite.Name
+                        }
+                        else
+                        {
+                            <text>No Blog Selected</text>
+                        }
+                    </span>
+                    <span class="dropdown-arrow">@(isDropdownOpen ? "▲" : "▼")</span>
+                </button>
+                
+                @if (isDropdownOpen)
+                {
+                    <div class="dropdown-menu">
+                        @if (BlogConfig.CurrentBlogSite != BlogSite.Empty)
+                        {
+                            <a href="@BlogConfig.CurrentBlogSite.Url" target="_blank" class="dropdown-item">
+                                <span class="dropdown-icon">🌐</span>
+                                Visit Current Blog
+                            </a>
+                            <div class="dropdown-divider"></div>
+                        }
+                        <a href="/blog-management" class="dropdown-item" @onclick="CloseDropdown">
+                            <span class="dropdown-icon">⚙️</span>
+                            Manage Blog Sites
+                        </a>
+                    </div>
+                }
+            </div>
         </div>
 
         <article class="content px-4">
@@ -22,3 +59,43 @@
         <NavMenu />
     </div>
 </div>
+
+@code {
+    private bool isDropdownOpen = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await BlogConfig.LoadBlogSitesAsync();
+        BlogConfig.CurrentBlogSiteChanged += OnCurrentBlogSiteChanged;
+        StateHasChanged();
+    }
+
+    private void OnCurrentBlogSiteChanged(object? sender, BlogSite newSite)
+    {
+        InvokeAsync(() => StateHasChanged());
+    }
+
+    private void ToggleDropdown()
+    {
+        isDropdownOpen = !isDropdownOpen;
+    }
+
+    private void CloseDropdown()
+    {
+        isDropdownOpen = false;
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Add click listener to close dropdown when clicking outside
+            JSRuntime.InvokeVoidAsync("addClickOutsideHandler", "blog-selector-dropdown");
+        }
+    }
+
+    public void Dispose()
+    {
+        BlogConfig.CurrentBlogSiteChanged -= OnCurrentBlogSiteChanged;
+    }
+}

@@ -72,7 +72,7 @@
                 PostTypes = response.PostTypes;
                 
                 // Ensure selected type is valid, fallback to first available
-                if (!PostTypes.Any(pt => pt.Slug == SelectedType))
+                if (PostTypes.All(pt => pt.Slug != SelectedType))
                 {
                     var firstType = PostTypes.FirstOrDefault();
                     if (firstType != null)

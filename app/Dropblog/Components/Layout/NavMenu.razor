@@ -1,4 +1,8 @@
-﻿<!-- Desktop Navigation -->
+﻿@using Dropblog.Services
+@inject IBlogConfigurationService BlogConfig
+@implements IDisposable
+
+<!-- Desktop Navigation -->
 <div class="desktop-nav">
     <div class="top-row ps-3 navbar navbar-dark">
         <div class="container-fluid">
@@ -15,10 +19,20 @@
                 </NavLink>
             </div>
             <div class="nav-item px-3">
-                <a class="nav-link" href="https://numbertools.de" target="_blank">
-                    <span class="nav-icon">🌐</span>
-                    <span class="nav-text">View Blog</span>
-                </a>
+                @if (BlogConfig.CurrentBlogSite != BlogSite.Empty)
+                {
+                    <a class="nav-link" href="@BlogConfig.CurrentBlogSite.Url" target="_blank">
+                        <span class="nav-icon">🌐</span>
+                        <span class="nav-text">View Blog</span>
+                    </a>
+                }
+                else
+                {
+                    <div class="nav-link disabled">
+                        <span class="nav-icon">🌐</span>
+                        <span class="nav-text">No Blog Selected</span>
+                    </div>
+                }
             </div>
         </nav>
     </div>
@@ -31,9 +45,38 @@
             <span class="mobile-nav-icon">✍️</span>
             <span class="mobile-nav-text">New Post</span>
         </NavLink>
-        <a class="mobile-nav-link" href="https://numbertools.de" target="_blank">
-            <span class="mobile-nav-icon">🌐</span>
-            <span class="mobile-nav-text">View Blog</span>
-        </a>
+        @if (BlogConfig.CurrentBlogSite != BlogSite.Empty)
+        {
+            <a class="mobile-nav-link" href="@BlogConfig.CurrentBlogSite.Url" target="_blank">
+                <span class="mobile-nav-icon">🌐</span>
+                <span class="mobile-nav-text">View Blog</span>
+            </a>
+        }
+        else
+        {
+            <div class="mobile-nav-link disabled">
+                <span class="mobile-nav-icon">🌐</span>
+                <span class="mobile-nav-text">No Blog</span>
+            </div>
+        }
     </nav>
 </div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await BlogConfig.LoadBlogSitesAsync();
+        BlogConfig.CurrentBlogSiteChanged += OnCurrentBlogSiteChanged;
+        StateHasChanged();
+    }
+
+    private void OnCurrentBlogSiteChanged(object? sender, BlogSite newSite)
+    {
+        InvokeAsync(() => StateHasChanged());
+    }
+
+    public void Dispose()
+    {
+        BlogConfig.CurrentBlogSiteChanged -= OnCurrentBlogSiteChanged;
+    }
+}

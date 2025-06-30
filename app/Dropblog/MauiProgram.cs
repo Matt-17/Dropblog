@@ -17,6 +17,9 @@ namespace Dropblog
 
             builder.Services.AddMauiBlazorWebView();
 
+            // Add blog configuration service
+            builder.Services.AddSingleton<IBlogConfigurationService, BlogConfigurationService>();
+
             // Add HTTP client and API service
             builder.Services.AddHttpClient<BlogApiService>();
             

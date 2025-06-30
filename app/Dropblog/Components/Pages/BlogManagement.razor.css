@@ -1,0 +1,267 @@
+.blog-management {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.header h1 {
+    margin: 0 0 8px 0;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #333;
+}
+
+.subtitle {
+    margin: 0;
+    color: #666;
+    font-size: 1.1rem;
+}
+
+.current-blog-section,
+.add-blog-section,
+.blog-sites-section {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid #eee;
+}
+
+.current-blog-section h2,
+.add-blog-section h2,
+.blog-sites-section h2 {
+    margin: 0 0 16px 0;
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.current-blog-card {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 2px solid #e7f3ff;
+}
+
+.blog-info .blog-name {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.blog-info .blog-url {
+    color: #666;
+    font-size: 0.9rem;
+    font-family: 'Courier New', monospace;
+}
+
+.visit-btn {
+    background: #007bff;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
+}
+
+.visit-btn:hover {
+    background: #0056b3;
+}
+
+.no-selection {
+    color: #666;
+    font-style: italic;
+    text-align: center;
+}
+
+.add-form {
+    display: grid;
+    gap: 16px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-group label {
+    font-weight: 600;
+    color: #333;
+    font-size: 0.9rem;
+}
+
+.form-group input {
+    padding: 12px;
+    border: 2px solid #eee;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #007bff;
+}
+
+.add-btn {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    justify-self: start;
+}
+
+.add-btn:hover:not(:disabled) {
+    background: #218838;
+}
+
+.add-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.blog-sites-list {
+    display: grid;
+    gap: 12px;
+}
+
+.blog-site-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border: 2px solid #eee;
+    border-radius: 8px;
+    transition: border-color 0.2s;
+}
+
+.blog-site-card.current {
+    border-color: #007bff;
+    background: #f8f9ff;
+}
+
+.site-info .site-name {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.site-info .site-url {
+    color: #666;
+    font-size: 0.9rem;
+    font-family: 'Courier New', monospace;
+}
+
+.site-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.select-btn {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.select-btn:hover {
+    background: #0056b3;
+}
+
+.remove-btn {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.remove-btn:hover {
+    background: #c82333;
+}
+
+.current-badge {
+    background: #28a745;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.no-sites {
+    text-align: center;
+    color: #666;
+    padding: 20px;
+    font-style: italic;
+}
+
+.back-section {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.back-btn {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.back-btn:hover {
+    background: #5a6268;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .blog-management {
+        padding: 16px;
+    }
+    
+    .current-blog-card,
+    .blog-site-card {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+    
+    .site-actions {
+        justify-content: space-between;
+    }
+    
+    .header h1 {
+        font-size: 1.8rem;
+    }
+} 

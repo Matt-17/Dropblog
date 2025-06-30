@@ -6,21 +6,47 @@ namespace Dropblog.Services;
 public class BlogApiService
 {
     private readonly HttpClient _httpClient;
-    private const string BaseUrl = "https://numbertools.de";
+    private readonly IBlogConfigurationService _blogConfig;
     private const string ApiKey = "ADMIN_API_KEY";
 
-    public BlogApiService(HttpClient httpClient)
+    public BlogApiService(HttpClient httpClient, IBlogConfigurationService blogConfig)
     {
         _httpClient = httpClient;
-        _httpClient.BaseAddress = new Uri(BaseUrl);
+        _blogConfig = blogConfig;
         _httpClient.DefaultRequestHeaders.Authorization = 
             new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", ApiKey);
+    }
+
+    private async Task<bool> EnsureBaseUrlAsync()
+    {
+        if (_blogConfig.CurrentBlogSite == BlogSite.Empty)
+        {
+            await _blogConfig.LoadBlogSitesAsync();
+            if (_blogConfig.CurrentBlogSite == BlogSite.Empty)
+                return false;
+        }
+
+        var currentUrl = _blogConfig.CurrentBlogSite.Url;
+        if (_httpClient.BaseAddress?.ToString() != currentUrl)
+        {
+            _httpClient.BaseAddress = new Uri(currentUrl);
+        }
+        return true;
     }
 
     public async Task<PostResponse> CreatePostAsync(string content, string postType = "note")
     {
         try
         {
+            if (!await EnsureBaseUrlAsync())
+            {
+                return new PostResponse 
+                { 
+                    Success = false, 
+                    Message = "No blog site configured. Please configure a blog site first." 
+                };
+            }
+
             var requestData = new { content, post_type = postType };
             var json = JsonSerializer.Serialize(requestData);
             var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
@@ -59,6 +85,15 @@ public class BlogApiService
     {
         try
         {
+            if (!await EnsureBaseUrlAsync())
+            {
+                return new PostTypesResponse 
+                { 
+                    Success = false, 
+                    Message = "No blog site configured. Please configure a blog site first." 
+                };
+            }
+
             var response = await _httpClient.GetAsync("/admin/post-types");
             var responseContent = await response.Content.ReadAsStringAsync();
 
@@ -116,6 +151,15 @@ public class BlogApiService
     {
         try
         {
+            if (!await EnsureBaseUrlAsync())
+            {
+                return new PostTypeResponse 
+                { 
+                    Success = false, 
+                    Message = "No blog site configured. Please configure a blog site first." 
+                };
+            }
+
             var json = JsonSerializer.Serialize(request, new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
@@ -146,6 +190,15 @@ public class BlogApiService
     {
         try
         {
+            if (!await EnsureBaseUrlAsync())
+            {
+                return new PostTypeStatsResponse 
+                { 
+                    Success = false, 
+                    Message = "No blog site configured. Please configure a blog site first." 
+                };
+            }
+
             var response = await _httpClient.GetAsync("/admin/post-types/stats");
             var responseContent = await response.Content.ReadAsStringAsync();
 

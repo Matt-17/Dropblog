@@ -1,0 +1,147 @@
+@page "/blog-management"
+@using Dropblog.Services
+@inject IBlogConfigurationService BlogConfig
+@inject NavigationManager Navigation
+
+<PageTitle>Blog Management</PageTitle>
+
+<div class="blog-management">
+    <div class="header">
+        <h1>🌐 Blog Management</h1>
+        <p class="subtitle">Manage your blog sites and select which one to use</p>
+    </div>
+
+    <div class="current-blog-section">
+        <h2>Current Blog Site</h2>
+        <div class="current-blog-card">
+            @if (BlogConfig.CurrentBlogSite != BlogSite.Empty)
+            {
+                <div class="blog-info">
+                    <div class="blog-name">@BlogConfig.CurrentBlogSite.Name</div>
+                    <div class="blog-url">@BlogConfig.CurrentBlogSite.Url</div>
+                </div>
+                <a href="@BlogConfig.CurrentBlogSite.Url" target="_blank" class="visit-btn">
+                    Visit Site ↗
+                </a>
+            }
+            else
+            {
+                <div class="no-selection">
+                    <span>No blog site selected</span>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="add-blog-section">
+        <h2>Add New Blog Site</h2>
+        <div class="add-form">
+            <div class="form-group">
+                <label for="blog-name">Site Name</label>
+                <input @bind="newBlogName" @onkeypress="HandleAddKeyPress" id="blog-name" type="text" placeholder="e.g., My Blog" />
+            </div>
+            <div class="form-group">
+                <label for="blog-url">Site URL</label>
+                <input @bind="newBlogUrl" @onkeypress="HandleAddKeyPress" id="blog-url" type="url" placeholder="e.g., https://myblog.com" />
+            </div>
+            <button @onclick="AddBlogSite" class="add-btn" disabled="@(string.IsNullOrWhiteSpace(newBlogName) || string.IsNullOrWhiteSpace(newBlogUrl))">
+                Add Blog Site
+            </button>
+        </div>
+    </div>
+
+    <div class="blog-sites-section">
+        <h2>All Blog Sites</h2>
+        @if (BlogConfig.BlogSites.Any())
+        {
+            <div class="blog-sites-list">
+                @foreach (var site in BlogConfig.BlogSites)
+                {
+                    <div class="blog-site-card @(site.Id == BlogConfig.CurrentBlogSite.Id ? "current" : "")">
+                        <div class="site-info">
+                            <div class="site-name">@site.Name</div>
+                            <div class="site-url">@site.Url</div>
+                        </div>
+                        <div class="site-actions">
+                            @if (site.Id != BlogConfig.CurrentBlogSite.Id)
+                            {
+                                <button @onclick="() => SetCurrentBlogSite(site)" class="select-btn">
+                                    Select
+                                </button>
+                            }
+                            else
+                            {
+                                <span class="current-badge">Current</span>
+                            }
+                            <button @onclick="() => RemoveBlogSite(site)" class="remove-btn">
+                                Remove
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="no-sites">
+                <p>No blog sites configured. Add one above to get started.</p>
+            </div>
+        }
+    </div>
+
+    <div class="back-section">
+        <button @onclick="GoBack" class="back-btn">
+            ← Back to Editor
+        </button>
+    </div>
+</div>
+
+@code {
+    private string newBlogName = string.Empty;
+    private string newBlogUrl = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await BlogConfig.LoadBlogSitesAsync();
+        StateHasChanged();
+    }
+
+    private async Task AddBlogSite()
+    {
+        if (string.IsNullOrWhiteSpace(newBlogName) || string.IsNullOrWhiteSpace(newBlogUrl))
+            return;
+
+        await BlogConfig.AddBlogSiteAsync(newBlogName, newBlogUrl);
+        
+        // Clear form
+        newBlogName = string.Empty;
+        newBlogUrl = string.Empty;
+        
+        StateHasChanged();
+    }
+
+    private async Task RemoveBlogSite(BlogSite site)
+    {
+        await BlogConfig.RemoveBlogSiteAsync(site);
+        StateHasChanged();
+    }
+
+    private async Task SetCurrentBlogSite(BlogSite site)
+    {
+        await BlogConfig.SetCurrentBlogSiteAsync(site);
+        StateHasChanged();
+    }
+
+    private async Task HandleAddKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await AddBlogSite();
+        }
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/");
+    }
+} 
