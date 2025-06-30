@@ -1,0 +1,122 @@
+name: Deploy Installer
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'web/installer/**'
+  workflow_dispatch:
+
+jobs:
+  deploy-installer:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer
+
+      - name: Install dependencies
+        run: composer install --no-dev --optimize-autoloader
+
+      - name: Create test database
+        run: |
+          mysql -e "CREATE DATABASE IF NOT EXISTS dropblog_test;"
+          mysql -e "CREATE USER IF NOT EXISTS 'dropblog_test'@'localhost' IDENTIFIED BY 'test_password';"
+          mysql -e "GRANT ALL PRIVILEGES ON dropblog_test.* TO 'dropblog_test'@'localhost';"
+          mysql -e "FLUSH PRIVILEGES;"
+
+      - name: Create test config
+        run: |
+          cp web/src/Config.template.php web/src/Config.php
+          sed -i \
+            -e "s/{{DB_HOST}}/localhost/g" \
+            -e "s/{{DB_NAME}}/dropblog_test/g" \
+            -e "s/{{DB_USER}}/dropblog_test/g" \
+            -e "s/{{DB_PASS}}/test_password/g" \
+            -e "s/{{ADMIN_API_KEY}}/test_api_key/g" \
+            -e "s/{{BLOG_TITLE}}/Test Blog/g" \
+            web/src/Config.php
+
+      - name: Run installer
+        run: php web/installer/install.php
+
+      - name: Verify installation
+        run: |
+          # Check if database tables were created
+          if ! mysql -u dropblog_test -ptest_password dropblog_test -e "SHOW TABLES;" | grep -q "posts"; then
+            echo "Installation failed: posts table not found"
+            exit 1
+          fi
+          
+          # Check if Config.php was created
+          if [ ! -f web/src/Config.php ]; then
+            echo "Installation failed: Config.php not created"
+            exit 1
+          fi
+          
+          # Check if required directories exist
+          for dir in "web/src/Views" "web/src/Models" "web/src/Controller"; do
+            if [ ! -d "$dir" ]; then
+              echo "Installation failed: $dir directory not found"
+              exit 1
+            fi
+          done
+
+      - name: Prepare release package
+        run: |
+          # Create a temporary directory for the release
+          mkdir -p release/installer
+          
+          # Copy installer files
+          cp -r web/installer/* release/installer/
+          
+          # Copy required files for installation
+          cp web/src/Config.template.php release/installer/
+          cp composer.json release/installer/
+          cp composer.lock release/installer/
+          
+          # Create a README for the installer
+          cat > release/installer/README.md << 'EOF'
+          # Dropblog Installer
+          
+          This is the verified installer package for Dropblog.
+          
+          ## Installation
+          
+          1. Copy all files to your web server
+          2. Run `composer install --no-dev --optimize-autoloader`
+          3. Run `php install.php`
+          4. Follow the installation prompts
+          
+          ## Requirements
+          
+          - PHP 8.2 or higher
+          - MySQL 5.7 or higher
+          - Composer
+          EOF
+          
+          # Create a zip file
+          cd release
+          zip -r dropblog-installer.zip installer/
+
+      - name: Upload release artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dropblog-installer
+          path: release/dropblog-installer.zip
+          retention-days: 5
+
+      - name: Cleanup
+        if: always()
+        run: |
+          mysql -e "DROP DATABASE IF EXISTS dropblog_test;"
+          mysql -e "DROP USER IF EXISTS 'dropblog_test'@'localhost';"
+          rm -f web/src/Config.php
+          rm -rf release/ 

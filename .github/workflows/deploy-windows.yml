@@ -1,0 +1,45 @@
+name: Deploy Windows App
+
+on:
+  # push:
+  #   branches: [ main ]
+  #   paths:
+  #     - 'app/**'
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        working-directory: app/Dropblog
+        run: dotnet restore
+
+      - name: Build Windows App
+        working-directory: app/Dropblog
+        run: dotnet build -c Release -f net9.0-windows10.0.19041.0
+
+      - name: Create Windows Package
+        working-directory: app/Dropblog
+        run: dotnet publish -c Release -f net9.0-windows10.0.19041.0 -o ./publish
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Windows Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          files: app/Dropblog/publish/Dropblog.msix
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 

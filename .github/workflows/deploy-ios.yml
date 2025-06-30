@@ -1,0 +1,46 @@
+name: Deploy iOS App
+
+# on:
+#   push:
+#     branches: [ main ]
+#     paths:
+#       - 'app/**'
+on:
+  workflow_dispatch:
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        working-directory: app/Dropblog
+        run: dotnet restore
+
+      - name: Build iOS App
+        working-directory: app/Dropblog
+        run: dotnet build -c Release -f net9.0-ios
+
+      - name: Create iOS Package
+        working-directory: app/Dropblog
+        run: dotnet publish -c Release -f net9.0-ios -o ./publish
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: iOS Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          files: app/Dropblog/publish/Dropblog.ipa
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
