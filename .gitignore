@@ -66,7 +66,7 @@ Thumbs.db
 *.log 
 
 # Composer
-web/src/vendor/**
+web/site/vendor/**
 composer.lock
 
 # Environment file

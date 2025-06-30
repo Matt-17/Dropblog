@@ -32,18 +32,6 @@ jobs:
           mysql -e "GRANT ALL PRIVILEGES ON dropblog_test.* TO 'dropblog_test'@'localhost';"
           mysql -e "FLUSH PRIVILEGES;"
 
-      - name: Create test config
-        run: |
-          cp web/src/Config.template.php web/src/Config.php
-          sed -i \
-            -e "s/{{DB_HOST}}/localhost/g" \
-            -e "s/{{DB_NAME}}/dropblog_test/g" \
-            -e "s/{{DB_USER}}/dropblog_test/g" \
-            -e "s/{{DB_PASS}}/test_password/g" \
-            -e "s/{{ADMIN_API_KEY}}/test_api_key/g" \
-            -e "s/{{BLOG_TITLE}}/Test Blog/g" \
-            web/src/Config.php
-
       - name: Run installer
         run: php web/installer/install.php
 
