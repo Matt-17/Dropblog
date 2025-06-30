@@ -1,0 +1,198 @@
+@page "/"
+@using Dropblog.Services
+@inject BlogApiService ApiService
+@inject IShareTargetService ShareTargetService
+@implements IDisposable
+
+<PageTitle>New Post - Dropblog</PageTitle>
+
+<div class="new-post-container">
+    <h1>✍️ Create New Post</h1>
+
+    <div class="post-form">
+        <div class="form-group">
+            <MarkdownEditor @bind-Value="content" @bind-Value:after="OnContentChanged" />
+        </div>
+
+        <div class="form-selector">
+            <PostTypeSelector @bind-SelectedType="selectedType" />
+        </div>
+
+        <div class="form-actions">
+            <button class="btn btn-primary" @onclick="CreatePost" disabled="@isPosting">
+                @if (isPosting)
+                {
+                    <span class="spinner"></span>
+                    <text>Posting...</text>
+                }
+                else
+                {
+                    <text>📤 Post</text>
+                }
+            </button>
+        </div>
+
+        @if (!string.IsNullOrEmpty(statusMessage))
+        {
+            <div class="status-message @(isSuccess ? "success" : "error")">
+                @statusMessage
+                @if (isSuccess && !string.IsNullOrEmpty(postUrl))
+                {
+                    <br />
+                    <a href="@($"https://numbertools.de{postUrl}")" target="_blank" class="post-link">
+                        View Post 🔗
+                    </a>
+                }
+            </div>
+        }
+
+        @if (hasSharedContent)
+        {
+            <div class="shared-content-notice">
+                ℹ️ Content was shared to Dropblog and added to the editor above.
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private string content = string.Empty;
+    private string selectedType = "note";
+    private bool isPosting = false;
+    private string statusMessage = string.Empty;
+    private bool isSuccess = false;
+    private string postUrl = string.Empty;
+    private bool hasSharedContent = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Subscribe to shared content events
+        ShareTargetService.SharedContentReceived += OnSharedContentReceived;
+        
+        // Check for existing shared content on startup
+        await CheckForSharedContentAsync();
+    }
+
+    private void OnContentChanged()
+    {
+        // This ensures the content is properly synchronized
+        // when the user types and then immediately clicks post
+        StateHasChanged();
+    }
+
+    private async Task CheckForSharedContentAsync()
+    {
+        try
+        {
+            var preferences = Microsoft.Maui.Storage.Preferences.Default;
+            
+            if (preferences.Get("ShareTarget_HasContent", false))
+            {
+                var title = preferences.Get("ShareTarget_Title", "");
+                var text = preferences.Get("ShareTarget_Text", "");
+                var uri = preferences.Get("ShareTarget_Uri", "");
+                var timestamp = preferences.Get("ShareTarget_Timestamp", 0L);
+                
+                // Only process recent shares (within last 30 seconds)
+                var shareTime = DateTimeOffset.FromUnixTimeSeconds(timestamp);
+                if (DateTimeOffset.UtcNow.Subtract(shareTime).TotalSeconds <= 30)
+                {
+                    await ShareTargetService.HandleSharedContentAsync(title, text, uri);
+                }
+                
+                // Clear the stored content
+                preferences.Remove("ShareTarget_HasContent");
+                preferences.Remove("ShareTarget_Title");
+                preferences.Remove("ShareTarget_Text");
+                preferences.Remove("ShareTarget_Uri");
+                preferences.Remove("ShareTarget_Timestamp");
+            }
+        }
+        catch
+        {
+            // Ignore errors when checking for shared content
+        }
+    }
+
+    private void OnSharedContentReceived(object? sender, SharedContentEventArgs e)
+    {
+        if (!string.IsNullOrWhiteSpace(e.CombinedContent))
+        {
+            // Determine the best post type based on content
+            if (!string.IsNullOrWhiteSpace(e.Uri))
+            {
+                selectedType = "link";
+            }
+            else if (!string.IsNullOrWhiteSpace(e.Title))
+            {
+                selectedType = "note";
+            }
+            
+            // Set the content and show a notice
+            content = e.CombinedContent;
+            hasSharedContent = true;
+            
+            // Clear the notice after a few seconds
+            _ = Task.Delay(5000).ContinueWith(_ => 
+            {
+                hasSharedContent = false;
+                InvokeAsync(StateHasChanged);
+            });
+            
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task CreatePost()
+    {
+        if (string.IsNullOrWhiteSpace(content))
+        {
+            statusMessage = "⚠️ Please enter some content for your post.";
+            isSuccess = false;
+            return;
+        }
+
+        isPosting = true;
+        statusMessage = string.Empty;
+        StateHasChanged();
+
+        try
+        {
+            var response = await ApiService.CreatePostAsync(content.Trim(), selectedType);
+
+            if (response.Success)
+            {
+                statusMessage = "✅ Post created successfully!";
+                isSuccess = true;
+                postUrl = response.PostUrl;
+
+                // Clear form only after successful post
+                content = string.Empty;
+                selectedType = "note";
+                hasSharedContent = false;
+            }
+            else
+            {
+                statusMessage = $"❌ Failed to create post: {response.Message}";
+                isSuccess = false;
+                // Don't clear content on error - user can fix and retry
+            }
+        }
+        catch (Exception ex)
+        {
+            statusMessage = $"❌ Error creating post: {ex.Message}";
+            isSuccess = false;
+            // Don't clear content on error - user can fix and retry
+        }
+        finally
+        {
+            isPosting = false;
+            StateHasChanged();
+        }
+    }
+
+    public void Dispose()
+    {
+        ShareTargetService.SharedContentReceived -= OnSharedContentReceived;
+    }
+}

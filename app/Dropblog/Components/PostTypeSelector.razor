@@ -1,0 +1,134 @@
+@using Microsoft.AspNetCore.Components.Web
+@using Dropblog.Services
+@inject BlogApiService ApiService
+
+<div class="post-type-selector">
+    <label class="selector-label">Choose post type:</label>
+    
+    @if (IsLoading)
+    {
+        <div class="loading-container">
+            <span class="spinner"></span>
+            <span>Loading post types...</span>
+        </div>
+    }
+    else if (!string.IsNullOrEmpty(ErrorMessage))
+    {
+        <div class="error-container">
+            <span class="error-icon">⚠️</span>
+            <span>@ErrorMessage</span>
+            <button class="retry-btn" @onclick="LoadPostTypes">Retry</button>
+        </div>
+    }
+    else
+    {
+        <div class="type-grid">
+            @foreach (var postType in PostTypes)
+            {
+                <label class="type-option @(SelectedType == postType.Slug ? "selected" : "")" 
+                       @onclick="@(() => SelectType(postType.Slug))">
+                    <input type="radio" 
+                           name="postType" 
+                           value="@postType.Slug" 
+                           checked="@(SelectedType == postType.Slug)" 
+                           @onchange="@(() => SelectType(postType.Slug))" />
+                    <div class="type-content">
+                        <img src="@("https://numbertools.de/"+postType.IconPath)" 
+                             alt="@postType.Name" 
+                             class="type-icon" />
+                        <span class="type-text">@postType.Name</span>
+                    </div>
+                </label>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public string SelectedType { get; set; } = "note";
+    [Parameter] public EventCallback<string> SelectedTypeChanged { get; set; }
+
+    private List<PostTypeInfo> PostTypes = new();
+    private bool IsLoading = true;
+    private string ErrorMessage = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPostTypes();
+    }
+
+    private async Task LoadPostTypes()
+    {
+        IsLoading = true;
+        ErrorMessage = "";
+        StateHasChanged();
+
+        try
+        {
+            var response = await ApiService.GetPostTypesAsync();
+            
+            if (response.Success && response.PostTypes != null)
+            {
+                PostTypes = response.PostTypes;
+                
+                // Ensure selected type is valid, fallback to first available
+                if (!PostTypes.Any(pt => pt.Slug == SelectedType))
+                {
+                    var firstType = PostTypes.FirstOrDefault();
+                    if (firstType != null)
+                    {
+                        SelectedType = firstType.Slug;
+                        await SelectedTypeChanged.InvokeAsync(SelectedType);
+                    }
+                }
+            }
+            else
+            {
+                ErrorMessage = response.Message ?? "Failed to load post types";
+                
+                // Fallback to basic types if API fails
+                PostTypes = GetFallbackPostTypes();
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Network error: {ex.Message}";
+            
+            // Fallback to basic types if API fails
+            PostTypes = GetFallbackPostTypes();
+        }
+        finally
+        {
+            IsLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task SelectType(string typeSlug)
+    {
+        SelectedType = typeSlug;
+        await SelectedTypeChanged.InvokeAsync(typeSlug);
+    }
+
+    private List<PostTypeInfo> GetFallbackPostTypes()
+    {
+        // Fallback post types if API is unavailable
+        return new List<PostTypeInfo>
+        {
+            new("note", "Note", "/post-types/icon-note.png"),
+            new("link", "Link", "/post-types/icon-link.png"),
+            new("comment", "Comment", "/post-types/icon-comment.png"),
+            new("quote", "Quote", "/post-types/icon-quote.png"),
+            new("photo", "Photo", "/post-types/icon-photo.png"),
+            new("code", "Code", "/post-types/icon-code.png"),
+            new("question", "Question", "/post-types/icon-question.png"),
+            new("shopping", "Shopping", "/post-types/icon-shopping.png"),
+            new("rant", "Rant", "/post-types/icon-rant.png"),
+            new("poll", "Poll", "/post-types/icon-poll.png"),
+            new("media", "Media", "/post-types/icon-media.png"),
+            new("book", "Book", "/post-types/icon-book.png"),
+            new("announcement", "Announcement", "/post-types/icon-announcement.png"),
+            new("calendar", "Calendar", "/post-types/icon-calendar.png")
+        };
+    }
+} 
