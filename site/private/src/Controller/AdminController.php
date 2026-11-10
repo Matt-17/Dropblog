@@ -115,16 +115,18 @@ class AdminController implements ControllerInterface
 
     private function authenticate(): array|bool
     {
-        // Get API key from Authorization header
-        $headers = getallheaders();
-        $api_key = $headers['Authorization'] ?? $headers['authorization'] ?? '';
-        
-        // Remove 'Bearer ' prefix if present
-        if (str_starts_with($api_key, 'Bearer ')) {
-            $api_key = substr($api_key, 7);
+        $expected = Config::apiKey();
+        if ($expected === '') {
+            return $this->jsonResponse([
+                'success' => false,
+                'message' => 'Admin API disabled, no ADMIN_API_KEY configured'
+            ], 503);
         }
-        
-        if ($api_key !== Config::apiKey()) {
+
+        $header = $this->authorizationHeader();
+        $apiKey = str_starts_with($header, 'Bearer ') ? substr($header, 7) : $header;
+
+        if (!hash_equals($expected, $apiKey)) {
             return $this->jsonResponse([
                 'success' => false,
                 'message' => 'Unauthorized'
@@ -523,15 +525,21 @@ class AdminController implements ControllerInterface
         ], 200);
     }
 
+    // Some CGI setups drop Authorization from getallheaders(); .htaccess copies it into HTTP_AUTHORIZATION.
+    private function authorizationHeader(): string
+    {
+        foreach (function_exists('getallheaders') ? getallheaders() : [] as $name => $value) {
+            if (strcasecmp($name, 'Authorization') === 0) {
+                return trim($value);
+            }
+        }
+        return trim($_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '');
+    }
+
     private function jsonResponse(array $data, int $status = 200): array
     {
-        // Add debug information only in debug mode
         if ($this->isDebug) {
-            $data['debug'] = [
-                'request_method' => $_SERVER['REQUEST_METHOD'],
-                'headers' => getallheaders(),
-                'auth_header' => $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['http_authorization'] ?? 'not set'
-            ];
+            $data['debug'] = ['request_method' => $_SERVER['REQUEST_METHOD']];
         }
 
         return [

@@ -123,7 +123,7 @@ class PostModel
     {
         $stmt = $this->pdo->prepare("
             SELECT p.*, pt.slug as post_type_slug, pt.name as post_type_name, 
-                   pt.emoji as post_type_emoji, pt.icon_filename as post_type_icon
+                   pt.icon_filename as post_type_icon
             FROM posts p 
             LEFT JOIN post_types pt ON p.post_type_id = pt.id
             WHERE p.id = :id
@@ -142,7 +142,6 @@ class PostModel
                 'id' => $post['post_type_id'],
                 'slug' => $post['post_type_slug'],
                 'name' => $post['post_type_name'],
-                'emoji' => $post['post_type_emoji'],
                 'icon_filename' => $post['post_type_icon']
             ];
         }
@@ -160,7 +159,7 @@ class PostModel
     {
         $stmt = $this->pdo->prepare("
             SELECT p.*, pt.slug as post_type_slug, pt.name as post_type_name,
-                   pt.emoji as post_type_emoji, pt.icon_filename as post_type_icon
+                   pt.icon_filename as post_type_icon
             FROM posts p 
             LEFT JOIN post_types pt ON p.post_type_id = pt.id
             ORDER BY p.created_at DESC 
@@ -182,7 +181,6 @@ class PostModel
                 'id' => $post['post_type_id'],
                 'slug' => $post['post_type_slug'],
                 'name' => $post['post_type_name'],
-                'emoji' => $post['post_type_emoji'],
                 'icon_filename' => $post['post_type_icon']
             ];
         }
@@ -202,7 +200,7 @@ class PostModel
     {
         $stmt = $this->pdo->prepare("
             SELECT p.*, pt.slug as post_type_slug, pt.name as post_type_name,
-                   pt.emoji as post_type_emoji, pt.icon_filename as post_type_icon
+                   pt.icon_filename as post_type_icon
             FROM posts p 
             JOIN post_types pt ON p.post_type_id = pt.id
             WHERE pt.slug = :type_slug
@@ -226,7 +224,6 @@ class PostModel
                 'id' => $post['post_type_id'],
                 'slug' => $post['post_type_slug'],
                 'name' => $post['post_type_name'],
-                'emoji' => $post['post_type_emoji'],
                 'icon_filename' => $post['post_type_icon']
             ];
         }

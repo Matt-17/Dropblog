@@ -7,14 +7,11 @@ public class BlogApiService
 {
     private readonly HttpClient _httpClient;
     private readonly IBlogConfigurationService _blogConfig;
-    private const string ApiKey = "ADMIN_API_KEY";
 
     public BlogApiService(HttpClient httpClient, IBlogConfigurationService blogConfig)
     {
         _httpClient = httpClient;
         _blogConfig = blogConfig;
-        _httpClient.DefaultRequestHeaders.Authorization = 
-            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", ApiKey);
     }
 
     private async Task<bool> EnsureBaseUrlAsync()
@@ -31,6 +28,11 @@ public class BlogApiService
         {
             _httpClient.BaseAddress = new Uri(currentUrl);
         }
+
+        var apiKey = _blogConfig.CurrentBlogSite.ApiKey;
+        _httpClient.DefaultRequestHeaders.Authorization = string.IsNullOrEmpty(apiKey)
+            ? null
+            : new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", apiKey);
         return true;
     }
 
@@ -109,7 +111,7 @@ public class BlogApiService
                     var postTypes = apiResponse.PostTypes.Select(pt => new PostTypeInfo(
                         pt.Slug ?? "",
                         pt.Name ?? "",
-                        pt.IconPath ?? $"/post-types/{pt.IconFilename}"
+                        pt.IconPath ?? $"/assets/post-types/{pt.IconFilename}"
                     )).ToList();
 
                     return new PostTypesResponse

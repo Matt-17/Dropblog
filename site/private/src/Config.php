@@ -25,7 +25,7 @@ class Config
     public static function dbCharset(): string  { return self::env('DB_CHARSET', 'utf8mb4'); }
 
     // API key used for update script
-    public static function apiKey(): string     { return self::env('ADMIN_API_KEY', 'changeme'); }
+    public static function apiKey(): string     { return self::env('ADMIN_API_KEY', ''); }
 
     // Blog settings
     public static function blogTitle(): string  { return self::env('BLOG_TITLE', 'My Blog'); }

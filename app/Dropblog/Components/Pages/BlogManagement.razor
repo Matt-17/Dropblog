@@ -7,7 +7,7 @@
 
 <div class="blog-management">
     <div class="header">
-        <h1>🌐 Blog Management</h1>
+        <h1>Blog Management</h1>
         <p class="subtitle">Manage your blog sites and select which one to use</p>
     </div>
 
@@ -31,6 +31,21 @@
                 </div>
             }
         </div>
+        @if (BlogConfig.CurrentBlogSite != BlogSite.Empty)
+        {
+            <div class="api-key-form">
+                <div class="form-group">
+                    <label for="current-api-key">
+                        API Key
+                        <span class="api-key-state">@(string.IsNullOrEmpty(BlogConfig.CurrentBlogSite.ApiKey) ? "not set" : "set")</span>
+                    </label>
+                    <input @bind="currentApiKey" id="current-api-key" type="password" autocomplete="off" placeholder="ADMIN_API_KEY of this blog" />
+                </div>
+                <button @onclick="SaveApiKey" class="add-btn" disabled="@string.IsNullOrWhiteSpace(currentApiKey)">
+                    Save API Key
+                </button>
+            </div>
+        }
     </div>
 
     <div class="add-blog-section">
@@ -43,6 +58,10 @@
             <div class="form-group">
                 <label for="blog-url">Site URL</label>
                 <input @bind="newBlogUrl" @onkeypress="HandleAddKeyPress" id="blog-url" type="url" placeholder="e.g., https://myblog.com" />
+            </div>
+            <div class="form-group">
+                <label for="blog-api-key">API Key</label>
+                <input @bind="newBlogApiKey" @onkeypress="HandleAddKeyPress" id="blog-api-key" type="password" autocomplete="off" placeholder="ADMIN_API_KEY of this blog" />
             </div>
             <button @onclick="AddBlogSite" class="add-btn" disabled="@(string.IsNullOrWhiteSpace(newBlogName) || string.IsNullOrWhiteSpace(newBlogUrl))">
                 Add Blog Site
@@ -99,6 +118,8 @@
 @code {
     private string newBlogName = string.Empty;
     private string newBlogUrl = string.Empty;
+    private string newBlogApiKey = string.Empty;
+    private string currentApiKey = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -111,12 +132,22 @@
         if (string.IsNullOrWhiteSpace(newBlogName) || string.IsNullOrWhiteSpace(newBlogUrl))
             return;
 
-        await BlogConfig.AddBlogSiteAsync(newBlogName, newBlogUrl);
-        
-        // Clear form
+        await BlogConfig.AddBlogSiteAsync(newBlogName, newBlogUrl, newBlogApiKey);
+
         newBlogName = string.Empty;
         newBlogUrl = string.Empty;
-        
+        newBlogApiKey = string.Empty;
+
+        StateHasChanged();
+    }
+
+    private async Task SaveApiKey()
+    {
+        if (string.IsNullOrWhiteSpace(currentApiKey))
+            return;
+
+        await BlogConfig.SetApiKeyAsync(BlogConfig.CurrentBlogSite, currentApiKey);
+        currentApiKey = string.Empty;
         StateHasChanged();
     }
 

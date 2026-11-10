@@ -46,7 +46,7 @@ public class BlogConfigurationService : IBlogConfigurationService
                     
                     foreach (var site in sites)
                     {
-                        BlogSites.Add(new BlogSite(site.Id, site.Name, site.Url));
+                        BlogSites.Add(new BlogSite(site.Id, site.Name, site.Url, site.ApiKey));
                         if (site.Id >= _nextId)
                             _nextId = site.Id + 1;
                     }
@@ -83,6 +83,7 @@ public class BlogConfigurationService : IBlogConfigurationService
                 Id = s.Id,
                 Name = s.Name,
                 Url = s.Url,
+                ApiKey = s.ApiKey,
                 IsCurrent = s.Id == CurrentBlogSite.Id
             }).ToList();
             
@@ -95,7 +96,7 @@ public class BlogConfigurationService : IBlogConfigurationService
         }
     }
 
-    public async Task AddBlogSiteAsync(string name, string url)
+    public async Task AddBlogSiteAsync(string name, string url, string apiKey)
     {
         if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(url))
             return;
@@ -106,7 +107,7 @@ public class BlogConfigurationService : IBlogConfigurationService
             url = "https://" + url;
         }
         
-        var newSite = new BlogSite(_nextId++, name.Trim(), url.Trim());
+        var newSite = new BlogSite(_nextId++, name.Trim(), url.Trim(), apiKey?.Trim() ?? "");
         BlogSites.Add(newSite);
         
         // If this is the first site, make it current
@@ -135,6 +136,23 @@ public class BlogConfigurationService : IBlogConfigurationService
         await SaveBlogSitesAsync();
     }
 
+    public async Task SetApiKeyAsync(BlogSite blogSite, string apiKey)
+    {
+        var index = BlogSites.IndexOf(blogSite);
+        if (index < 0)
+            return;
+
+        var updated = blogSite with { ApiKey = apiKey?.Trim() ?? "" };
+        BlogSites[index] = updated;
+        if (CurrentBlogSite.Id == updated.Id)
+        {
+            CurrentBlogSite = updated;
+            CurrentBlogSiteChanged?.Invoke(this, CurrentBlogSite);
+        }
+
+        await SaveBlogSitesAsync();
+    }
+
     public async Task SetCurrentBlogSiteAsync(BlogSite blogSite)
     {
         if (blogSite == null)
@@ -155,6 +173,7 @@ public class BlogConfigurationService : IBlogConfigurationService
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Url { get; set; } = string.Empty;
+        public string ApiKey { get; set; } = string.Empty;
         public bool IsCurrent { get; set; }
     }
 } 

@@ -265,3 +265,14 @@
         font-size: 1.8rem;
     }
 } 
+.api-key-form {
+    display: grid;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.api-key-state {
+    font-weight: 400;
+    color: #666;
+    margin-left: 6px;
+}
