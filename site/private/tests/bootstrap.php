@@ -95,7 +95,7 @@ class Database
 }
 
     // Load Composer autoloader
-require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 // Global helper for tests
 function resetTestDatabase(): void 

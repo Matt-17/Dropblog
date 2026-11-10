@@ -14,7 +14,7 @@ class PostTypeTest extends TestCase
     {
         parent::setUp();
         $this->postType = new PostType();
-        TestDatabase::resetTestDatabase();
+        \Dropblog\Utils\Database::resetTestDatabase();
     }
     
     protected function tearDown(): void
@@ -335,7 +335,7 @@ class PostTypeTest extends TestCase
         $postTypeData = ['icon_filename' => 'note.svg'];
         $result = PostType::getIconPath($postTypeData);
         
-        $this->assertEquals('/post-types/note.svg', $result);
+        $this->assertEquals('/assets/post-types/note.svg', $result);
     }
     
     public function testGetIconPathWithEmptyFilename(): void
@@ -343,7 +343,7 @@ class PostTypeTest extends TestCase
         $postTypeData = ['icon_filename' => ''];
         $result = PostType::getIconPath($postTypeData);
         
-        $this->assertEquals('/post-types/', $result);
+        $this->assertEquals('/assets/post-types/', $result);
     }
     
     public function testGetUsageStatsReturnsCorrectStructure(): void

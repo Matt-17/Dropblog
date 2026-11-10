@@ -34,7 +34,7 @@ class PostModel
         
         if (!$postType) {
             // Fallback for backward compatibility
-            return "/assets/images/icon-{$typeSlug}.png";
+            return "/assets/post-types/icon-{$typeSlug}.png";
         }
         
         return PostType::getIconPath($postType);

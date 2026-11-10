@@ -1,5 +1,6 @@
 <?php
-require_once __DIR__ . '/../vendor/autoload.php';
+const PRIVATE_DIR = __DIR__ . '/../private';
+require_once PRIVATE_DIR . '/vendor/autoload.php';
 
 use Dropblog\Config;
 use Dropblog\Utils\Database;
@@ -8,12 +9,12 @@ use Dropblog\Utils\Localization;
 
 // Bootstrap
 Config::init();
-Localization::initialize(__DIR__ . '/../resources');
+Localization::initialize(PRIVATE_DIR . '/locales');
 $pdo    = Database::getConnection();
 $router = new Router($pdo);
 
 // Auto-register Controller-Klassen
-foreach (glob(__DIR__.'/../Controller/*Controller.php') as $file) {
+foreach (glob(PRIVATE_DIR . '/src/Controller/*Controller.php') as $file) {
     require_once $file;
     $class = 'Dropblog\\Controller\\'.basename($file, '.php');
     if (is_callable([$class,'register'])) {
@@ -37,7 +38,7 @@ if (class_exists($controllerClass) && is_callable([$controllerClass, 'isApi']) &
     if (isset($response['vars'])) {
         extract($response['vars'], EXTR_OVERWRITE);
     }
-    require __DIR__ . '/../Views/' . $response['view'];
+    require PRIVATE_DIR . '/views/' . $response['view'];
     exit;
 }
 
@@ -46,4 +47,4 @@ extract($response['vars'], EXTR_OVERWRITE);
 $content = $response['view'];
 
 // Layout laden
-include __DIR__ . '/../Views/Layouts/Layout.php';
+include PRIVATE_DIR . '/views/Layouts/Layout.php';

@@ -4,7 +4,7 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'web/installer/**'
+      - 'installer/**'
   workflow_dispatch:
 
 jobs:
@@ -33,7 +33,7 @@ jobs:
           mysql -e "FLUSH PRIVILEGES;"
 
       - name: Run installer
-        run: php web/installer/install.php
+        run: php installer/install.php
 
       - name: Verify installation
         run: |
@@ -63,7 +63,7 @@ jobs:
           mkdir -p release/installer
           
           # Copy installer files
-          cp -r web/installer/* release/installer/
+          cp -r installer/* release/installer/
           
           # Copy required files for installation
           cp web/src/Config.template.php release/installer/

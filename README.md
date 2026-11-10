@@ -16,21 +16,31 @@ A minimalist, no-frills blogging platform that focuses on simplicity and perform
 ## Quick Start
 
 ### Requirements
-- PHP 8.2 or higher
+- PHP 8.3 or higher
 - MySQL/MariaDB
 - Apache with mod_rewrite enabled
 - Composer for dependency management
 
+### Layout
+```
+site/
+  wwwroot/    public, the web server's document root
+  private/    everything else: src/, views/, migrations/, locales/, tests/,
+              composer.json, vendor/ and config.local.php
+app/          .NET MAUI app for posting
+installer/    installer script
+```
+
 ### Installation
 ```bash
 git clone https://github.com/Matt-17/Dropblog.git
-cd Dropblog/web/site
+cd Dropblog/site/private
 composer install
 cp config.local.example.php config.local.php
 # Edit config.local.php with your settings
 ```
 
-Point your web server to `web/site/wwwroot` and run the initial setup:
+Point your web server to `site/wwwroot` and run the initial setup:
 ```bash
 curl -X POST -H "Authorization: Bearer YOUR_API_KEY" https://your-blog.com/admin/update
 ```

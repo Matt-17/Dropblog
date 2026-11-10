@@ -161,7 +161,7 @@ class AdminController implements ControllerInterface
         }
 
         // Run migrations
-        $migrationsDir = __DIR__ . '/../Migrations';
+        $migrationsDir = __DIR__ . '/../../migrations';
         $migrations = glob($migrationsDir . '/*.sql');
         sort($migrations);
 

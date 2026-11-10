@@ -11,6 +11,7 @@ database:
     version: "10.11"
 use_dns_when_possible: true
 composer_version: "2"
+composer_root: private
 web_environment: []
 corepack_enable: false
 

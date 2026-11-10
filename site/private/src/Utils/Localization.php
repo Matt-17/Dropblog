@@ -143,7 +143,7 @@ class Localization
         }
 
         if (!isset(self::$translations[$filename])) {
-            $filePath = self::$resourcesPath . "/locales/{$filename}";
+            $filePath = self::$resourcesPath . "/{$filename}";
             
             if (file_exists($filePath)) {
                 $content = file_get_contents($filePath);

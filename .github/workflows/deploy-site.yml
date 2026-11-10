@@ -1,13 +1,14 @@
 name: Deploy Web Site
 
-# Deploys web/site to Strato with the shared CI/CD user (rsync over SSH).
-# The domain target is <REMOTE_ROOT>/wwwroot; app code and the server-only config.local.php sit next to it.
+# Deploys site/ to Strato with the shared CI/CD user (rsync over SSH).
+# The domain target is <REMOTE_ROOT>/wwwroot; everything else lives in <REMOTE_ROOT>/private,
+# including the server-only private/config.local.php.
 
 on:
   push:
     branches: [ main ]
     paths:
-      - 'web/site/**'
+      - 'site/**'
       - '.github/workflows/deploy-site.yml'
   workflow_dispatch:
 
@@ -20,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      APP_DIR: web/site
+      APP_DIR: site
       SSHPASS: ${{ secrets.STRATO_SSH_PASS }}
       SSH_HOST: ${{ vars.STRATO_SSH_HOST }}
       SSH_TARGET: ${{ vars.STRATO_SSH_USER }}@${{ vars.STRATO_SSH_HOST }}
@@ -36,23 +37,26 @@ jobs:
           tools: composer
 
       - name: Install PHP dependencies
-        working-directory: ${{ env.APP_DIR }}
+        working-directory: ${{ env.APP_DIR }}/private
         run: composer install --no-dev --optimize-autoloader --no-interaction --no-progress
+
+      - name: Check PHP syntax
+        working-directory: ${{ env.APP_DIR }}
+        run: find wwwroot private/src private/views -name '*.php' -print0 | xargs -0 -n1 php -l > /dev/null
 
       - name: Prepare publish directory
         run: |
           mkdir -p publish
           rsync -a \
-            --exclude='.git' \
-            --exclude='.github' \
-            --exclude='.ddev' \
-            --exclude='README' \
-            --exclude='LICENSE' \
-            --exclude='composer.*' \
-            --exclude='/config.local.php' \
-            --exclude='/config.local.example.php' \
+            --exclude='/.ddev' \
+            --exclude='/private/tests' \
+            --exclude='/private/phpunit.xml' \
+            --exclude='/private/.phpunit.cache' \
+            --exclude='/private/composer.*' \
+            --exclude='/private/config.local.php' \
+            --exclude='/private/config.local.example.php' \
             $APP_DIR/ ./publish/
-          echo "${{ github.ref_name }}" > publish/version.txt
+          echo "${{ github.sha }}" > publish/private/version.txt
 
       - name: Prepare SSH
         run: |
@@ -60,9 +64,9 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null
 
-      # /config.local.php lives only on the server and must survive --delete.
+      # private/config.local.php lives only on the server and must survive --delete.
       - name: Upload
-        run: sshpass -e rsync -az --delete --mkpath --exclude '/config.local.php' publish/ "$SSH_TARGET:$REMOTE_ROOT/"
+        run: sshpass -e rsync -az --delete --mkpath --exclude '/private/config.local.php' publish/ "$SSH_TARGET:$REMOTE_ROOT/"
 
       - name: Trigger Update Script
         run: |

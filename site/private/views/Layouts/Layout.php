@@ -9,9 +9,6 @@ ob_start();
 // Define the views directory path
 define('VIEWS_PATH', __DIR__ . '/..');
 
-// Initialize localization
-Localization::initialize(__DIR__ . '/../../resources');
-
 // Titel direkt aus Config
 $title = Config::blogTitle();
 

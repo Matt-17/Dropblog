@@ -220,11 +220,11 @@ class PostType
     public static function getIconPath(array $postType): string
     {
         if (!empty($postType['icon_filename'])) {
-            return "/post-types/" . $postType['icon_filename'];
+            return "/assets/post-types/" . $postType['icon_filename'];
         }
         
         // Fallback to default icon
-        return "/post-types/icon-default.png";
+        return "/assets/post-types/icon-default.png";
     }
 
     /**

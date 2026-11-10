@@ -65,14 +65,12 @@ Thumbs.db
 # Logs
 *.log 
 
-# Composer
-web/site/vendor/**
-tests/site/vendor/**
-composer.lock
+# Composer (composer.lock is committed)
+site/private/vendor/
 
 # PhpUnit
 .phpunit.cache
 
 # Environment file
 .env
-web/site/config.local.php
+site/private/config.local.php

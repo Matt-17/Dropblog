@@ -5,7 +5,7 @@ class Config
 {
     public static function init(): void
     {
-        self::loadConfig(__DIR__ . '/config.local.php');
+        self::loadConfig(__DIR__ . '/../config.local.php');
         date_default_timezone_set(self::timezone());
         error_reporting(E_ALL);
         ini_set('display_errors', self::debug() ? '1' : '0');

@@ -1,0 +1,34 @@
+{
+    "name": "matt-17/dropblog",
+    "description": "Minimalist micro-blog",
+    "type": "project",
+    "license": "MIT",
+    "require": {
+        "php": ">=8.3",
+        "erusev/parsedown": "^1.7",
+        "hashids/hashids": "^5.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^12.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Dropblog\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Dropblog\\Tests\\": "tests/"
+        },
+        "exclude-from-classmap": [
+            "tests/bootstrap.php"
+        ]
+    },
+    "scripts": {
+        "test": "phpunit"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    }
+}

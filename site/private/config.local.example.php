@@ -1,5 +1,5 @@
 <?php
-// Copy to config.local.php next to this file; config.local.php is not in git.
+// Copy to config.local.php next to this file (site/private); config.local.php is not in git.
 return [
     'DEBUG'         => false,
 
