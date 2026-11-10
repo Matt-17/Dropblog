@@ -35,17 +35,19 @@ public class BlogApiService
         if (_blogConfig.CurrentBlogSite == BlogSite.Empty)
             return false;
 
-        var currentUrl = _blogConfig.CurrentBlogSite.Url;
-        if (_httpClient.BaseAddress?.ToString() != currentUrl)
-        {
-            _httpClient.BaseAddress = new Uri(currentUrl);
-        }
-
-        var apiKey = _blogConfig.CurrentBlogSite.ApiKey;
-        _httpClient.DefaultRequestHeaders.Authorization = string.IsNullOrEmpty(apiKey)
-            ? null
-            : new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", apiKey);
         return true;
+    }
+
+    // HttpClient defaults cannot change after the first request, so URL and key go on each request.
+    private Task<HttpResponseMessage> SendAsync(HttpMethod method, string path, HttpContent? content = null)
+    {
+        var site = _blogConfig.CurrentBlogSite;
+        var request = new HttpRequestMessage(method, new Uri(new Uri(site.Url), path)) { Content = content };
+        if (!string.IsNullOrEmpty(site.ApiKey))
+        {
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", site.ApiKey);
+        }
+        return _httpClient.SendAsync(request);
     }
 
     public async Task<PostResponse> CreatePostAsync(string content, string postType = "note")
@@ -65,7 +67,7 @@ public class BlogApiService
             var json = JsonSerializer.Serialize(requestData);
             var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync("/admin/posts", httpContent);
+            var response = await SendAsync(HttpMethod.Post, "/admin/posts", httpContent);
             var responseContent = await response.Content.ReadAsStringAsync();
 
             var apiResponse = TryDeserialize<PostResponse>(responseContent);
@@ -103,7 +105,7 @@ public class BlogApiService
                 };
             }
 
-            var response = await _httpClient.GetAsync("/admin/post-types");
+            var response = await SendAsync(HttpMethod.Get, "/admin/post-types");
             var responseContent = await response.Content.ReadAsStringAsync();
 
             if (response.IsSuccessStatusCode)
@@ -175,7 +177,7 @@ public class BlogApiService
             });
             var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync("/admin/post-types", httpContent);
+            var response = await SendAsync(HttpMethod.Post, "/admin/post-types", httpContent);
             var responseContent = await response.Content.ReadAsStringAsync();
 
             var apiResponse = JsonSerializer.Deserialize<PostTypeResponse>(responseContent, new JsonSerializerOptions
@@ -208,7 +210,7 @@ public class BlogApiService
                 };
             }
 
-            var response = await _httpClient.GetAsync("/admin/post-types/stats");
+            var response = await SendAsync(HttpMethod.Get, "/admin/post-types/stats");
             var responseContent = await response.Content.ReadAsStringAsync();
 
             if (response.IsSuccessStatusCode)
