@@ -40,7 +40,7 @@
                         API Key
                         <span class="api-key-state">@(string.IsNullOrEmpty(BlogConfig.CurrentBlogSite.ApiKey) ? "not set" : "set")</span>
                     </label>
-                    <input @bind="currentApiKey" id="current-api-key" type="password" autocomplete="off" placeholder="ADMIN_API_KEY of this blog" />
+                    <input @bind="currentApiKey" @bind:event="oninput" id="current-api-key" type="password" autocomplete="off" placeholder="ADMIN_API_KEY of this blog" />
                 </div>
                 <button @onclick="SaveApiKey" class="add-btn" disabled="@string.IsNullOrWhiteSpace(currentApiKey)">
                     Save API Key
@@ -54,15 +54,15 @@
         <div class="add-form">
             <div class="form-group">
                 <label for="blog-name">Site Name</label>
-                <input @bind="newBlogName" @onkeypress="HandleAddKeyPress" id="blog-name" type="text" placeholder="e.g., My Blog" />
+                <input @bind="newBlogName" @bind:event="oninput" @onkeypress="HandleAddKeyPress" id="blog-name" type="text" placeholder="e.g., My Blog" />
             </div>
             <div class="form-group">
                 <label for="blog-url">Site URL</label>
-                <input @bind="newBlogUrl" @onkeypress="HandleAddKeyPress" id="blog-url" type="url" placeholder="e.g., https://myblog.com" />
+                <input @bind="newBlogUrl" @bind:event="oninput" @onkeypress="HandleAddKeyPress" id="blog-url" type="url" placeholder="e.g., https://myblog.com" />
             </div>
             <div class="form-group">
                 <label for="blog-api-key">API Key</label>
-                <input @bind="newBlogApiKey" @onkeypress="HandleAddKeyPress" id="blog-api-key" type="password" autocomplete="off" placeholder="ADMIN_API_KEY of this blog" />
+                <input @bind="newBlogApiKey" @bind:event="oninput" @onkeypress="HandleAddKeyPress" id="blog-api-key" type="password" autocomplete="off" placeholder="ADMIN_API_KEY of this blog" />
             </div>
             <button @onclick="AddBlogSite" class="add-btn" disabled="@(string.IsNullOrWhiteSpace(newBlogName) || string.IsNullOrWhiteSpace(newBlogUrl))">
                 Add Blog Site

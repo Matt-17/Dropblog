@@ -31,7 +31,12 @@ public class BlogConfigurationService : IBlogConfigurationService
         }
     }
 
-    public async Task LoadBlogSitesAsync()
+    private Task? _loadTask;
+
+    // Loads the stored sites once; every caller awaits the same load, so no request goes out with the default site.
+    public Task LoadBlogSitesAsync() => _loadTask ??= LoadStoredSitesAsync();
+
+    private async Task LoadStoredSitesAsync()
     {
         try
         {

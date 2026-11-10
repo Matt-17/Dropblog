@@ -157,3 +157,7 @@
         height: 28px;
     }
 }
+
+.error-container ::deep svg {
+    flex-shrink: 0;
+}

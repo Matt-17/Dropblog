@@ -26,97 +26,61 @@
             <Icon Name="link" Size="16" />
         </button>
     </div>
-    <textarea @ref="textareaRef" 
-              id="@textareaId"
-              @bind="Value" 
+    <textarea id="@textareaId"
+              @bind="text"
               @bind:event="oninput"
-              @onblur="ForceUpdateAsync"
+              @bind:after="NotifyAsync"
               class="form-control editor-textarea" 
               placeholder="Write your post in Markdown..."
               rows="16"></textarea>
 </div>
 
 @code {
-    private ElementReference textareaRef;
-    private string textareaId = Guid.NewGuid().ToString();
+    private readonly string textareaId = Guid.NewGuid().ToString();
 
     [Parameter] public string Value { get; set; } = string.Empty;
     [Parameter] public EventCallback<string> ValueChanged { get; set; }
 
-    private async Task InsertMarkdownAsync(string before, string after)
+    private string text = string.Empty;
+    private string lastSent = string.Empty;
+
+    // Only take Value from the parent when it changed there (cleared after posting, shared content);
+    // echoing our own value back would overwrite characters typed in the meantime.
+    protected override void OnParametersSet()
     {
-        try
+        if (Value != lastSent)
         {
-            await JSRuntime.InvokeVoidAsync("markdownEditor.insertMarkdown", textareaId, before, after);
-            // Get the updated value from the textarea
-            await UpdateValueFromTextarea();
-        }
-        catch
-        {
-            // Fallback to simple append if JSInterop fails
-            Value += before + "text" + after;
-            await ValueChanged.InvokeAsync(Value);
+            text = Value;
+            lastSent = Value;
         }
     }
 
-    private async Task InsertCodeAsync(bool isBlock)
+    // Typing and the toolbar JS (which dispatches an input event) both end up here.
+    private async Task NotifyAsync()
     {
-        try
-        {
-            await JSRuntime.InvokeVoidAsync("markdownEditor.insertCode", textareaId, isBlock);
-            await UpdateValueFromTextarea();
-        }
-        catch
-        {
-            // Fallback
-            Value += isBlock ? "```\ncode\n```" : "`code`";
-            await ValueChanged.InvokeAsync(Value);
-        }
+        lastSent = text;
+        await ValueChanged.InvokeAsync(text);
     }
 
-    private async Task ToggleListAsync()
-    {
-        try
-        {
-            await JSRuntime.InvokeVoidAsync("markdownEditor.toggleList", textareaId);
-            await UpdateValueFromTextarea();
-        }
-        catch
-        {
-            // Fallback to simple append
-            Value += "- ";
-            await ValueChanged.InvokeAsync(Value);
-        }
-    }
+    private Task InsertMarkdownAsync(string before, string after) =>
+        RunToolbarAsync("markdownEditor.insertMarkdown", before + "text" + after, textareaId, before, after);
 
-    private async Task ForceUpdateAsync()
-    {
-        try
-        {
-            await JSRuntime.InvokeVoidAsync("markdownEditor.forceUpdate", textareaId);
-            await UpdateValueFromTextarea();
-        }
-        catch
-        {
-            // Ignore errors in force update
-        }
-    }
+    private Task InsertCodeAsync(bool isBlock) =>
+        RunToolbarAsync("markdownEditor.insertCode", isBlock ? "```\ncode\n```" : "`code`", textareaId, isBlock);
 
-    private async Task UpdateValueFromTextarea()
+    private Task ToggleListAsync() =>
+        RunToolbarAsync("markdownEditor.toggleList", "- ", textareaId);
+
+    private async Task RunToolbarAsync(string function, string fallbackText, params object[] args)
     {
         try
         {
-            // Small delay to ensure DOM is updated
-            await Task.Delay(50);
-            await textareaRef.FocusAsync();
-            
-            // The value should be automatically updated through the @bind directive
-            // but we trigger the event to ensure proper state synchronization
-            await ValueChanged.InvokeAsync(Value);
+            await JSRuntime.InvokeVoidAsync(function, args);
         }
-        catch
+        catch (JSException)
         {
-            // Ignore errors in value update
+            text += fallbackText;
+            await NotifyAsync();
         }
     }
-} 
+}

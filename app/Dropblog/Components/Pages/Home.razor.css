@@ -149,3 +149,8 @@
         min-height: 48px;
     }
 }
+
+.notice ::deep svg {
+    flex-shrink: 0;
+    margin-top: 1px;
+}

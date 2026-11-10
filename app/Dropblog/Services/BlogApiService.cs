@@ -14,14 +14,26 @@ public class BlogApiService
         _blogConfig = blogConfig;
     }
 
+    private static readonly JsonSerializerOptions SnakeCase = new() { PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower };
+
+    // PHP fatal errors come back as an empty or HTML body, not JSON.
+    private static T? TryDeserialize<T>(string body) where T : class
+    {
+        try
+        {
+            return JsonSerializer.Deserialize<T>(body, SnakeCase);
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
+    }
+
     private async Task<bool> EnsureBaseUrlAsync()
     {
+        await _blogConfig.LoadBlogSitesAsync();
         if (_blogConfig.CurrentBlogSite == BlogSite.Empty)
-        {
-            await _blogConfig.LoadBlogSitesAsync();
-            if (_blogConfig.CurrentBlogSite == BlogSite.Empty)
-                return false;
-        }
+            return false;
 
         var currentUrl = _blogConfig.CurrentBlogSite.Url;
         if (_httpClient.BaseAddress?.ToString() != currentUrl)
@@ -56,22 +68,17 @@ public class BlogApiService
             var response = await _httpClient.PostAsync("/admin/posts", httpContent);
             var responseContent = await response.Content.ReadAsStringAsync();
 
-            if (response.IsSuccessStatusCode)
+            var apiResponse = TryDeserialize<PostResponse>(responseContent);
+            if (apiResponse != null)
+                return apiResponse;
+
+            return new PostResponse
             {
-                var apiResponse = JsonSerializer.Deserialize<PostResponse>(responseContent, new JsonSerializerOptions
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
-                });
-                return apiResponse ?? new PostResponse { Success = false, Message = "Invalid response" };
-            }
-            else
-            {
-                var errorResponse = JsonSerializer.Deserialize<PostResponse>(responseContent, new JsonSerializerOptions
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
-                });
-                return errorResponse ?? new PostResponse { Success = false, Message = $"Request failed with status {response.StatusCode}" };
-            }
+                Success = false,
+                Message = response.IsSuccessStatusCode
+                    ? "The blog sent an unreadable answer."
+                    : $"Server error {(int)response.StatusCode} ({response.ReasonPhrase})"
+            };
         }
         catch (Exception ex)
         {

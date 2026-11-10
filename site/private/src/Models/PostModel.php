@@ -57,17 +57,14 @@ class PostModel
         }
 
         $stmt = $this->pdo->prepare("
-            INSERT INTO posts (content, post_type_id, type, metadata, created_at) 
-            VALUES (:content, :post_type_id, :type, :metadata, NOW())
+            INSERT INTO posts (content, post_type_id, metadata, created_at)
+            VALUES (:content, :post_type_id, :metadata, NOW())
         ");
-        
-        $metadataJson = $metadata ? json_encode($metadata) : null;
-        
+
         $params = [
             ':content' => $content,
             ':post_type_id' => $postType['id'],
-            ':type' => $typeSlug, // Keep for backward compatibility
-            ':metadata' => $metadataJson
+            ':metadata' => $metadata ? json_encode($metadata) : null
         ];
         
         if ($stmt->execute($params)) {
@@ -97,9 +94,8 @@ class PostModel
                 throw new InvalidArgumentException("Invalid post type: $typeSlug");
             }
             
-            $sql .= ", post_type_id = :post_type_id, type = :type";
+            $sql .= ", post_type_id = :post_type_id";
             $params[':post_type_id'] = $postType['id'];
-            $params[':type'] = $typeSlug; // Keep for backward compatibility
         }
 
         if ($metadata !== null) {
