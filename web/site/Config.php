@@ -5,7 +5,7 @@ class Config
 {
     public static function init(): void
     {
-        self::loadEnv(__DIR__ . '/.env');
+        self::loadConfig(__DIR__ . '/config.local.php');
         date_default_timezone_set(self::timezone());
         error_reporting(E_ALL);
         ini_set('display_errors', self::debug() ? '1' : '0');
@@ -50,17 +50,17 @@ class Config
         return ($val !== false && $val !== '') ? $val : $fallback;
     }
 
-    private static function loadEnv(string $path): void
+    // Real environment variables (DDEV, server) win over config.local.php.
+    private static function loadConfig(string $path): void
     {
-        if (!file_exists($path)) return;
+        if (!is_file($path)) return;
 
-        foreach (file($path) as $line) {
-            $line = trim($line);
-            if ($line === '' || str_starts_with($line, '#')) continue;
-            if (!str_contains($line, '=')) continue;
+        $values = require $path;
+        if (!is_array($values)) return;
 
-            [$name, $value] = explode('=', $line, 2);
-            putenv(trim($name) . '=' . trim($value));
+        foreach ($values as $name => $value) {
+            if ($value === null || $value === '' || getenv($name) !== false) continue;
+            putenv($name . '=' . (is_bool($value) ? ($value ? 'true' : 'false') : $value));
         }
     }
 }

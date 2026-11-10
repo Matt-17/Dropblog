@@ -2,7 +2,7 @@
 
 A minimalist, no-frills blogging platform that focuses on simplicity and performance. Dropblog is designed for those who want to share their thoughts without the complexity of traditional blogging platforms.
 
-## ✨ Features
+## Features
 
 - **Simple Post System**: Just write and post - no categories, tags, or complex metadata
 - **Clean URLs**: Short, readable URLs using HashIds
@@ -13,7 +13,7 @@ A minimalist, no-frills blogging platform that focuses on simplicity and perform
 - **RESTful Admin API**: Simple API for managing your blog
 - **Automated Deployment**: GitHub Actions workflows for web and app deployment
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Requirements
 - PHP 8.2 or higher
@@ -23,38 +23,23 @@ A minimalist, no-frills blogging platform that focuses on simplicity and perform
 
 ### Installation
 ```bash
-git clone https://github.com/yourusername/dropblog.git
-cd dropblog/web/src
+git clone https://github.com/Matt-17/Dropblog.git
+cd Dropblog/web/site
 composer install
-cp Config.template.php Config.php
-# Edit Config.php with your settings
+cp config.local.example.php config.local.php
+# Edit config.local.php with your settings
 ```
 
-Point your web server to `web/src/wwwroot` and run the initial setup:
+Point your web server to `web/site/wwwroot` and run the initial setup:
 ```bash
 curl -X POST -H "Authorization: Bearer YOUR_API_KEY" https://your-blog.com/admin/update
 ```
 
-## 📚 Documentation
-
-For detailed documentation, installation guides, and development information, visit the [`/docs`](./docs) folder:
-
-- [**Getting Started**](./docs/getting-started.md) - Complete installation and setup guide
-- [**Configuration**](./docs/configuration.md) - Detailed configuration options and settings
-- [**App Development**](./docs/app-development.md) - Cross-platform app development guide
-- [**API Reference**](./docs/api-reference.md) - Complete API documentation
-- [**Development**](./docs/development.md) - Development setup and workflows
-- [**Deployment**](./docs/deployment.md) - Deployment and hosting guide
-
-## 🤝 Contributing
-
-We welcome contributions! Please see our [Contributing Guidelines](./docs/contributing.md) for details.
-
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Credits
+## Credits
 
 - [Parsedown](https://github.com/erusev/parsedown) for Markdown parsing
 - [Hashids](https://github.com/vinkla/hashids) for URL shortening

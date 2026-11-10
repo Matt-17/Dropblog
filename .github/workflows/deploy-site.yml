@@ -1,11 +1,19 @@
 name: Deploy Web Site
 
+# Deploys web/site to Strato with the shared CI/CD user (rsync over SSH).
+# The domain target is <REMOTE_ROOT>/wwwroot; app code and the server-only config.local.php sit next to it.
+
 on:
   push:
     branches: [ main ]
     paths:
       - 'web/site/**'
+      - '.github/workflows/deploy-site.yml'
   workflow_dispatch:
+
+concurrency:
+  group: deploy-site
+  cancel-in-progress: false
 
 jobs:
   deploy-web:
@@ -13,24 +21,23 @@ jobs:
 
     env:
       APP_DIR: web/site
+      SSHPASS: ${{ secrets.STRATO_SSH_PASS }}
+      SSH_HOST: ${{ vars.STRATO_SSH_HOST }}
+      SSH_TARGET: ${{ vars.STRATO_SSH_USER }}@${{ vars.STRATO_SSH_HOST }}
+      REMOTE_ROOT: dropblog.de
 
     steps:
-      - uses: actions/checkout@v4      
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v7
 
-      - name: Restore timestamps
-        uses: chetan/git-restore-mtime-action@v2
-
-      - name: Set up PHP and Composer
+      - name: Set up PHP and Composer (same version as Strato)
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
+          php-version: '8.5'
           tools: composer
 
       - name: Install PHP dependencies
         working-directory: ${{ env.APP_DIR }}
-        run: composer install --no-dev --optimize-autoloader
+        run: composer install --no-dev --optimize-autoloader --no-interaction --no-progress
 
       - name: Prepare publish directory
         run: |
@@ -42,21 +49,20 @@ jobs:
             --exclude='README' \
             --exclude='LICENSE' \
             --exclude='composer.*' \
+            --exclude='/config.local.php' \
+            --exclude='/config.local.example.php' \
             $APP_DIR/ ./publish/
-
-      - name: Create version file
-        run: |
           echo "${{ github.ref_name }}" > publish/version.txt
 
-      - name: Deploy Site via SFTP
-        uses: wangyucode/sftp-upload-action@v2.0.4
-        with:
-          host: ${{ vars.FTP_HOST }}
-          port: ${{ vars.FTP_PORT }}
-          username: ${{ secrets.FTP_USER }}
-          password: ${{ secrets.FTP_PASS }}
-          localDir: ./publish
-          remoteDir: ${{ vars.FTP_REMOTE_DIR }}
+      - name: Prepare SSH
+        run: |
+          sudo apt-get install -y -qq sshpass
+          mkdir -p ~/.ssh
+          ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+
+      # /config.local.php lives only on the server and must survive --delete.
+      - name: Upload
+        run: sshpass -e rsync -az --delete --mkpath --exclude '/config.local.php' publish/ "$SSH_TARGET:$REMOTE_ROOT/"
 
       - name: Trigger Update Script
         run: |

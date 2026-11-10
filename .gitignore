@@ -75,3 +75,4 @@ composer.lock
 
 # Environment file
 .env
+web/site/config.local.php

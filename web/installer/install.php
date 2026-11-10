@@ -111,12 +111,12 @@ class Installer {
     }
 
     private function copyEnvIfNeeded(): void {
-        $envExample = $this->installDir . '/.env.example';
-        $envFile    = $this->installDir . '/.env';
+        $configExample = $this->installDir . '/config.local.example.php';
+        $configFile    = $this->installDir . '/config.local.php';
 
-        if (!file_exists($envFile) && file_exists($envExample)) {
-            copy($envExample, $envFile);
-            echo ".env file created from .env.example\n";
+        if (!file_exists($configFile) && file_exists($configExample)) {
+            copy($configExample, $configFile);
+            echo "config.local.php created from config.local.example.php\n";
         }
     }
 
