@@ -19,19 +19,22 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: '9.0.x'
+          dotnet-version: '11.0.x'
+
+      - name: Install MAUI workload
+        run: dotnet workload install maui-windows
 
       - name: Restore dependencies
         working-directory: app/Dropblog
-        run: dotnet restore
+        run: dotnet restore -p:TargetFrameworks=net11.0-windows10.0.19041.0
 
       - name: Build Windows App
         working-directory: app/Dropblog
-        run: dotnet build -c Release -f net9.0-windows10.0.19041.0
+        run: dotnet build -c Release -f net11.0-windows10.0.19041.0 -p:TargetFrameworks=net11.0-windows10.0.19041.0
 
       - name: Create Windows Package
         working-directory: app/Dropblog
-        run: dotnet publish -c Release -f net9.0-windows10.0.19041.0 -o ./publish
+        run: dotnet publish -c Release -f net11.0-windows10.0.19041.0 -p:TargetFrameworks=net11.0-windows10.0.19041.0 -o ./publish
 
       - name: Create Release
         id: create_release

@@ -1,4 +1,4 @@
-﻿@using Dropblog.Services
+@using Dropblog.Services
 @inherits LayoutComponentBase
 @inject IBlogConfigurationService BlogConfig
 @inject NavigationManager Navigation
@@ -6,12 +6,10 @@
 @implements IDisposable
 
 <div class="page">
-    <!-- Desktop Sidebar Navigation -->
     <div class="sidebar desktop-only">
         <NavMenu />
     </div>
 
-    <!-- Main Content Area -->
     <main class="main-content">
         <div class="top-row desktop-only px-4">
             <div class="blog-selector-dropdown">
@@ -26,7 +24,7 @@
                             <text>No Blog Selected</text>
                         }
                     </span>
-                    <span class="dropdown-arrow">@(isDropdownOpen ? "▲" : "▼")</span>
+                    <Icon Name="@(isDropdownOpen ? "chevron-up" : "chevron-down")" Size="16" Class="dropdown-arrow" />
                 </button>
                 
                 @if (isDropdownOpen)
@@ -35,13 +33,13 @@
                         @if (BlogConfig.CurrentBlogSite != BlogSite.Empty)
                         {
                             <a href="@BlogConfig.CurrentBlogSite.Url" target="_blank" class="dropdown-item">
-                                <span class="dropdown-icon">🌐</span>
+                                <Icon Name="external" Size="16" />
                                 Visit Current Blog
                             </a>
                             <div class="dropdown-divider"></div>
                         }
                         <a href="/blog-management" class="dropdown-item" @onclick="CloseDropdown">
-                            <span class="dropdown-icon">⚙️</span>
+                            <Icon Name="blogs" Size="16" />
                             Manage Blog Sites
                         </a>
                     </div>
@@ -54,7 +52,6 @@
         </article>
     </main>
 
-    <!-- Mobile Bottom Navigation -->
     <div class="bottom-nav mobile-only">
         <NavMenu />
     </div>

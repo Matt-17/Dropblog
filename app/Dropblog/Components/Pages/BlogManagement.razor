@@ -21,7 +21,8 @@
                     <div class="blog-url">@BlogConfig.CurrentBlogSite.Url</div>
                 </div>
                 <a href="@BlogConfig.CurrentBlogSite.Url" target="_blank" class="visit-btn">
-                    Visit Site ↗
+                    <Icon Name="external" Size="16" />
+                    <span>Visit Site</span>
                 </a>
             }
             else
@@ -110,7 +111,8 @@
 
     <div class="back-section">
         <button @onclick="GoBack" class="back-btn">
-            ← Back to Editor
+            <Icon Name="back" Size="16" />
+            <span>Back to Editor</span>
         </button>
     </div>
 </div>

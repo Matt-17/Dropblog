@@ -2,56 +2,59 @@
 @using Dropblog.Services
 @inject BlogApiService ApiService
 @inject IShareTargetService ShareTargetService
+@inject IBlogConfigurationService BlogConfig
 @implements IDisposable
 
 <PageTitle>New Post - Dropblog</PageTitle>
 
 <div class="new-post-container">
-    <h1>✍️ Create New Post</h1>
+    <h1 class="page-title">New Post</h1>
 
     <div class="post-form">
         <div class="form-group">
-            <MarkdownEditor @bind-Value="content" @bind-Value:after="OnContentChanged" />
+            <MarkdownEditor @bind-Value="content" />
         </div>
+
+        @if (hasSharedContent)
+        {
+            <div class="notice info">
+                <Icon Name="info" Size="18" />
+                <span>Shared content was added to the editor.</span>
+            </div>
+        }
 
         <div class="form-selector">
             <PostTypeSelector @bind-SelectedType="selectedType" />
         </div>
+
+        @if (!string.IsNullOrEmpty(statusMessage))
+        {
+            <div class="notice @(isSuccess ? "success" : "error")">
+                <Icon Name="@(isSuccess ? "check" : "alert")" Size="18" />
+                <span>
+                    @statusMessage
+                    @if (isSuccess && !string.IsNullOrEmpty(postUrl))
+                    {
+                        <a href="@PostLink" target="_blank" class="post-link">View post</a>
+                    }
+                </span>
+            </div>
+        }
 
         <div class="form-actions">
             <button class="btn btn-primary" @onclick="CreatePost" disabled="@isPosting">
                 @if (isPosting)
                 {
                     <span class="spinner"></span>
-                    <text>Posting...</text>
+                    <span>Posting...</span>
                 }
                 else
                 {
-                    <text>📤 Post</text>
+                    <Icon Name="send" Size="18" />
+                    <span>Post</span>
                 }
             </button>
         </div>
-
-        @if (!string.IsNullOrEmpty(statusMessage))
-        {
-            <div class="status-message @(isSuccess ? "success" : "error")">
-                @statusMessage
-                @if (isSuccess && !string.IsNullOrEmpty(postUrl))
-                {
-                    <br />
-                    <a href="@($"https://numbertools.de{postUrl}")" target="_blank" class="post-link">
-                        View Post 🔗
-                    </a>
-                }
-            </div>
-        }
-
-        @if (hasSharedContent)
-        {
-            <div class="shared-content-notice">
-                ℹ️ Content was shared to Dropblog and added to the editor above.
-            </div>
-        }
     </div>
 </div>
 
@@ -64,6 +67,8 @@
     private string postUrl = string.Empty;
     private bool hasSharedContent = false;
 
+    private string PostLink => BlogConfig.CurrentBlogSite.Url.TrimEnd('/') + postUrl;
+
     protected override async Task OnInitializedAsync()
     {
         // Subscribe to shared content events
@@ -71,13 +76,6 @@
         
         // Check for existing shared content on startup
         await CheckForSharedContentAsync();
-    }
-
-    private void OnContentChanged()
-    {
-        // This ensures the content is properly synchronized
-        // when the user types and then immediately clicks post
-        StateHasChanged();
     }
 
     private async Task CheckForSharedContentAsync()
@@ -147,14 +145,13 @@
     {
         if (string.IsNullOrWhiteSpace(content))
         {
-            statusMessage = "⚠️ Please enter some content for your post.";
+            statusMessage = "Please write something first.";
             isSuccess = false;
             return;
         }
 
         isPosting = true;
         statusMessage = string.Empty;
-        StateHasChanged();
 
         try
         {
@@ -162,7 +159,7 @@
 
             if (response.Success)
             {
-                statusMessage = "✅ Post created successfully!";
+                statusMessage = "Posted.";
                 isSuccess = true;
                 postUrl = response.PostUrl;
 
@@ -173,21 +170,20 @@
             }
             else
             {
-                statusMessage = $"❌ Failed to create post: {response.Message}";
+                statusMessage = response.Message == "Unauthorized" ? "The blog rejected the API key. Set it under Blogs." : $"Could not post: {response.Message}";
                 isSuccess = false;
                 // Don't clear content on error - user can fix and retry
             }
         }
         catch (Exception ex)
         {
-            statusMessage = $"❌ Error creating post: {ex.Message}";
+            statusMessage = $"Could not post: {ex.Message}";
             isSuccess = false;
             // Don't clear content on error - user can fix and retry
         }
         finally
         {
             isPosting = false;
-            StateHasChanged();
         }
     }
 

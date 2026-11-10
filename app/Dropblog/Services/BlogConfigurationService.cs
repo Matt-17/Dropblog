@@ -21,7 +21,7 @@ public class BlogConfigurationService : IBlogConfigurationService
     private void InitializeDefaultSites()
     {
         // Add hardcoded initial targets
-        BlogSites.Add(new BlogSite(_nextId++, "NumberTools", "https://numbertools.de"));
+        BlogSites.Add(new BlogSite(_nextId++, "Dropblog Test", "https://sidelike.de"));
         BlogSites.Add(new BlogSite(_nextId++, "Local Development", "http://dropblog.ddev.site/"));
         
         // Set the first site as current by default

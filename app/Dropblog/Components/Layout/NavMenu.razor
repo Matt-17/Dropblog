@@ -2,77 +2,68 @@
 @inject IBlogConfigurationService BlogConfig
 @implements IDisposable
 
-<!-- Desktop Navigation -->
 <div class="desktop-nav">
-    <div class="top-row ps-3 navbar navbar-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="">✍️ Dropblog</a>
-        </div>
+    <div class="brand">
+        <Icon Name="pen" Size="18" />
+        <span>Dropblog</span>
     </div>
 
-    <div class="nav-scrollable">
-        <nav class="flex-column">
-            <div class="nav-item px-3">
-                <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                    <span class="nav-icon">✍️</span>
-                    <span class="nav-text">New Post</span>
-                </NavLink>
-            </div>
-            <div class="nav-item px-3">
-                @if (BlogConfig.CurrentBlogSite != BlogSite.Empty)
-                {
-                    <a class="nav-link" href="@BlogConfig.CurrentBlogSite.Url" target="_blank">
-                        <span class="nav-icon">🌐</span>
-                        <span class="nav-text">View Blog</span>
-                    </a>
-                }
-                else
-                {
-                    <div class="nav-link disabled">
-                        <span class="nav-icon">🌐</span>
-                        <span class="nav-text">No Blog Selected</span>
-                    </div>
-                }
-            </div>
-        </nav>
-    </div>
-</div>
-
-<!-- Mobile Navigation -->
-<div class="mobile-nav">
-    <nav class="mobile-nav-items">
-        <NavLink class="mobile-nav-link" href="" Match="NavLinkMatch.All">
-            <span class="mobile-nav-icon">✍️</span>
-            <span class="mobile-nav-text">New Post</span>
+    <nav class="desktop-links">
+        <NavLink class="desktop-link" href="" Match="NavLinkMatch.All">
+            <Icon Name="pen" />
+            <span>New Post</span>
         </NavLink>
-        @if (BlogConfig.CurrentBlogSite != BlogSite.Empty)
+        <NavLink class="desktop-link" href="blog-management">
+            <Icon Name="blogs" />
+            <span>Blogs</span>
+        </NavLink>
+        @if (HasBlog)
         {
-            <a class="mobile-nav-link" href="@BlogConfig.CurrentBlogSite.Url" target="_blank">
-                <span class="mobile-nav-icon">🌐</span>
-                <span class="mobile-nav-text">View Blog</span>
+            <a class="desktop-link" href="@BlogConfig.CurrentBlogSite.Url" target="_blank">
+                <Icon Name="external" />
+                <span>View Blog</span>
             </a>
-        }
-        else
-        {
-            <div class="mobile-nav-link disabled">
-                <span class="mobile-nav-icon">🌐</span>
-                <span class="mobile-nav-text">No Blog</span>
-            </div>
         }
     </nav>
 </div>
 
+<nav class="mobile-nav">
+    <NavLink class="mobile-link" href="" Match="NavLinkMatch.All">
+        <Icon Name="pen" Size="22" />
+        <span>Write</span>
+    </NavLink>
+    <NavLink class="mobile-link" href="blog-management">
+        <Icon Name="blogs" Size="22" />
+        <span>Blogs</span>
+    </NavLink>
+    @if (HasBlog)
+    {
+        <a class="mobile-link" href="@BlogConfig.CurrentBlogSite.Url" target="_blank">
+            <Icon Name="external" Size="22" />
+            <span>View Blog</span>
+        </a>
+    }
+    else
+    {
+        <span class="mobile-link disabled">
+            <Icon Name="external" Size="22" />
+            <span>View Blog</span>
+        </span>
+    }
+</nav>
+
 @code {
+    private bool HasBlog => BlogConfig.CurrentBlogSite != BlogSite.Empty;
+
     protected override async Task OnInitializedAsync()
     {
         await BlogConfig.LoadBlogSitesAsync();
         BlogConfig.CurrentBlogSiteChanged += OnCurrentBlogSiteChanged;
-        StateHasChanged();
     }
 
     private void OnCurrentBlogSiteChanged(object? sender, BlogSite newSite)
     {
-        InvokeAsync(() => StateHasChanged());
+        InvokeAsync(StateHasChanged);
     }
 
     public void Dispose()

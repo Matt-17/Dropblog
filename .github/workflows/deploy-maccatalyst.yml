@@ -19,19 +19,22 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: '9.0.x'
+          dotnet-version: '11.0.x'
+
+      - name: Install MAUI workload
+        run: dotnet workload install maui-maccatalyst
 
       - name: Restore dependencies
         working-directory: app/Dropblog
-        run: dotnet restore
+        run: dotnet restore -p:TargetFrameworks=net11.0-maccatalyst
 
       - name: Build MacCatalyst App
         working-directory: app/Dropblog
-        run: dotnet build -c Release -f net9.0-maccatalyst
+        run: dotnet build -c Release -f net11.0-maccatalyst -p:TargetFrameworks=net11.0-maccatalyst
 
       - name: Create MacCatalyst Package
         working-directory: app/Dropblog
-        run: dotnet publish -c Release -f net9.0-maccatalyst -o ./publish
+        run: dotnet publish -c Release -f net11.0-maccatalyst -p:TargetFrameworks=net11.0-maccatalyst -o ./publish
 
       - name: Create Release
         id: create_release

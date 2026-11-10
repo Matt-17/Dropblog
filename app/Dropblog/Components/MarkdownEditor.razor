@@ -14,16 +14,16 @@
             <u>U</u>
         </button>
         <button type="button" class="btn btn-sm" @onclick="@(() => InsertCodeAsync(false))" title="Inline Code">
-            <code>c</code>
+            <code>`c`</code>
         </button>
         <button type="button" class="btn btn-sm" @onclick="@(() => InsertCodeAsync(true))" title="Code Block">
-            <code>&lt;c/&gt;</code>
+            <Icon Name="code" Size="16" />
         </button>
         <button type="button" class="btn btn-sm" @onclick="ToggleListAsync" title="Toggle List">
-            ☰
+            <Icon Name="list" Size="16" />
         </button>
         <button type="button" class="btn btn-sm" @onclick="@(() => InsertMarkdownAsync("[link text](url)", ""))" title="Link">
-            🔗
+            <Icon Name="link" Size="16" />
         </button>
     </div>
     <textarea @ref="textareaRef" 

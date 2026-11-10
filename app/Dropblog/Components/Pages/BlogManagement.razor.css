@@ -276,3 +276,10 @@
     color: #666;
     margin-left: 6px;
 }
+
+.visit-btn,
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}

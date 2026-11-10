@@ -31,7 +31,6 @@
 
 .dropdown-toggle:hover {
     border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
 }
 
 .current-blog-text {
@@ -154,34 +153,35 @@
     }
 }
 
-/* Mobile Styles */
+/* Mobile: one column, content scrolls, nav sits below it (MAUI keeps the WebView inside the safe area) */
 @media (max-width: 767px) {
     .page {
-        padding-bottom: 70px;
+        height: 100vh;
+        height: 100dvh;
+        min-height: 0;
+        overflow: hidden;
     }
-    
+
     .main-content {
         flex: 1;
+        min-height: 0;
         width: 100%;
+        display: flex;
+        flex-direction: column;
     }
 
     .content {
-        padding: 0;
         flex: 1;
+        min-height: 0;
         margin: 0;
         padding: 0 !important;
+        overflow-y: auto;
     }
-    
+
     .bottom-nav {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background-color: #343a40;
-        z-index: 1000;
-        border-top: 1px solid #495057;
+        flex-shrink: 0;
     }
-    
+
     .desktop-only {
         display: none;
     }
